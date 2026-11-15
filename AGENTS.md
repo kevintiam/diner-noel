@@ -287,4 +287,6 @@ Scripts attendus dans `package.json` : `dev`, `build`, `lint` (ESLint), `format`
 - **Commandes différentes des commandes standard** : [ou « aucune »]
 - **Zones interdites** : [fichiers ou dossiers à ne pas modifier : fichiers générés, contenus validés…]
 - **Données sensibles particulières** : [ex. : données de mineurs, paiements, ou « aucune »]
+- **Données sensibles** : les captures d'écran de virements Interac (stockage privé, jamais d'URL publique).
+**Exception** : bmad-build peut faire des commits locaux, en français, jamais de push. (Dans la version 6.12.4, il fait un commit local à la fin de chaque story.)
 - **Documents de référence** : [cahier des charges, maquettes, wiki, ou « aucun »]
