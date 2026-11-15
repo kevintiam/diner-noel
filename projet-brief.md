@@ -55,7 +55,8 @@ Le site n'utilise pas de paiement par carte (pas de Stripe) : le paiement passe 
 5. Il compare avec son compte bancaire (montant, nom de l'expéditeur, code dans le message).
 6. Il clique sur « Confirmer le paiement » ou « Refuser » (avec un motif).
 7. À la confirmation, le participant reçoit automatiquement le courriel de confirmation.
-8. Il peut modifier les paramètres de l'événement : date et heure, nombre de places.
+8. Il peut modifier les paramètres de l'événement : date et heure, date limite de réservation, nombre de places,
+   prix d'une place, lieu, courriel Interac.
 
 ## 6. Fonctionnalités du MVP
 
@@ -73,14 +74,18 @@ Le site n'utilise pas de paiement par carte (pas de Stripe) : le paiement passe 
 - Fiche de réservation avec la capture d'écran.
 - Actions « Confirmer le paiement », « Refuser » (avec motif) et « Annuler » (désistement).
 - État des comptes : montant encaissé (somme des paiements confirmés) et montant encore en attente.
-- Paramètres de l'événement : modifier la date et l'heure, augmenter ou diminuer le nombre de places.
+- Paramètres de l'événement : date et heure, date limite de réservation, nombre de places (augmenter ou diminuer),
+  prix d'une place, lieu, courriel Interac.
 - Export de la liste des participants confirmés (CSV) pour l'accueil le soir du dîner.
 
 ### Courriels (dans la langue choisie par le participant)
 - Accusé de réception dès la réservation : réservation enregistrée, en attente de paiement et de confirmation,
   avec le code, le montant, les instructions Interac et le lien pour déposer la preuve.
 - Confirmation de place après validation du paiement.
-- Avis de refus avec le motif (*à confirmer*).
+- Avis de refus avec le motif, quand un organisateur refuse une preuve de paiement.
+
+Aucun autre courriel : pas d'avis pour l'annulation automatique de la veille, ni pour un changement de date.
+Si la date change, les organisateurs préviennent eux-mêmes les inscrits (avec l'export CSV).
 
 ## 7. Hors périmètre (MVP)
 
@@ -101,8 +106,13 @@ Le site n'utilise pas de paiement par carte (pas de Stripe) : le paiement passe 
 - On ne peut pas réserver plus de places qu'il n'en reste.
 - Les réservations ferment à la date limite ou quand les places sont épuisées.
 - Une réservation non confirmée (« En attente de paiement » ou « À vérifier ») est annulée automatiquement
-  la veille de l'événement.
+  la veille de l'événement, sans courriel.
+- Risque accepté : une réservation jamais payée bloque ses places jusqu'à la veille.
+  Les organisateurs peuvent l'annuler à la main avant, s'ils le jugent utile.
 - Le nombre de places peut augmenter ou diminuer, mais jamais en dessous du nombre de places déjà prises.
+- La date limite de réservation est toujours avant la date de l'événement.
+- Chaque réservation garde le prix d'une place et le courriel Interac en vigueur au moment de sa création :
+  un changement de paramètre ne s'applique qu'aux nouvelles réservations.
 - Le lien de dépôt de la preuve est personnel, impossible à deviner, et ne sert plus une fois la preuve envoyée.
 - Seul un organisateur peut confirmer, refuser ou annuler. Chaque décision garde la date et l'organisateur qui l'a prise.
 - Montant encaissé = somme des montants des réservations confirmées.
@@ -160,6 +170,8 @@ Collecter le minimum. Pas de date de naissance, pas d'adresse, pas d'information
 
 - Les captures d'écran contiennent des informations bancaires : stockage privé, visibles seulement par un organisateur connecté,
   jamais par une URL publique.
+- Les captures d'écran et les données des réservations sont conservées après le dîner (décision de l'organisation).
+  Elles restent donc protégées dans la durée : accès réservé aux organisateurs connectés.
 - Fichiers acceptés : images JPG, PNG ou WEBP, 5 Mo maximum (*à confirmer*). Vérifier le vrai type du fichier, pas seulement l'extension.
 - Protection contre les envois en masse sur le formulaire et sur la page de dépôt (limite de requêtes).
 - Aucune donnée réelle dans les tests et les jeux de données.
@@ -185,20 +197,19 @@ la question et la réponse de sécurité à utiliser pour le virement.
 |---|---|
 | Accusé de réception après la réservation ? | Oui : il confirme la réservation et indique qu'elle attend la confirmation du paiement |
 | Réserver d'abord, envoyer la preuve plus tard ? | Oui, grâce au lien personnel reçu par courriel |
-| Combien de temps une réservation reste-t-elle non confirmée ? | Jusqu'à la veille de l'événement, pour l'instant |
+| Combien de temps une réservation reste-t-elle non confirmée ? | Jusqu'à la veille de l'événement, même sans preuve de paiement |
 | Combien d'organisateurs ? | Quatre, tous avec les mêmes droits |
 | Liste d'attente ? | Non |
 | Langues ? | Bilingue : français et anglais |
+| Courriels en plus de l'accusé et de la confirmation ? | Seulement l'avis de refus, avec le motif |
+| Conservation des captures d'écran ? | Conservées après le dîner |
+| Paramètres modifiables ? | Date et heure, date limite, nombre de places, prix, lieu, courriel Interac |
+| Compte à rebours ? | Vers la date et l'heure du dîner (la date limite est affichée à côté) |
 
-## 15. Questions ouvertes
+## 15. Points encore à confirmer
 
-1. Une réservation sans preuve de paiement bloque ses places jusqu'à la veille. Comme il n'y a pas de liste d'attente,
-   faut-il un délai plus court pour le statut « En attente de paiement » (ex. : 48 heures) ?
-2. Le compte à rebours mène-t-il à la date du dîner ou à la date limite de réservation ?
-3. Envoie-t-on un courriel quand une réservation est annulée automatiquement la veille ?
-4. Combien de temps garde-t-on les captures d'écran et les données personnelles après le dîner ?
-5. Si la date de l'événement change, prévient-on les participants déjà inscrits par courriel ?
-6. Les organisateurs doivent-ils aussi pouvoir modifier la date limite, le prix, le lieu et le courriel Interac ?
+1. Maximum de 10 places par réservation.
+2. Taille maximale de 5 Mo pour une capture d'écran.
 
 ## 16. Critères de réussite
 
