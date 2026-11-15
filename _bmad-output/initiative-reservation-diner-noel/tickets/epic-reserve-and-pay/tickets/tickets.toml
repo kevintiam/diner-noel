@@ -1,0 +1,57 @@
+# Stories de l'épopée « Les participants réservent et paient en ligne », dans l'ordre de construction.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Fondation : l'accueil bilingue affiche le dîner depuis la base, en ligne"
+description = "Met en place les outils (Prettier, Vitest, Playwright, checkJs, type module, scripts), le schéma Prisma complet et sa migration initiale (AD-17), le jeu de données de départ, la configuration vérifiée par Zod, les erreurs, le journal, les langues /fr et /en avec le proxy, et le déploiement Netlify + Neon ; l'accueil simple affiche le dîner et les places restantes."
+verify = "Sur l'aperçu Netlify, /fr et /en affichent le nom, la date, l'heure, le lieu, le prix et les places restantes lus dans Neon, avec le choix de langue ; npm run lint et npm test passent."
+covers = ["R1", "R2"]
+after = []
+hitl = true # l'utilisateur crée les comptes Neon et Netlify, donne son accord pour les dépendances et la configuration (AGENTS.md), et fournit les vraies valeurs
+risk = "medium"
+references = ["architecture — _bmad-output/initiative-reservation-diner-noel/architecture-reservation-diner-noel/architecture-reservation-diner-noel.md, AD-16 et AD-17 ; Deferred (mise en place des outils)"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Réserver des places sans en vendre trop"
+description = "Le formulaire bilingue crée la réservation dans une transaction qui verrouille l'événement (code, lien personnel, montant, prix et courriel Interac figés), refuse quand c'est complet ou fermé, limite les envois, et mène à la page de paiement du lien personnel ; le service de réservation qu'elle crée sert ensuite à l'accusé de réception (story 3) et au dépôt (story 4)."
+verify = "Un test lance 20 réservations simultanées pour 3 places restantes : exactement 3 places sont prises ; sur l'aperçu, une réservation mène à /fr/r/<lien> avec le montant, le courriel Interac, le code et la mention « Aucun remboursement après le virement »."
+covers = ["R3", "R4", "R5", "R6", "R7", "R12"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Envoyer l'accusé de réception"
+description = "Crée l'envoi de courriel (Nodemailer en SMTP, configuré par l'environnement) et le modèle d'accusé en français et en anglais, envoyé après la création de la réservation ; un échec est journalisé sans annuler la réservation ; cet envoi sert ensuite aux courriels de l'épopée 2 et à l'alerte de l'épopée 5."
+verify = "Une réservation faite en anglais sur l'aperçu reçoit dans une vraie boîte l'accusé en anglais, avec le code, le montant, les instructions Interac, la mention aucun remboursement et un lien qui ouvre la page de paiement."
+covers = ["R1", "R8"]
+after = [2]
+hitl = true # l'utilisateur crée le compte Gmail dédié, avec double authentification et mot de passe d'application
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Déposer la preuve de paiement"
+description = "Le lien personnel accepte une capture JPG, PNG ou WEBP de 4 Mo au maximum, vérifiée et réencodée en WebP, stockée en privé ; la réservation passe « À vérifier » par le service des changements de statut (AD-4), que la story 2.3 complète ; le lien refuse tout dépôt hors « En attente de paiement »."
+verify = "Sur l'aperçu, une capture PNG fait passer la réservation « À vérifier » et affiche « Preuve reçue — en attente de vérification » ; un fichier texte renommé en .png et un fichier de 5 Mo sont refusés ; un second dépôt est refusé ; aucune adresse publique ne mène à la capture."
+covers = ["R9", "R10", "R11", "R12"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Nettoyage seulement, après la mise en ligne : sa portée est fixée à son démarrage à partir des plans et des remarques de revue que l'épopée a reportés ; une portée repoussée d'une autre story devient une nouvelle story."
+verify = "npm run lint, npm test et npm run test:e2e passent, sans changement de comportement visible."
+covers = []
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
