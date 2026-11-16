@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "title": "Dîner de Noël 2026 — ICC Ottawa",
+    "description": "Réservez votre place au dîner de Noël de la communauté ICC Ottawa."
+  },
+  "home": {
+    "title": "Dîner de Noël 2026",
+    "intro": "La communauté ICC Ottawa vous invite à célébrer Noël autour d'un repas de fête.",
+    "loading": "Chargement des informations du dîner…",
+    "dateLabel": "Date et heure",
+    "venueLabel": "Lieu",
+    "priceLabel": "Prix d'une place",
+    "seatsLabel": "Places",
+    "seatsLeft": "{count} places restantes",
+    "seatsLeftOne": "1 place restante",
+    "soldOut": "Complet"
+  },
+  "language": {
+    "switchLabel": "Changer de langue",
+    "otherLanguageName": "English"
+  },
+  "errors": {
+    "internal": "Une erreur est survenue. Veuillez réessayer dans quelques instants.",
+    "retry": "Réessayer",
+    "notFoundTitle": "Page introuvable",
+    "notFoundText": "Cette page n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  }
+}

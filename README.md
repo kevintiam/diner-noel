@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dîner de Noël — site de réservation
 
-## Getting Started
+Site bilingue (français et anglais) qui permet de réserver sa place au dîner de Noël d'ICC Ottawa,
+de payer par virement Interac et de déposer la preuve du virement. Quatre organisateurs vérifient
+chaque paiement depuis un tableau de bord.
 
-First, run the development server:
+- Besoin : `docs/projet-brief.md` (hors du dépôt)
+- Règles de code : `AGENTS.md`
+- Architecture : `_bmad-output/initiative-reservation-diner-noel/architecture-reservation-diner-noel/`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Pile technique
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Next.js 16 (App Router) en JavaScript, PostgreSQL sur Neon par Prisma 7, Zod, Vitest, Testing
+Library et Playwright. Hébergement sur Netlify.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Prérequis : Node.js 24 (24.15 ou plus récent recommandé) et un projet Neon avec les branches `dev`
+et `test`.
 
-## Learn More
+1. `npm install` : installe les dépendances et génère le client Prisma dans `src/generated/`.
+2. Copier `.env.example` en `.env` (branche `dev`) et en `.env.test` (branche `test`, avec
+   `DATABASE_IS_TEST="true"`).
+3. `npm run db:deploy` puis `npm run db:seed` : crée les tables et l'événement de départ (`dev`).
+4. `npm run db:test:deploy` : crée les tables sur la base de test.
+5. `npm run dev`, puis ouvrir http://localhost:3000.
 
-To learn more about Next.js, take a look at the following resources:
+Les tests exigent un fichier `.env.test` complet avec `DATABASE_IS_TEST="true"`. Leurs connexions
+proviennent exclusivement de ce fichier : les connexions PostgreSQL héritées du terminal sont ignorées.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Commandes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Commande                          | Rôle                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
+| `npm run dev`                     | Serveur de développement                                                            |
+| `npm run build` / `npm run start` | Construction et démarrage de production                                             |
+| `npm run lint`                    | ESLint (dont 300 lignes au maximum par fichier)                                     |
+| `npm run format`                  | Prettier                                                                            |
+| `npm test`                        | Vitest : tests unitaires, composants et base de test                                |
+| `npm run test:e2e`                | Playwright sur la base de test (`npx playwright install chromium` la première fois) |
+| `npm run db:migrate`              | Crée une migration et l'applique à la base `dev`                                    |
+| `npm run db:deploy`               | Applique les migrations à la base de `.env`                                         |
+| `npm run db:test:deploy`          | Applique les migrations à la base de `.env.test`                                    |
+| `npm run db:seed`                 | Crée ou remet à jour l'événement de départ                                          |
 
-## Deploy on Vercel
+## Variables d'environnement
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable                | Rôle                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `DATABASE_URL`          | Connexion poolée à Neon, utilisée par l'application                                |
+| `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                              |
+| `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente |
+| `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base           |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les valeurs de l'événement dans `prisma/default-event.js` sont fictives : les remplacer par les
+vraies avant la mise en ligne.
+
+## Déploiement
+
+Netlify construit le site avec `netlify.toml`. Dans Netlify, définir `DATABASE_URL` pour chaque
+contexte : branche `dev` pour les aperçus, branche principale pour la production. Les migrations
+se lancent à la main avant le déploiement qui en a besoin, jamais pendant le build.

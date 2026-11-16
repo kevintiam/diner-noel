@@ -1,0 +1,15 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-s);
+  border: 2px solid var(--color-fir);
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--color-fir);
+  color: var(--color-surface);
+}

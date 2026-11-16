@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "title": "Christmas Dinner 2026 — ICC Ottawa",
+    "description": "Book your seat at the ICC Ottawa community Christmas dinner."
+  },
+  "home": {
+    "title": "Christmas Dinner 2026",
+    "intro": "The ICC Ottawa community invites you to celebrate Christmas over a festive meal.",
+    "loading": "Loading the dinner details…",
+    "dateLabel": "Date and time",
+    "venueLabel": "Venue",
+    "priceLabel": "Price per seat",
+    "seatsLabel": "Seats",
+    "seatsLeft": "{count} seats left",
+    "seatsLeftOne": "1 seat left",
+    "soldOut": "Sold out"
+  },
+  "language": {
+    "switchLabel": "Change language",
+    "otherLanguageName": "Français"
+  },
+  "errors": {
+    "internal": "Something went wrong. Please try again in a few moments.",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundText": "This page does not exist or has been moved.",
+    "backHome": "Back to home"
+  }
+}
