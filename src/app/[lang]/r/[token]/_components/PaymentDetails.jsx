@@ -3,6 +3,7 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import PaymentInstructions from "@/components/reservations/PaymentInstructions";
+import FreeReservationConfirmation from "@/components/reservations/FreeReservationConfirmation";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { describeError, logger } from "@/lib/logger";
 import { getReservationForPayment } from "@/server/services/reservation.service";
@@ -29,6 +30,11 @@ export default async function PaymentDetails({ params }) {
   }
   if (!reservation) {
     notFound();
+  }
+  if (reservation.amountCents === 0) {
+    return (
+      <FreeReservationConfirmation reservation={reservation} dictionary={getDictionary(lang)} />
+    );
   }
   return (
     <PaymentInstructions reservation={reservation} lang={lang} dictionary={getDictionary(lang)} />

@@ -45,7 +45,6 @@ export async function insertReservation(transaction, values) {
       ...values,
       note: values.note ?? null,
       language: LANGUAGE_BY_LOCALE[values.language] ?? Language.FR,
-      status: ReservationStatus.PENDING_PAYMENT,
     },
     select: { code: true, token: true },
   });
@@ -63,6 +62,7 @@ export async function findReservationByToken(token) {
       code: true,
       status: true,
       seats: true,
+      childSeats: true,
       unitPriceCents: true,
       amountCents: true,
       interacEmail: true,

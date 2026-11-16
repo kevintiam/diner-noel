@@ -8,9 +8,13 @@ import {
   sumTakenSeats,
 } from "../db/reservation.repository.js";
 import { runInTransaction } from "../db/transaction.js";
-import { isValidPersonalToken } from "../../validation/reservation.schema.js";
+import {
+  isValidPersonalToken,
+  validateReservationInput,
+} from "../../validation/reservation.schema.js";
 import { AppError } from "../errors/app-error.js";
 import { generatePersonalToken, generateReservationCode } from "./reservation-identifiers.js";
+import { getEffectiveUnitPrice } from "./event-pricing.service.js";
 
 // 9 000 codes possibles pour une centaine de réservations : 20 essais suffisent largement.
 const MAX_CODE_ATTEMPTS = 20;
@@ -44,6 +48,12 @@ async function pickFreeCode(transaction) {
  * @throws {AppError} 409 `BOOKING_CLOSED`, `SOLD_OUT` ou `NOT_ENOUGH_SEATS` ; 500 sans événement.
  */
 export async function createReservation(input, { lang, now }) {
+  const validation = validateReservationInput(input);
+  if (!validation.success) {
+    throw new AppError(400, "VALIDATION_ERROR", "errors.validation", validation.fieldErrors);
+  }
+  input = validation.data;
+  const seats = input.adultSeats + input.childSeats;
   return runInTransaction(async (transaction) => {
     const event = await lockEvent(transaction);
     if (!event) {
@@ -56,9 +66,11 @@ export async function createReservation(input, { lang, now }) {
     if (seatsLeft <= 0) {
       throw new AppError(409, "SOLD_OUT", "errors.soldOut");
     }
-    if (input.seats > seatsLeft) {
+    if (seats > seatsLeft) {
       throw new AppError(409, "NOT_ENOUGH_SEATS", "errors.notEnoughSeats");
     }
+    const unitPriceCents = getEffectiveUnitPrice(event, now);
+    const amountCents = input.adultSeats * unitPriceCents;
     return insertReservation(transaction, {
       code: await pickFreeCode(transaction),
       token: generatePersonalToken(),
@@ -66,12 +78,15 @@ export async function createReservation(input, { lang, now }) {
       lastName: input.lastName,
       email: input.email,
       phone: input.phone,
-      seats: input.seats,
+      seats,
+      childSeats: input.childSeats,
+      status: amountCents === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
+      confirmedAt: amountCents === 0 ? now : null,
       note: input.note,
       language: lang,
       // Prix et courriel Interac copiés : un changement de paramètre ne touche pas cette réservation.
-      unitPriceCents: event.unitPriceCents,
-      amountCents: input.seats * event.unitPriceCents,
+      unitPriceCents,
+      amountCents,
       interacEmail: event.interacEmail,
     });
   });

@@ -38,43 +38,65 @@ function buildNameField(requiredKey, tooLongKey) {
     .max(NAME_MAX_LENGTH, { error: tooLongKey });
 }
 
-export const reservationInputSchema = z.object(
-  {
-    firstName: buildNameField("validation.firstNameRequired", "validation.firstNameTooLong"),
-    lastName: buildNameField("validation.lastNameRequired", "validation.lastNameTooLong"),
-    email: z
-      .string({ error: "validation.emailInvalid" })
-      .trim()
-      .max(EMAIL_MAX_LENGTH, { error: "validation.emailInvalid" })
-      .pipe(z.email({ error: "validation.emailInvalid" })),
-    phone: z
-      .string({ error: "validation.phoneInvalid" })
-      .trim()
-      .max(PHONE_MAX_LENGTH, { error: "validation.phoneInvalid" })
-      .regex(PHONE_ALLOWED_CHARACTERS, { error: "validation.phoneInvalid" })
-      .refine((phone) => countDigits(phone) >= PHONE_MIN_DIGITS, {
-        error: "validation.phoneInvalid",
-      })
-      .refine((phone) => countDigits(phone) <= PHONE_MAX_DIGITS, {
-        error: "validation.phoneInvalid",
-      }),
-    seats: z.preprocess(
-      (value) => (typeof value === "string" ? Number(value) : value),
-      z
-        .number({ error: "validation.seatsInvalid" })
-        .int({ error: "validation.seatsInvalid" })
-        .min(1, { error: "validation.seatsInvalid" })
-        .max(MAX_SEATS_PER_RESERVATION, { error: "validation.seatsInvalid" }),
-    ),
-    note: z
-      .string({ error: "validation.noteTooLong" })
-      .trim()
-      .max(NOTE_MAX_LENGTH, { error: "validation.noteTooLong" })
-      .optional()
-      .transform((note) => note || undefined),
-  },
-  { error: "errors.validation" },
-);
+/** Construit un effectif entier, sans coercition des types étrangers. */
+function buildSeatCount() {
+  return z.preprocess(
+    (value) => (typeof value === "string" && value.trim() !== "" ? Number(value) : value),
+    z
+      .number({ error: "validation.ageSeatsInvalid" })
+      .int({ error: "validation.ageSeatsInvalid" })
+      .min(0, { error: "validation.ageSeatsInvalid" })
+      .max(MAX_SEATS_PER_RESERVATION, { error: "validation.ageSeatsInvalid" }),
+  );
+}
+
+export const reservationInputSchema = z
+  .object(
+    {
+      firstName: buildNameField("validation.firstNameRequired", "validation.firstNameTooLong"),
+      lastName: buildNameField("validation.lastNameRequired", "validation.lastNameTooLong"),
+      email: z
+        .string({ error: "validation.emailInvalid" })
+        .trim()
+        .max(EMAIL_MAX_LENGTH, { error: "validation.emailInvalid" })
+        .pipe(z.email({ error: "validation.emailInvalid" })),
+      phone: z
+        .string({ error: "validation.phoneInvalid" })
+        .trim()
+        .max(PHONE_MAX_LENGTH, { error: "validation.phoneInvalid" })
+        .regex(PHONE_ALLOWED_CHARACTERS, { error: "validation.phoneInvalid" })
+        .refine((phone) => countDigits(phone) >= PHONE_MIN_DIGITS, {
+          error: "validation.phoneInvalid",
+        })
+        .refine((phone) => countDigits(phone) <= PHONE_MAX_DIGITS, {
+          error: "validation.phoneInvalid",
+        }),
+      adultSeats: buildSeatCount(),
+      childSeats: buildSeatCount(),
+      note: z
+        .string({ error: "validation.noteTooLong" })
+        .trim()
+        .max(NOTE_MAX_LENGTH, { error: "validation.noteTooLong" })
+        .optional()
+        .transform((note) => note || undefined),
+    },
+    { error: "errors.validation" },
+  )
+  .superRefine((input, context) => {
+    const counts = [input.adultSeats, input.childSeats];
+    if (
+      counts.some(
+        (count) => !Number.isInteger(count) || count < 0 || count > MAX_SEATS_PER_RESERVATION,
+      )
+    )
+      return;
+    const total = input.adultSeats + input.childSeats;
+    if (total < 1 || total > MAX_SEATS_PER_RESERVATION) {
+      for (const field of ["adultSeats", "childSeats"]) {
+        context.addIssue({ code: "custom", path: [field], message: "validation.seatsInvalid" });
+      }
+    }
+  });
 
 export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
 
@@ -85,13 +107,14 @@ export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
  * @property {string} lastName Nom, sans espaces autour.
  * @property {string} email Courriel.
  * @property {string} phone Téléphone, tel que saisi (10 à 15 chiffres).
- * @property {number} seats Nombre de places, de 1 à 10.
+ * @property {number} adultSeats Personnes de 15 ans et plus.
+ * @property {number} childSeats Enfants de 0 à 14 ans.
  * @property {string} [note] Remarque facultative.
  */
 
 /**
  * Valeurs brutes du formulaire, renvoyées telles quelles pour être réaffichées.
- * @typedef {Record<"firstName" | "lastName" | "email" | "phone" | "seats" | "note", string>} ReservationFormValues
+ * @typedef {Record<"firstName" | "lastName" | "email" | "phone" | "adultSeats" | "childSeats" | "note", string>} ReservationFormValues
  */
 
 /**
@@ -104,6 +127,9 @@ export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
  * @property {string} email
  * @property {string} phone
  * @property {number} seats
+ * @property {number} childSeats
+ * @property {"PENDING_PAYMENT" | "CONFIRMED"} status
+ * @property {Date | null} confirmedAt
  * @property {string | undefined} note
  * @property {string} language `fr` ou `en`.
  * @property {number} unitPriceCents Prix d'une place, copié de l'événement.
@@ -117,6 +143,7 @@ export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
  * @property {string} code
  * @property {string} status
  * @property {number} seats
+ * @property {number} childSeats
  * @property {number} unitPriceCents
  * @property {number} amountCents
  * @property {string} interacEmail

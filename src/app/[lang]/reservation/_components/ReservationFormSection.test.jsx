@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildOverview } from "@/components/home/home-test-data";
 
 vi.mock("next/server", () => ({ connection: vi.fn(async () => {}) }));
 vi.mock("@/server/services/event.service", () => ({ getEventOverview: vi.fn() }));
@@ -15,8 +16,8 @@ const { default: ReservationFormSection } = await import("./ReservationFormSecti
 function mockOverview(overrides) {
   vi.mocked(getEventOverview).mockResolvedValue(
     /** @type {any} */ ({
+      ...buildOverview(),
       unitPriceCents: 2500,
-      seatsLeft: 120,
       isBookingOpen: true,
       isClosedByDeadline: false,
       ...overrides,
@@ -40,8 +41,12 @@ describe("ReservationFormSection", () => {
     expect(element.type).toBe(ReservationForm);
     expect(element.props).toMatchObject({
       maxSeats: 10,
-      seatsLeft: 120,
       maxSeatsPerReservation: 10,
+      eventDetails: {
+        startsAt: "2026-12-19T23:00:00.000Z",
+        venueName: "Salle fictive",
+        venueAddress: "1 rue Exemple, Nepean",
+      },
     });
   });
 
@@ -50,7 +55,7 @@ describe("ReservationFormSection", () => {
 
     const element = await ReservationFormSection({ lang: "en" });
 
-    expect(element.props).toMatchObject({ maxSeats: 3, seatsLeft: 3, lang: "en" });
+    expect(element.props).toMatchObject({ maxSeats: 3, lang: "en" });
   });
 
   it("affiche le message de fermeture une fois la date limite passée", async () => {

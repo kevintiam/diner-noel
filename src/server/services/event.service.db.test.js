@@ -51,7 +51,7 @@ describe("getEventOverview", () => {
 
     expect(overview).toMatchObject({
       capacity: 120,
-      unitPriceCents: 2500,
+      unitPriceCents: 3000,
       seatsLeft: 120,
       isClosedByDeadline: false,
       isBookingOpen: true,
@@ -136,7 +136,7 @@ describe("getEventOverview", () => {
       startsAt: new Date("2026-12-19T23:00:00Z"),
       bookingDeadline: new Date("2026-12-13T04:59:00Z"),
       capacity: 120,
-      unitPriceCents: 2500,
+      unitPriceCents: 3500,
       venueName: "ICC Ottawa",
       venueAddress: "75 Auriga Drive, Nepean",
       interacEmail: "paiements@example.org",

@@ -43,6 +43,22 @@ describe("PaymentDetails", () => {
     expect(element.props).toMatchObject({ reservation, lang: "en" });
   });
 
+  it("choisit la confirmation gratuite pour un montant nul", async () => {
+    const { default: FreeReservationConfirmation } =
+      await import("@/components/reservations/FreeReservationConfirmation");
+    vi.mocked(getReservationForPayment).mockResolvedValue({
+      code: "NOEL-1234",
+      status: "CONFIRMED",
+      seats: 2,
+      childSeats: 2,
+      unitPriceCents: 3500,
+      amountCents: 0,
+      interacEmail: "fictif@example.test",
+    });
+    const element = await PaymentDetails({ params: buildParams("fr") });
+    expect(element.type).toBe(FreeReservationConfirmation);
+  });
+
   it("affiche la page introuvable pour un lien inconnu", async () => {
     vi.mocked(getReservationForPayment).mockResolvedValue(null);
 

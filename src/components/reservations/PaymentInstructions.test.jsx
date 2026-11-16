@@ -8,6 +8,7 @@ const RESERVATION = {
   code: "NOEL-4821",
   status: "PENDING_PAYMENT",
   seats: 2,
+  childSeats: 0,
   unitPriceCents: 2500,
   amountCents: 5000,
   interacEmail: "paiements@example.org",
@@ -25,7 +26,7 @@ describe("PaymentInstructions", () => {
       screen.getByRole("heading", { level: 1, name: "Payez par virement Interac" }),
     ).toBeInTheDocument();
     expect(screen.getByText(loose("50,00 $"))).toBeInTheDocument();
-    expect(screen.getByText(loose("2 places × 25,00 $"))).toBeInTheDocument();
+    expect(screen.getByText(loose("2 personnes de 15 ans et plus × 25,00 $"))).toBeInTheDocument();
     expect(screen.getByText("paiements@example.org")).toBeInTheDocument();
     expect(screen.getByText("NOEL-4821")).toBeInTheDocument();
     expect(screen.getByText("Aucun remboursement après le virement.")).toBeInTheDocument();
@@ -42,7 +43,7 @@ describe("PaymentInstructions", () => {
       />,
     );
 
-    expect(screen.getByText("1 seat × $25.00")).toBeInTheDocument();
+    expect(screen.getByText("1 person aged 15 and over × $25.00")).toBeInTheDocument();
     expect(screen.getByText("No refunds once the transfer is sent.")).toBeInTheDocument();
   });
 });

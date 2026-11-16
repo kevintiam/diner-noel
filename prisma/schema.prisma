@@ -44,6 +44,9 @@ model Event {
   bookingDeadline DateTime
   capacity        Int
   unitPriceCents  Int
+  promotionalUnitPriceCents Int?
+  promotionStartsAt DateTime?
+  promotionEndsAt DateTime?
   venueName       String
   venueAddress    String
   interacEmail    String
@@ -63,6 +66,7 @@ model Reservation {
   email          String
   phone          String
   seats          Int
+  childSeats     Int                   @default(0)
   note           String?
   language       Language
   unitPriceCents Int

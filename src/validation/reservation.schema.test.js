@@ -6,7 +6,8 @@ const VALID_INPUT = {
   lastName: "Fictif",
   email: "fictif@example.test",
   phone: "613 555-0100",
-  seats: "2",
+  adultSeats: "2",
+  childSeats: "0",
   note: "",
 };
 
@@ -27,7 +28,8 @@ describe("validateReservationInput", () => {
         lastName: "Fictif",
         email: "fictif@example.test",
         phone: "613 555-0100",
-        seats: 2,
+        adultSeats: 2,
+        childSeats: 0,
         note: undefined,
       },
     });
@@ -40,28 +42,28 @@ describe("validateReservationInput", () => {
   });
 
   it("accepte 1 et 10 places, les deux limites", () => {
-    expect(fieldErrorsFor({ seats: "1" })).toEqual([]);
-    expect(fieldErrorsFor({ seats: "10" })).toEqual([]);
+    expect(fieldErrorsFor({ adultSeats: "1" })).toEqual([]);
+    expect(fieldErrorsFor({ adultSeats: "10" })).toEqual([]);
   });
 
   it.each([true, [1], { valueOf: () => 1 }])(
     "refuse les places d'un type étranger : %s",
-    (seats) => {
-      expect(fieldErrorsFor({ seats })).toEqual([
-        { field: "seats", messageKey: "validation.seatsInvalid" },
+    (adultSeats) => {
+      expect(fieldErrorsFor({ adultSeats })).toEqual([
+        { field: "adultSeats", messageKey: "validation.ageSeatsInvalid" },
       ]);
     },
   );
 
   it("accepte aussi un nombre de places déjà numérique", () => {
-    expect(fieldErrorsFor({ seats: 2 })).toEqual([]);
+    expect(fieldErrorsFor({ adultSeats: 2 })).toEqual([]);
   });
 
-  it.each([["0"], ["11"], ["2.5"], ["abc"], [null], [""]])(
+  it.each([["11"], ["2.5"], ["abc"], [null], [""]])(
     "refuse le nombre de places %s",
-    (seats) => {
-      expect(fieldErrorsFor({ seats })).toEqual([
-        { field: "seats", messageKey: "validation.seatsInvalid" },
+    (adultSeats) => {
+      expect(fieldErrorsFor({ adultSeats })).toEqual([
+        { field: "adultSeats", messageKey: "validation.ageSeatsInvalid" },
       ]);
     },
   );

@@ -17,7 +17,7 @@ import {
 } from "../services/rate-limit.service.js";
 import { createReservation } from "../services/reservation.service.js";
 
-const FORM_FIELDS = ["firstName", "lastName", "email", "phone", "seats", "note"];
+const FORM_FIELDS = ["firstName", "lastName", "email", "phone", "adultSeats", "childSeats", "note"];
 // Refus liés aux places : la page est relue pour afficher les places à jour (ou « complet »).
 const AVAILABILITY_ERROR_CODES = new Set(["SOLD_OUT", "NOT_ENOUGH_SEATS", "BOOKING_CLOSED"]);
 

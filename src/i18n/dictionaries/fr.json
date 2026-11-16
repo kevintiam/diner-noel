@@ -1,19 +1,60 @@
 {
   "meta": {
-    "title": "Dîner de Noël 2026 — ICC Ottawa",
+    "title": "NOËL ON EST ENSEMBLE",
     "description": "Réservez votre place au dîner de Noël de la communauté ICC Ottawa."
   },
   "home": {
-    "title": "Dîner de Noël 2026",
-    "intro": "La communauté ICC Ottawa vous invite à célébrer Noël autour d'un repas de fête.",
-    "loading": "Chargement des informations du dîner…",
-    "dateLabel": "Date et heure",
+    "title": "Noël, on est ensemble",
+    "loading": "Chargement des informations du dîner…"
+  },
+  "header": {
+    "homeLabel": "Dîner de Noël 2026, retour à l'accueil",
+    "reserve": "Réserver",
+    "brand": "Dîner de Noël ICC Ottawa",
+    "navigation": "Navigation principale",
+    "nav": {
+      "home": "Accueil",
+      "information": "Informations",
+      "howTo": "Comment réserver",
+      "booking": "Réservation",
+      "faq": "FAQ"
+    }
+  },
+  "hero": {
+    "subtitle": "Retrouvons-nous autour de Jésus-Christ, en famille et entre amis. Louange, danse, repas, jeux et surprises pour petits et grands.",
+    "factsLabel": "Informations clés",
+    "doorsOpen": "À {time}",
+    "photoAlt": "Table de fête dressée avec des bougies et des décorations de Noël",
+    "availabilityTitle": "Tarifs et réservation"
+  },
+  "practical": {
+    "title": "Informations pratiques",
+    "dateLabel": "Date",
+    "timeLabel": "Heure",
+    "timeValue": "Début à {time}",
     "venueLabel": "Lieu",
-    "priceLabel": "Prix d'une place",
-    "seatsLabel": "Places",
-    "seatsLeft": "{count} places restantes",
-    "seatsLeftOne": "1 place restante",
-    "soldOut": "Complet"
+    "priceLabel": "Prix",
+    "intro": "Les informations essentielles pour préparer votre venue et partager ce moment avec notre communauté.",
+    "dressLabel": "Tenue",
+    "dressValue": "Tous aux couleurs de Noël"
+  },
+  "howTo": {
+    "title": "Comment réserver",
+    "stepOneTitle": "Remplissez le formulaire",
+    "stepOneText": "Indiquez vos coordonnées et les effectifs par tranche d’âge.",
+    "stepTwoTitle": "Faites le virement Interac",
+    "stepTwoText": "Si le total est payant, envoyez le montant indiqué avec votre code de réservation dans le message. Les réservations gratuites sont confirmées immédiatement.",
+    "stepThreeTitle": "Envoyez la capture d'écran",
+    "stepThreeText": "Tout de suite, ou plus tard avec le lien reçu par courriel. Vous êtes prévenu dès que votre place est confirmée.",
+    "intro": "Trois étapes simples, de votre réservation à la confirmation de vos places."
+  },
+  "final": {
+    "title": "Réservez votre place",
+    "intro": "Retrouvons-nous autour de la même table pour célébrer Noël ensemble."
+  },
+  "footer": {
+    "question": "Une question ? Écrivez-nous à",
+    "copyright": "© {year} ICC Ottawa"
   },
   "booking": {
     "cta": "Réserver ma place",
@@ -22,7 +63,13 @@
   },
   "reservation": {
     "step": "Étape {current} sur {total}",
-    "title": "Vos informations",
+    "title": "Réservez votre place",
+    "contactTitle": "Vos coordonnées",
+    "guestsTitle": "Vos convives",
+    "summaryTitle": "Votre réservation",
+    "adultPrice": "{price} par personne",
+    "paymentHint": "Le virement Interac se fait à l’étape suivante.",
+    "freeHint": "Votre réservation gratuite sera confirmée directement.",
     "intro": "Une seule réservation peut couvrir toute votre famille.",
     "backHome": "Retour à l'accueil",
     "loading": "Chargement du formulaire…",
@@ -32,19 +79,23 @@
     "emailHelp": "Votre confirmation sera envoyée à cette adresse.",
     "phone": "Téléphone",
     "phoneHelp": "Pour vous joindre en cas de problème avec votre réservation.",
-    "seats": "Nombre de places",
-    "seatsHelp": "{max} places maximum par réservation · {left} places restantes",
-    "seatsHelpOne": "{max} places maximum par réservation · 1 place restante",
-    "decreaseSeats": "Retirer une place",
-    "increaseSeats": "Ajouter une place",
+    "seatsHelp": "{max} participants maximum par réservation",
     "note": "Remarque",
     "optional": "(facultatif)",
     "notePlaceholder": "Une information utile pour l'organisation",
-    "lineItem": "{seats} places × {price}",
-    "lineItemOne": "1 place × {price}",
+    "lineItem": "{seats} personnes de 15 ans et plus × {price}",
+    "lineItemOne": "1 personne de 15 ans et plus × {price}",
     "total": "Total à payer",
     "submit": "Continuer vers le paiement",
-    "submitting": "Enregistrement…"
+    "submitting": "Enregistrement…",
+    "adultSeats": "Personnes de 15 ans et plus",
+    "childSeats": "Enfants de 0 à 14 ans",
+    "decreaseAdults": "Retirer une personne de 15 ans et plus",
+    "increaseAdults": "Ajouter une personne de 15 ans et plus",
+    "decreaseChildren": "Retirer un enfant",
+    "increaseChildren": "Ajouter un enfant",
+    "childrenLine": "{seats} enfant(s) de 0 à 14 ans · gratuit",
+    "submitFree": "Confirmer la réservation gratuite"
   },
   "payment": {
     "title": "Payez par virement Interac",
@@ -62,7 +113,10 @@
     "stepThree": "Entrez le courriel, le montant et votre code ci-dessus.",
     "stepFour": "Faites une capture d'écran de la confirmation du virement.",
     "noRefund": "Aucun remboursement après le virement.",
-    "keepLink": "Gardez l'adresse de cette page : elle vous servira pour envoyer la preuve de paiement."
+    "keepLink": "Gardez l'adresse de cette page : elle vous servira pour envoyer la preuve de paiement.",
+    "freeTitle": "Votre réservation est confirmée",
+    "freeIntro": "Cette réservation est gratuite. Aucun virement ni preuve de paiement n’est nécessaire.",
+    "codeLabel": "Votre code de réservation"
   },
   "validation": {
     "firstNameRequired": "Indiquez votre prénom.",
@@ -72,7 +126,8 @@
     "emailInvalid": "Le courriel est invalide.",
     "phoneInvalid": "Le numéro de téléphone est invalide (10 à 15 chiffres).",
     "seatsInvalid": "Choisissez entre 1 et 10 places.",
-    "noteTooLong": "La remarque est trop longue (500 caractères au maximum)."
+    "noteTooLong": "La remarque est trop longue (500 caractères au maximum).",
+    "ageSeatsInvalid": "Choisissez un nombre entier de 0 à 10."
   },
   "language": {
     "switchLabel": "Changer de langue",
@@ -89,5 +144,31 @@
     "notEnoughSeats": "Il ne reste pas assez de places pour cette réservation. Réduisez le nombre de places.",
     "bookingClosed": "Les réservations sont fermées.",
     "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes."
+  },
+  "countdown": {
+    "title": "Compte à rebours avant la célébration",
+    "started": "La célébration a commencé.",
+    "days": "Jours",
+    "hours": "Heures",
+    "minutes": "Minutes",
+    "seconds": "Secondes",
+    "deadline": "Clôture des réservations : {date}"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "intro": "Quelques réponses pour réserver en toute sérénité.",
+    "paymentQuestion": "Comment régler ma réservation ?",
+    "paymentAnswer": "Le paiement se fait par virement Interac. Le montant, le destinataire et le code à inscrire dans le message du virement sont indiqués après votre réservation.",
+    "proofQuestion": "Comment transmettre ma preuve de paiement ?",
+    "proofAnswer": "Gardez le lien personnel de votre réservation pour transmettre la capture d’écran de votre virement, tout de suite ou plus tard.",
+    "refundQuestion": "Puis-je obtenir un remboursement ?",
+    "refundAnswer": "Aucun remboursement après le virement."
+  },
+  "pricing": {
+    "details": "Voir les tarifs promotionnels",
+    "current": "{price} par personne de 15 ans et plus",
+    "children": "Gratuit pour les enfants de 0 à 14 ans",
+    "promotion": "Promotion : {price} du {start} au {end} (fin exclue), heure d’Ottawa.",
+    "regular": "Tarif normal : {price} par personne de 15 ans et plus."
   }
 }

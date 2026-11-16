@@ -1,7 +1,9 @@
-.header {
+.body {
   display: flex;
-  justify-content: flex-end;
-  padding: var(--space-s) var(--page-gutter);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  flex-direction: column;
+}
+
+/* Le contenu prend la place libre : le pied de page reste en bas sur une page courte. */
+.content {
+  flex: 1;
 }

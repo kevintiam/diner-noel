@@ -27,7 +27,8 @@ function buildInput(overrides = {}) {
     lastName: "Fictif",
     email: "fictif@example.test",
     phone: "613 555-0100",
-    seats: 2,
+    adultSeats: 2,
+    childSeats: 0,
     note: undefined,
     ...overrides,
   };
@@ -63,8 +64,9 @@ describe("createReservation", () => {
     expect(stored).toMatchObject({
       status: "PENDING_PAYMENT",
       seats: 2,
-      unitPriceCents: 2500,
-      amountCents: 5000,
+      childSeats: 0,
+      unitPriceCents: 3000,
+      amountCents: 6000,
       interacEmail: "paiements@example.org",
       language: "EN",
       note: "Allergie",
@@ -79,8 +81,8 @@ describe("createReservation", () => {
     });
 
     expect(await getReservationForPayment(token)).toMatchObject({
-      unitPriceCents: 2500,
-      amountCents: 5000,
+      unitPriceCents: 3000,
+      amountCents: 6000,
       interacEmail: "paiements@example.org",
     });
   });
@@ -114,7 +116,7 @@ describe("createReservation", () => {
   it("refuse quand il ne reste pas assez de places, sans rien créer", async () => {
     await setCapacity(2);
 
-    const attempt = createReservation(buildInput({ seats: 3 }), {
+    const attempt = createReservation(buildInput({ adultSeats: 3 }), {
       lang: "fr",
       now: BEFORE_DEADLINE,
     });
@@ -125,9 +127,9 @@ describe("createReservation", () => {
 
   it("refuse quand le dîner est complet", async () => {
     await setCapacity(2);
-    await createReservation(buildInput({ seats: 2 }), { lang: "fr", now: BEFORE_DEADLINE });
+    await createReservation(buildInput({ adultSeats: 2 }), { lang: "fr", now: BEFORE_DEADLINE });
 
-    const attempt = createReservation(buildInput({ seats: 1 }), {
+    const attempt = createReservation(buildInput({ adultSeats: 1 }), {
       lang: "fr",
       now: BEFORE_DEADLINE,
     });
@@ -142,7 +144,7 @@ describe("createReservation", () => {
     // Agir : 20 demandes d'une place, lancées ensemble
     const results = await Promise.allSettled(
       Array.from({ length: CONCURRENT_REQUESTS }, (_, index) =>
-        createReservation(buildInput({ seats: 1, email: `fictif${index}@example.test` }), {
+        createReservation(buildInput({ adultSeats: 1, email: `fictif${index}@example.test` }), {
           lang: "fr",
           now: BEFORE_DEADLINE,
         }),
@@ -163,10 +165,10 @@ describe("createReservation", () => {
 
   it("retire un code quand le premier tirage est déjà utilisé", async () => {
     randomInteger.mockReturnValueOnce(1234);
-    await createReservation(buildInput({ seats: 1 }), { lang: "fr", now: BEFORE_DEADLINE });
+    await createReservation(buildInput({ adultSeats: 1 }), { lang: "fr", now: BEFORE_DEADLINE });
     randomInteger.mockClear().mockReturnValueOnce(1234).mockReturnValueOnce(5678);
 
-    const created = await createReservation(buildInput({ seats: 1 }), {
+    const created = await createReservation(buildInput({ adultSeats: 1 }), {
       lang: "fr",
       now: BEFORE_DEADLINE,
     });
@@ -178,7 +180,7 @@ describe("createReservation", () => {
 
   it("refuse vingt collisions sans insérer une réservation partielle", async () => {
     randomInteger.mockReturnValueOnce(1234);
-    await createReservation(buildInput({ seats: 1 }), { lang: "fr", now: BEFORE_DEADLINE });
+    await createReservation(buildInput({ adultSeats: 1 }), { lang: "fr", now: BEFORE_DEADLINE });
     randomInteger.mockClear().mockReturnValue(1234);
 
     await expect(
@@ -202,8 +204,9 @@ describe("getReservationForPayment", () => {
       code,
       status: "PENDING_PAYMENT",
       seats: 2,
-      unitPriceCents: 2500,
-      amountCents: 5000,
+      childSeats: 0,
+      unitPriceCents: 3000,
+      amountCents: 6000,
       interacEmail: "paiements@example.org",
     });
   });

@@ -1,6 +1,7 @@
 // Étape 1 sur 2 : vos informations (maquette 2). Le texte fixe est rendu à
 // l'avance ; les places et l'état des réservations sont lus à la demande (AD-15).
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Suspense } from "react";
 import StepIndicator from "@/components/reservations/StepIndicator";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -19,12 +20,25 @@ export default async function ReservationPage({ params }) {
   return (
     <main className={styles.main}>
       <Link href={`/${lang}`} className={styles.back}>
+        <ArrowLeft aria-hidden="true" />
         {translate(dictionary, "reservation.backHome")}
       </Link>
-      <StepIndicator current={1} total={2} dictionary={dictionary} />
-      <h1 className={styles.title}>{translate(dictionary, "reservation.title")}</h1>
-      <p className={styles.intro}>{translate(dictionary, "reservation.intro")}</p>
-      <Suspense fallback={<p>{translate(dictionary, "reservation.loading")}</p>}>
+      <div className={styles.heading}>
+        <div>
+          <h1 className={styles.title}>{translate(dictionary, "reservation.title")}</h1>
+          <p className={styles.intro}>{translate(dictionary, "reservation.intro")}</p>
+        </div>
+        <div className={styles.progress}>
+          <StepIndicator current={1} total={2} dictionary={dictionary} />
+        </div>
+      </div>
+      <Suspense
+        fallback={
+          <p className={styles.loading} role="status">
+            {translate(dictionary, "reservation.loading")}
+          </p>
+        }
+      >
         <ReservationFormSection lang={lang} />
       </Suspense>
     </main>

@@ -5,15 +5,56 @@
   },
   "home": {
     "title": "Christmas Dinner 2026",
-    "intro": "The ICC Ottawa community invites you to celebrate Christmas over a festive meal.",
-    "loading": "Loading the dinner details…",
-    "dateLabel": "Date and time",
+    "loading": "Loading the dinner details…"
+  },
+  "header": {
+    "homeLabel": "Christmas Dinner 2026, back to home",
+    "reserve": "Book",
+    "brand": "ICC Ottawa Christmas Dinner",
+    "navigation": "Main navigation",
+    "nav": {
+      "home": "Home",
+      "information": "Information",
+      "howTo": "How to book",
+      "booking": "Booking",
+      "faq": "FAQ"
+    }
+  },
+  "hero": {
+    "subtitle": "Gather around Jesus Christ with family and friends. Worship, dancing, dinner, games and surprises for all ages.",
+    "factsLabel": "Key information",
+    "doorsOpen": "At {time}",
+    "photoAlt": "Festive dining table set with candles and Christmas decorations",
+    "availabilityTitle": "Prices and booking"
+  },
+  "practical": {
+    "title": "Practical information",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "timeValue": "Starts at {time}",
     "venueLabel": "Venue",
-    "priceLabel": "Price per seat",
-    "seatsLabel": "Seats",
-    "seatsLeft": "{count} seats left",
-    "seatsLeftOne": "1 seat left",
-    "soldOut": "Sold out"
+    "priceLabel": "Price",
+    "intro": "The essentials to plan your visit and share this celebration with our community.",
+    "dressLabel": "Dress code",
+    "dressValue": "Everyone in Christmas colours"
+  },
+  "howTo": {
+    "title": "How to book",
+    "stepOneTitle": "Fill in the form",
+    "stepOneText": "Enter your contact details and the number of people in each age group.",
+    "stepTwoTitle": "Send the Interac e-Transfer",
+    "stepTwoText": "If payment is due, send the amount shown with your booking code in the message. Free bookings are confirmed immediately.",
+    "stepThreeTitle": "Send the screenshot",
+    "stepThreeText": "Right away, or later with the link sent by email. You are notified as soon as your seat is confirmed.",
+    "intro": "Three simple steps from your booking to your seat confirmation."
+  },
+  "final": {
+    "title": "Book your seat",
+    "intro": "Join us around the same table to celebrate Christmas together."
+  },
+  "footer": {
+    "question": "Questions? Write to us at",
+    "copyright": "© {year} ICC Ottawa"
   },
   "booking": {
     "cta": "Book my seat",
@@ -22,7 +63,13 @@
   },
   "reservation": {
     "step": "Step {current} of {total}",
-    "title": "Your details",
+    "title": "Book your seats",
+    "contactTitle": "Your contact details",
+    "guestsTitle": "Your guests",
+    "summaryTitle": "Your reservation",
+    "adultPrice": "{price} per person",
+    "paymentHint": "The Interac e-Transfer comes in the next step.",
+    "freeHint": "Your free reservation will be confirmed directly.",
     "intro": "A single booking can cover your whole family.",
     "backHome": "Back to home",
     "loading": "Loading the form…",
@@ -32,19 +79,23 @@
     "emailHelp": "Your confirmation will be sent to this address.",
     "phone": "Phone",
     "phoneHelp": "So we can reach you if there is a problem with your booking.",
-    "seats": "Number of seats",
-    "seatsHelp": "{max} seats maximum per booking · {left} seats left",
-    "seatsHelpOne": "{max} seats maximum per booking · 1 seat left",
-    "decreaseSeats": "Remove a seat",
-    "increaseSeats": "Add a seat",
+    "seatsHelp": "{max} participants maximum per booking",
     "note": "Note",
     "optional": "(optional)",
     "notePlaceholder": "Anything useful for the organizers",
-    "lineItem": "{seats} seats × {price}",
-    "lineItemOne": "1 seat × {price}",
+    "lineItem": "{seats} people aged 15 and over × {price}",
+    "lineItemOne": "1 person aged 15 and over × {price}",
     "total": "Total to pay",
     "submit": "Continue to payment",
-    "submitting": "Saving…"
+    "submitting": "Saving…",
+    "adultSeats": "People aged 15 and over",
+    "childSeats": "Children aged 0–14",
+    "decreaseAdults": "Remove a person aged 15 and over",
+    "increaseAdults": "Add a person aged 15 and over",
+    "decreaseChildren": "Remove a child",
+    "increaseChildren": "Add a child",
+    "childrenLine": "{seats} child(ren) aged 0–14 · free",
+    "submitFree": "Confirm free booking"
   },
   "payment": {
     "title": "Pay by Interac e-Transfer",
@@ -62,7 +113,10 @@
     "stepThree": "Enter the email, the amount and your code above.",
     "stepFour": "Take a screenshot of the transfer confirmation.",
     "noRefund": "No refunds once the transfer is sent.",
-    "keepLink": "Keep the address of this page: you will use it to send your proof of payment."
+    "keepLink": "Keep the address of this page: you will use it to send your proof of payment.",
+    "freeTitle": "Your booking is confirmed",
+    "freeIntro": "This booking is free. No transfer or proof of payment is needed.",
+    "codeLabel": "Your booking code"
   },
   "validation": {
     "firstNameRequired": "Enter your first name.",
@@ -72,7 +126,8 @@
     "emailInvalid": "The email address is invalid.",
     "phoneInvalid": "The phone number is invalid (10 to 15 digits).",
     "seatsInvalid": "Choose between 1 and 10 seats.",
-    "noteTooLong": "The note is too long (500 characters maximum)."
+    "noteTooLong": "The note is too long (500 characters maximum).",
+    "ageSeatsInvalid": "Choose a whole number from 0 to 10."
   },
   "language": {
     "switchLabel": "Change language",
@@ -89,5 +144,31 @@
     "notEnoughSeats": "There are not enough seats left for this booking. Please choose fewer seats.",
     "bookingClosed": "Bookings are closed.",
     "tooManyRequests": "Too many attempts. Please try again in a few minutes."
+  },
+  "countdown": {
+    "title": "Countdown to the celebration",
+    "started": "The celebration has begun.",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "deadline": "Booking closes: {date}"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "intro": "A few answers to help you book with confidence.",
+    "paymentQuestion": "How do I pay for my booking?",
+    "paymentAnswer": "Pay by Interac e-Transfer. The amount, recipient and booking code to include in the transfer message are shown after you book.",
+    "proofQuestion": "How do I send my proof of payment?",
+    "proofAnswer": "Keep your personal booking link to send a screenshot of your transfer, right away or later.",
+    "refundQuestion": "Can I get a refund?",
+    "refundAnswer": "No refunds once the transfer is sent."
+  },
+  "pricing": {
+    "details": "View promotional pricing",
+    "current": "{price} per person aged 15 and over",
+    "children": "Free for children aged 0–14",
+    "promotion": "Promotion: {price} from {start} to {end} (end excluded), Ottawa time.",
+    "regular": "Regular price: {price} per person aged 15 and over."
   }
 }

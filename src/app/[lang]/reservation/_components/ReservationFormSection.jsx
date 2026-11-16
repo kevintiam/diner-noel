@@ -37,9 +37,13 @@ export default async function ReservationFormSection({ lang }) {
       lang={lang}
       dictionary={dictionary}
       unitPriceCents={overview.unitPriceCents}
-      seatsLeft={overview.seatsLeft}
       maxSeats={Math.min(MAX_SEATS_PER_RESERVATION, overview.seatsLeft)}
       maxSeatsPerReservation={MAX_SEATS_PER_RESERVATION}
+      eventDetails={{
+        startsAt: overview.startsAt.toISOString(),
+        venueName: overview.venueName,
+        venueAddress: overview.venueAddress,
+      }}
     />
   );
 }

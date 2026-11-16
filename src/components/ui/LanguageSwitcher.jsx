@@ -1,11 +1,12 @@
 "use client";
 
-// Lien vers la même page dans l'autre langue, présent sur toutes les pages publiques.
-// Sur une page dont l'adresse n'est connue qu'à la demande (lien personnel), le
-// layout l'affiche sous Suspense, avec LanguageLink vers l'accueil comme repli.
+// Interrupteur FR | EN de l'en-tête, présent sur toutes les pages publiques.
+// La langue en cours est marquée active ; l'autre mène à la même page dans cette langue.
+// Sur une page dont l'adresse n'est connue qu'à la demande (lien personnel), le layout
+// l'affiche sous Suspense, avec LanguageToggle vers l'accueil comme repli.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getOtherLanguage } from "@/i18n/locales";
+import { getOtherLanguage, LOCALES } from "@/i18n/locales";
 import styles from "./LanguageSwitcher.module.css";
 
 /**
@@ -21,16 +22,32 @@ export function switchPathLanguage(pathname, targetLang) {
 }
 
 /**
- * Lien de changement de langue vers une adresse donnée.
- * @param {{ href: string, otherLang: string, label: string, otherLanguageName: string }} props
- * @returns {React.ReactElement} Le lien.
+ * Affiche l'interrupteur FR | EN : la langue en cours, puis un lien vers l'autre.
+ * @param {{ lang: string, otherHref: string, label: string, otherLanguageName: string }} props
+ * @returns {React.ReactElement} L'interrupteur.
  */
-export function LanguageLink({ href, otherLang, label, otherLanguageName }) {
+export function LanguageToggle({ lang, otherHref, label, otherLanguageName }) {
+  const otherLang = getOtherLanguage(lang);
   return (
-    <nav aria-label={label}>
-      <Link href={href} hrefLang={otherLang} lang={otherLang} className={styles.link}>
-        {otherLanguageName}
-      </Link>
+    <nav aria-label={label} className={styles.toggle}>
+      {LOCALES.map((locale) =>
+        locale === lang ? (
+          <span key={locale} className={styles.current} aria-current="true" lang={locale}>
+            {locale.toUpperCase()}
+          </span>
+        ) : (
+          <Link
+            key={locale}
+            href={otherHref}
+            hrefLang={otherLang}
+            lang={otherLang}
+            aria-label={otherLanguageName}
+            className={styles.option}
+          >
+            {locale.toUpperCase()}
+          </Link>
+        ),
+      )}
     </nav>
   );
 }
@@ -38,15 +55,14 @@ export function LanguageLink({ href, otherLang, label, otherLanguageName }) {
 /**
  * Propose la page courante dans l'autre langue.
  * @param {{ lang: string, label: string, otherLanguageName: string }} props
- * @returns {React.ReactElement} Le lien de changement de langue.
+ * @returns {React.ReactElement} L'interrupteur de langue.
  */
 export default function LanguageSwitcher({ lang, label, otherLanguageName }) {
   const pathname = usePathname() ?? `/${lang}`;
-  const otherLang = getOtherLanguage(lang);
   return (
-    <LanguageLink
-      href={switchPathLanguage(pathname, otherLang)}
-      otherLang={otherLang}
+    <LanguageToggle
+      lang={lang}
+      otherHref={switchPathLanguage(pathname, getOtherLanguage(lang))}
       label={label}
       otherLanguageName={otherLanguageName}
     />

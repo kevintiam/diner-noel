@@ -1,0 +1,104 @@
+.photo {
+  grid-area: photo;
+  position: relative;
+  min-width: 0;
+  min-height: 24rem;
+  overflow: hidden;
+  border-radius: 10rem 10rem 0.375rem 0.375rem;
+  background: var(--color-fir);
+}
+.image {
+  object-fit: cover;
+  object-position: center;
+}
+.facts {
+  grid-area: facts;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  list-style: none;
+  color: var(--color-fir);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  color: var(--color-burgundy);
+}
+.bookingPanel {
+  grid-area: booking;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+.availabilityTitle {
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+.pricing {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.pricing p:first-child {
+  color: var(--color-fir);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.pricing p + p {
+  margin-top: 0.25rem;
+}
+.pricing summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--tap-target);
+  color: var(--color-burgundy);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.pricing details p {
+  margin: 0.5rem 0;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+.countdown {
+  grid-area: countdown;
+  min-width: 0;
+  padding: 2rem clamp(0.75rem, 3vw, 2.5rem);
+  border-top: 2px solid var(--color-gold);
+  border-radius: 0.5rem;
+  background: var(--color-fir);
+}
+.deadline {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #58715d;
+  color: var(--color-gold-light);
+  font-size: 0.875rem;
+  text-align: center;
+}
+@media (max-width: 39.99rem) {
+  .bookingPanel > a {
+    width: 100%;
+  }
+}
+@media (min-width: 64rem) {
+  .photo {
+    min-height: 35rem;
+    border-radius: 14rem 14rem 0.375rem 0.375rem;
+  }
+}

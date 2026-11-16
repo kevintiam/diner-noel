@@ -22,7 +22,8 @@ export async function getEvent() {
 export async function lockEvent(transaction) {
   /** @type {LockedEvent[]} */
   const rows = await transaction.$queryRaw`
-    SELECT "id", "capacity", "unitPriceCents", "interacEmail", "bookingDeadline"
+    SELECT "id", "capacity", "unitPriceCents", "promotionalUnitPriceCents",
+      "promotionStartsAt", "promotionEndsAt", "interacEmail", "bookingDeadline"
     FROM "Event"
     LIMIT 1
     FOR UPDATE`;

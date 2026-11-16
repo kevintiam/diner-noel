@@ -1,30 +1,35 @@
 /* Couleurs, tailles et contrastes du brief §10, définis une seule fois.
    Couleurs pleines et calmes : ni dégradé, ni effet « généré par IA ». */
 :root {
-  --color-cream: #faf6ef;
+  --color-cream: #fdfbf7;
   --color-surface: #ffffff;
-  --color-fir: #1f4d3a;
-  --color-fir-dark: #173b2c;
-  --color-fir-light: #e6efe9;
-  --color-burgundy: #8a2232;
-  --color-gold: #a8842f;
-  --color-ink: #1d2621;
-  --color-muted: #4a5650;
-  --color-border: #e4dccd;
+  --color-fir: #1a382b;
+  --color-fir-dark: #12281e;
+  --color-fir-light: #ebf3ee;
+  --color-burgundy: #7a1c28;
+  --color-gold: #c29b38;
+  /* Or clair : lisible sur le vert du bandeau (contraste élevé). */
+  --color-gold-light: #ecdcae;
+  --color-sand: #f4efe6;
+  --color-ink: #16231c;
+  --color-muted: #424844;
+  --color-border: #d9d8cd;
 
   --font-size-base: 1.125rem;
   --font-size-small: 1rem;
-  --font-size-large: 1.375rem;
-  --font-size-title: clamp(2.25rem, 7vw, 3.5rem);
+  --font-size-large: 1.25rem;
+  --font-size-section: clamp(1.75rem, 5vw, 2.25rem);
+  --font-size-title: clamp(2.125rem, 5vw, 3rem);
   --line-height-text: 1.6;
 
   --space-xs: 0.5rem;
   --space-s: 1rem;
   --space-m: 1.5rem;
   --space-l: 2.5rem;
-  --page-gutter: 1rem;
+  --page-gutter: 1.25rem;
   --page-max-width: 44rem;
-  --radius: 0.5rem;
+  --page-wide-max-width: 75rem;
+  --radius: 0.25rem;
   --tap-target: 3rem;
 }
 
@@ -36,6 +41,8 @@
 
 html {
   font-size: 100%;
+  scroll-padding-top: 12rem;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -65,6 +72,28 @@ a:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 2px;
+}
+
+summary:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-gold-light);
+  color: var(--color-fir-dark);
+}
+
+@media (min-width: 80rem) {
+  html {
+    scroll-padding-top: 6rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --page-gutter: 2.5rem;
+  }
 }
 
 /* Les animations à venir (épopée 4) se coupent quand le téléphone le demande. */

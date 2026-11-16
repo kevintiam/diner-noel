@@ -32,7 +32,8 @@ function buildFormData(overrides = {}) {
     lastName: "Fictif",
     email: "fictif@example.test",
     phone: "613 555-0100",
-    seats: "2",
+    adultSeats: "2",
+    childSeats: "0",
     note: "",
     ...overrides,
   };
@@ -52,7 +53,7 @@ describe("createReservationAction", () => {
 
     expect(redirect).toHaveBeenCalledWith("/en/r/jeton-fictif");
     expect(createReservation).toHaveBeenCalledWith(
-      expect.objectContaining({ seats: 2, firstName: "Prénom" }),
+      expect.objectContaining({ adultSeats: 2, firstName: "Prénom" }),
       { lang: "en", now: expect.any(Date) },
     );
   });
@@ -72,19 +73,19 @@ describe("createReservationAction", () => {
     const result = await createReservationAction(
       "fr",
       null,
-      buildFormData({ email: "sans-arobase", seats: "11" }),
+      buildFormData({ email: "sans-arobase", adultSeats: "11" }),
     );
 
     expect(createReservation).not.toHaveBeenCalled();
     expect(result.error.code).toBe("VALIDATION_ERROR");
     expect(result.error.details).toEqual([
       { field: "email", message: "Le courriel est invalide." },
-      { field: "seats", message: "Choisissez entre 1 et 10 places." },
+      { field: "adultSeats", message: "Choisissez un nombre entier de 0 à 10." },
     ]);
     expect(result.values).toMatchObject({
       firstName: "Prénom",
       email: "sans-arobase",
-      seats: "11",
+      adultSeats: "11",
     });
   });
 

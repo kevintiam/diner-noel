@@ -2,6 +2,7 @@
 import { getEvent } from "../db/event.repository.js";
 import { sumTakenSeats } from "../db/reservation.repository.js";
 import { AppError } from "../errors/app-error.js";
+import { getEffectiveUnitPrice } from "./event-pricing.service.js";
 
 /** @typedef {import("../../validation/event.schema.js").EventOverview} EventOverview */
 
@@ -26,8 +27,14 @@ export async function getEventOverview(now) {
     bookingDeadline: event.bookingDeadline,
     venueName: event.venueName,
     venueAddress: event.venueAddress,
-    unitPriceCents: event.unitPriceCents,
+    unitPriceCents: getEffectiveUnitPrice(event, now),
+    normalUnitPriceCents: event.unitPriceCents,
+    promotionalUnitPriceCents: event.promotionalUnitPriceCents ?? null,
+    promotionStartsAt: event.promotionStartsAt ?? null,
+    promotionEndsAt: event.promotionEndsAt ?? null,
     capacity: event.capacity,
+    // Le seul calcul des places prises (AD-4), transmis tel quel à l'affichage.
+    takenSeats,
     seatsLeft,
     isClosedByDeadline,
     isBookingOpen: !isClosedByDeadline && seatsLeft > 0,

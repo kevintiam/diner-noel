@@ -1,23 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import LanguageSwitcher, { LanguageLink, switchPathLanguage } from "./LanguageSwitcher";
+import LanguageSwitcher, { LanguageToggle, switchPathLanguage } from "./LanguageSwitcher";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/fr" }));
-
-describe("LanguageLink", () => {
-  it("affiche le lien de repli vers l'accueil de l'autre langue", () => {
-    render(
-      <LanguageLink
-        href="/fr"
-        otherLang="fr"
-        label="Change language"
-        otherLanguageName="Français"
-      />,
-    );
-
-    expect(screen.getByRole("link", { name: "Français" })).toHaveAttribute("href", "/fr");
-  });
-});
+vi.mock("next/navigation", () => ({ usePathname: () => "/fr/reservation" }));
 
 describe("switchPathLanguage", () => {
   it("remplace la langue de l'accueil", () => {
@@ -29,12 +14,30 @@ describe("switchPathLanguage", () => {
   });
 });
 
+describe("LanguageToggle", () => {
+  it("affiche FR puis EN, la langue en cours marquée active", () => {
+    render(
+      <LanguageToggle
+        lang="en"
+        otherHref="/fr"
+        label="Change language"
+        otherLanguageName="Français"
+      />,
+    );
+
+    const current = screen.getByText("EN");
+    expect(current).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("link", { name: "Français" })).toHaveTextContent("FR");
+    expect(screen.getByRole("link", { name: "Français" })).toHaveAttribute("href", "/fr");
+  });
+});
+
 describe("LanguageSwitcher", () => {
-  it("propose l'autre langue avec son nom et sa langue déclarée", () => {
+  it("mène à la même page dans l'autre langue", () => {
     render(<LanguageSwitcher lang="fr" label="Changer de langue" otherLanguageName="English" />);
 
     const link = screen.getByRole("link", { name: "English" });
-    expect(link).toHaveAttribute("href", "/en");
+    expect(link).toHaveAttribute("href", "/en/reservation");
     expect(link).toHaveAttribute("hreflang", "en");
     expect(screen.getByRole("navigation", { name: "Changer de langue" })).toBeInTheDocument();
   });

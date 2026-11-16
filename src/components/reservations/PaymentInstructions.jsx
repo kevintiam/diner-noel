@@ -24,10 +24,11 @@ export default function PaymentInstructions({ reservation, lang, dictionary }) {
   /** @param {string} key @param {Record<string, string | number>} [replacements] */
   const getText = (key, replacements) => translate(dictionary, key, replacements);
   const unitPrice = formatMoney(reservation.unitPriceCents, lang);
+  const adultSeats = reservation.seats - reservation.childSeats;
   const lineItem =
-    reservation.seats === 1
+    adultSeats === 1
       ? getText("reservation.lineItemOne", { price: unitPrice })
-      : getText("reservation.lineItem", { seats: reservation.seats, price: unitPrice });
+      : getText("reservation.lineItem", { seats: adultSeats, price: unitPrice });
 
   return (
     <div className={styles.page}>
@@ -42,6 +43,9 @@ export default function PaymentInstructions({ reservation, lang, dictionary }) {
         <p className={styles.label}>{getText("payment.amountLabel")}</p>
         <p className={styles.amount}>{formatMoney(reservation.amountCents, lang)}</p>
         <p className={styles.muted}>{lineItem}</p>
+        <p className={styles.muted}>
+          {getText("reservation.childrenLine", { seats: reservation.childSeats })}
+        </p>
 
         <div className={styles.copyRow}>
           <div>

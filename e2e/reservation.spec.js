@@ -46,25 +46,38 @@ const FRENCH_LABELS = {
 
 test("réserve 2 places en français depuis l'accueil jusqu'à la page de paiement", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.goto("/fr");
-  await page.getByRole("link", { name: "Réserver ma place" }).click();
+  await page.getByRole("link", { name: "Réserver ma place" }).first().click();
   await expect(page.getByText("Étape 1 sur 2")).toBeVisible();
 
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: testInfo.outputPath("reservation-mobile.png"), fullPage: true });
+
   await fillForm(page, FRENCH_LABELS);
-  await page.getByRole("button", { name: "Ajouter une place" }).click();
-  await expect(page.getByText(/2 places × 25,00\s\$/)).toBeVisible();
+  await page.getByRole("button", { name: "Ajouter une personne de 15 ans et plus" }).click();
+  await page.getByLabel("Enfants de 0 à 14 ans").fill("2");
+  await expect(page.getByText(/2 personnes de 15 ans et plus × 35,00\s\$/)).toBeVisible();
   await page.getByRole("button", { name: "Continuer vers le paiement" }).click();
 
   await expect(page).toHaveURL(PAYMENT_URL);
   await expect(page.getByText("Étape 2 sur 2")).toBeVisible();
-  await expect(page.getByText(/^50,00\s\$$/)).toBeVisible();
+  await expect(page.getByText(/^70,00\s\$$/)).toBeVisible();
   await expect(page.getByText("paiements@example.org")).toBeVisible();
   await expect(page.getByText(/^NOEL-\d{4}$/)).toBeVisible();
-  await expect(page.getByText("Aucun remboursement après le virement.")).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText("Aucun remboursement après le virement.", { exact: true }),
+  ).toBeVisible();
+
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: testInfo.outputPath("payment-mobile.png"), fullPage: true });
 
   const stored = await getPrisma().reservation.findFirstOrThrow();
-  expect(stored).toMatchObject({ seats: 2, amountCents: 5000, language: "FR" });
+  expect(stored).toMatchObject({ seats: 4, childSeats: 2, amountCents: 7000, language: "FR" });
 });
 
 test("réserve en anglais et enregistre la langue de la page", async ({ page }) => {
@@ -80,7 +93,7 @@ test("réserve en anglais et enregistre la langue de la page", async ({ page }) 
 
   await expect(page).toHaveURL(PAYMENT_URL);
   await expect(page.getByRole("heading", { name: "Pay by Interac e-Transfer" })).toBeVisible();
-  await expect(page.getByText("$25.00").first()).toBeVisible();
+  await expect(page.getByText("$35.00").first()).toBeVisible();
   const stored = await getPrisma().reservation.findFirstOrThrow();
   expect(stored.language).toBe("EN");
 });
@@ -96,6 +109,12 @@ test("affiche l'erreur d'un champ invalide et garde la saisie", async ({ page })
   await expect(
     page.getByRole("alert").filter({ hasText: "Certains champs sont à corriger." }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Certains champs sont à corriger." }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Certains champs sont à corriger." }),
+  ).toBeInViewport();
   await expect(page.getByLabel("Prénom", { exact: true })).toHaveValue("Prénom");
   await expect(page.getByLabel("Courriel", { exact: true })).toHaveValue("fictif-sans-arobase");
   expect(await getPrisma().reservation.count()).toBe(0);
@@ -108,7 +127,7 @@ test("ne propose plus de réserver quand le dîner est complet", async ({ page }
     await prisma.event.update({ where: { id: event.id }, data: { capacity: 0 } });
 
     await page.goto("/fr");
-    await expect(page.getByText("Le dîner est complet : il n'y a plus de place.")).toBeVisible();
+    await expect(page.getByText("Le dîner est complet : il n'y a plus de place.")).toHaveCount(2);
     await expect(page.getByRole("link", { name: "Réserver ma place" })).toHaveCount(0);
 
     await page.goto("/fr/reservation");
@@ -132,11 +151,13 @@ test("plafonne le formulaire aux deux places encore libres dans la base", async 
     await prisma.event.update({ where: { id: event.id }, data: { capacity: 2 } });
 
     await page.goto("/fr/reservation");
-    await page.getByRole("button", { name: "Ajouter une place" }).click();
+    await page.getByRole("button", { name: "Ajouter une personne de 15 ans et plus" }).click();
 
-    await expect(page.getByLabel("Nombre de places")).toHaveValue("2");
-    await expect(page.getByRole("button", { name: "Ajouter une place" })).toBeDisabled();
-    await expect(page.getByLabel("Nombre de places")).toHaveAttribute("max", "2");
+    await expect(page.getByLabel("Personnes de 15 ans et plus")).toHaveValue("2");
+    await expect(
+      page.getByRole("button", { name: "Ajouter une personne de 15 ans et plus" }),
+    ).toBeDisabled();
+    await expect(page.getByLabel("Personnes de 15 ans et plus")).toHaveAttribute("max", "2");
   } finally {
     await prisma.event.update({ where: { id: event.id }, data: { capacity: event.capacity } });
   }
