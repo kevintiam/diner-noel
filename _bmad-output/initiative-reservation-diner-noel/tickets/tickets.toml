@@ -1,4 +1,5 @@
 # Épopées de l'initiative, dans l'ordre de construction.
+# 2026-11-15 : l'épopée 4 (accueil complet) passe juste après l'épopée 1, avant la mise en ligne.
 
 [[epic]]
 id = 1
@@ -6,6 +7,14 @@ slug = "epic-reserve-and-pay"
 title = "Les participants réservent et paient en ligne"
 description = "Sur le site en production, en français ou en anglais, un participant voit l'accueil simple, réserve sans dépasser les places, reçoit son accusé de réception et dépose sa preuve avec son lien personnel."
 covers = ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R22", "R23"]
+
+[[epic]]
+id = 4
+slug = "epic-lively-home"
+title = "L'accueil donne envie de venir"
+description = "La page d'accueil reprend toute la maquette 1 : en-tête, bandeau avec verset, compte à rebours, sens de la soirée, informations pratiques, photos, déroulement, « comment réserver » et rappel final, en français et en anglais."
+covers = ["R2"]
+after = [{ epic = 1, needs = "la page d'accueil simple et bilingue, et le bouton de réservation" }]
 
 [[epic]]
 id = 2
@@ -22,14 +31,6 @@ title = "Les organisateurs pilotent l'événement"
 description = "Le tableau de bord filtre et cherche les réservations, affiche les compteurs et l'état des comptes, permet d'annuler une réservation et de modifier les paramètres de l'événement."
 covers = ["R12", "R15", "R16", "R17", "R18"]
 after = [{ epic = 2, needs = "la connexion des organisateurs, la liste et la fiche de réservation" }]
-
-[[epic]]
-id = 4
-slug = "epic-lively-home"
-title = "L'accueil donne envie de venir"
-description = "La page d'accueil montre les photos, la présentation, le programme et le compte à rebours, avec des animations discrètes qui respectent « réduire les animations »."
-covers = ["R2"]
-after = [{ epic = 1, needs = "la page d'accueil simple et bilingue" }]
 
 [[epic]]
 id = 5

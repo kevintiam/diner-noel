@@ -1,0 +1,24 @@
+# Stories de l'épopée « L'accueil donne envie de venir », dans l'ordre de construction.
+
+[[entry]]
+id = 1
+type = "story"
+title = "L'accueil reprend la structure de la maquette"
+description = "Nouvel en-tête des pages publiques (nom du dîner, FR/EN, bouton « Réserver »), bandeau vert (lieu, titre, sous-titre, verset de Luc 2.11, date, heure d'accueil, lieu, « Réserver ma place », prix et places restantes), informations pratiques en 4 cartes, « Comment réserver » en 3 étapes, rappel final avec la barre des places, et pied de page ; tout en français et en anglais, avec les données de la base."
+verify = "Sur téléphone et sur ordinateur, /fr et /en montrent ces sections dans l'ordre de la maquette 1, avec la date, l'heure, le lieu, le prix et les places lus en base ; le choix de langue et les boutons « Réserver » mènent au bon endroit ; quand c'est complet, les boutons disparaissent ; lint, tests et parcours passent."
+covers = ["R1"]
+after = ["1.2"]
+hitl = false
+risk = "low"
+references = ["design — docs/maquettes/1. Accueil.png"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Compte à rebours, sens de la soirée, photos et déroulement"
+description = "Ajoute à l'accueil le compte à rebours (jours, heures, minutes, secondes) vers la date et l'heure du dîner lues en base, avec la date limite à côté ; la section « Le sens de cette soirée » ; les cadres photo libellés en attendant les vraies photos ; « Les dîners précédents » ; le déroulement de la soirée ; et l'apparition discrète des sections au défilement, coupée sous « réduire les animations »."
+verify = "Le compte à rebours diminue chaque seconde et affiche la date limite ; après le début du dîner, il ne devient jamais négatif ; les cadres photo, le sens de la soirée et le déroulement s'affichent en français et en anglais ; avec « réduire les animations », aucune section ne bouge."
+covers = ["R1"]
+after = [1]
+hitl = false
+risk = "low"

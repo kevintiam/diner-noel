@@ -103,3 +103,4 @@ Les participants réservent et paient seuls depuis leur téléphone, et les orga
 - Decision (2026-11-15): l'épopée 5 attend aussi l'épopée 3, parce que les deux modifient la page du tableau de bord (constat de la vérification des dépendances).
 - Decision (2026-11-15): les nettoyages (refactor sweep) et la suite de bout en bout passent après la mise en ligne, pour protéger jeudi.
 - Decision (2026-11-15): `docs/` reste ignoré par git, volontairement. Le brief et les maquettes ne sont pas dans le dépôt.
+- Decision (2026-11-15): toute la maquette 1 de l'accueil est livrée avant la mise en ligne de vendredi (choix de l'utilisateur). L'épopée 4 passe de la semaine du 23 novembre à jeudi 19, juste après l'épopée 1. Les textes sont ceux de la maquette, à titre provisoire, et des cadres photo tiennent lieu de photos en attendant les vraies.
