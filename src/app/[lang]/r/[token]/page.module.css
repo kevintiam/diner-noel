@@ -1,0 +1,6 @@
+.main {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--space-l) var(--page-gutter);
+}

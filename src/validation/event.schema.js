@@ -14,6 +14,16 @@
  */
 
 /**
+ * Ce que la réservation lit de l'événement, verrouillé dans la transaction (architecture AD-5).
+ * @typedef {object} LockedEvent
+ * @property {string} id
+ * @property {number} capacity Nombre total de places.
+ * @property {number} unitPriceCents Prix d'une place, en cents.
+ * @property {string} interacEmail Courriel qui reçoit les virements Interac.
+ * @property {Date} bookingDeadline Fin des réservations.
+ */
+
+/**
  * Ce que l'accueil affiche de l'événement.
  * @typedef {object} EventOverview
  * @property {Date} startsAt Début du dîner.
@@ -23,6 +33,8 @@
  * @property {number} unitPriceCents Prix d'une place, en cents.
  * @property {number} capacity Nombre total de places.
  * @property {number} seatsLeft Places encore libres (jamais négatif).
+ * @property {boolean} isClosedByDeadline Vrai une fois la date limite passée.
+ * @property {boolean} isBookingOpen Vrai avant la date limite s'il reste au moins une place.
  */
 
 export {};

@@ -15,6 +15,65 @@
     "seatsLeftOne": "1 place restante",
     "soldOut": "Complet"
   },
+  "booking": {
+    "cta": "Réserver ma place",
+    "soldOut": "Le dîner est complet : il n'y a plus de place.",
+    "closed": "Les réservations sont fermées."
+  },
+  "reservation": {
+    "step": "Étape {current} sur {total}",
+    "title": "Vos informations",
+    "intro": "Une seule réservation peut couvrir toute votre famille.",
+    "backHome": "Retour à l'accueil",
+    "loading": "Chargement du formulaire…",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Courriel",
+    "emailHelp": "Votre confirmation sera envoyée à cette adresse.",
+    "phone": "Téléphone",
+    "phoneHelp": "Pour vous joindre en cas de problème avec votre réservation.",
+    "seats": "Nombre de places",
+    "seatsHelp": "{max} places maximum par réservation · {left} places restantes",
+    "seatsHelpOne": "{max} places maximum par réservation · 1 place restante",
+    "decreaseSeats": "Retirer une place",
+    "increaseSeats": "Ajouter une place",
+    "note": "Remarque",
+    "optional": "(facultatif)",
+    "notePlaceholder": "Une information utile pour l'organisation",
+    "lineItem": "{seats} places × {price}",
+    "lineItemOne": "1 place × {price}",
+    "total": "Total à payer",
+    "submit": "Continuer vers le paiement",
+    "submitting": "Enregistrement…"
+  },
+  "payment": {
+    "title": "Payez par virement Interac",
+    "intro": "Faites le virement depuis l'application de votre banque.",
+    "saved": "Réservation enregistrée.",
+    "amountLabel": "Montant à envoyer",
+    "sendTo": "Envoyer le virement à",
+    "messageLabel": "Message du virement (votre code)",
+    "copy": "Copier",
+    "copied": "Copié",
+    "autoDeposit": "Le dépôt automatique est activé : aucune question de sécurité n'est nécessaire.",
+    "stepsLabel": "Comment payer",
+    "stepOne": "Ouvrez l'application de votre banque.",
+    "stepTwo": "Choisissez « Virement Interac ».",
+    "stepThree": "Entrez le courriel, le montant et votre code ci-dessus.",
+    "stepFour": "Faites une capture d'écran de la confirmation du virement.",
+    "noRefund": "Aucun remboursement après le virement.",
+    "keepLink": "Gardez l'adresse de cette page : elle vous servira pour envoyer la preuve de paiement."
+  },
+  "validation": {
+    "firstNameRequired": "Indiquez votre prénom.",
+    "firstNameTooLong": "Le prénom est trop long (60 caractères au maximum).",
+    "lastNameRequired": "Indiquez votre nom.",
+    "lastNameTooLong": "Le nom est trop long (60 caractères au maximum).",
+    "emailInvalid": "Le courriel est invalide.",
+    "phoneInvalid": "Le numéro de téléphone est invalide (10 à 15 chiffres).",
+    "seatsInvalid": "Choisissez entre 1 et 10 places.",
+    "noteTooLong": "La remarque est trop longue (500 caractères au maximum)."
+  },
   "language": {
     "switchLabel": "Changer de langue",
     "otherLanguageName": "English"
@@ -24,6 +83,11 @@
     "retry": "Réessayer",
     "notFoundTitle": "Page introuvable",
     "notFoundText": "Cette page n'existe pas ou a été déplacée.",
-    "backHome": "Retour à l'accueil"
+    "backHome": "Retour à l'accueil",
+    "validation": "Certains champs sont à corriger.",
+    "soldOut": "Le dîner est complet : il n'y a plus de place.",
+    "notEnoughSeats": "Il ne reste pas assez de places pour cette réservation. Réduisez le nombre de places.",
+    "bookingClosed": "Les réservations sont fermées.",
+    "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes."
   }
 }

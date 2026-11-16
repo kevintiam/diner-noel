@@ -16,6 +16,9 @@ export default defineConfig({
   // Sorties rangées dans node_modules, déjà ignoré par git.
   outputDir: "node_modules/.cache/playwright/test-results",
   reporter: "list",
+  // Un fichier à la fois : les parcours de réservation modifient la base que
+  // les parcours de l'accueil relisent (places restantes).
+  workers: 1,
   use: { baseURL: `http://localhost:${PORT}` },
   // Le site est pensé d'abord pour le téléphone.
   projects: [{ name: "telephone", use: { ...devices["Pixel 7"] } }],

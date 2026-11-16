@@ -1,0 +1,106 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.names {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-m);
+}
+
+@media (min-width: 36rem) {
+  .names {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.formError {
+  padding: var(--space-s);
+  border-left: 4px solid var(--color-burgundy);
+  background: var(--color-cream);
+  font-weight: 600;
+  color: var(--color-burgundy);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.stepButton {
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-fir);
+  font: inherit;
+  font-size: var(--font-size-large);
+  cursor: pointer;
+}
+
+.stepButton:disabled {
+  color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.stepper .seatsInput {
+  width: 5rem;
+  text-align: center;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius);
+  background: var(--color-cream);
+}
+
+.lineItem,
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.lineItem {
+  color: var(--color-muted);
+}
+
+.total {
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-large);
+  font-weight: 700;
+}
+
+.submit {
+  min-height: var(--tap-target);
+  padding: var(--space-s) var(--space-m);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-fir);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: var(--color-fir-dark);
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}

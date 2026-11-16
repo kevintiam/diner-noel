@@ -14,7 +14,7 @@ afterEach(() => {
 });
 
 describe("EventDetails", () => {
-  it("se déclare dynamique avant de lire la base, puis transmet l'aperçu", async () => {
+  it("se déclare dynamique avant de lire la base, puis transmet l'aperçu au résumé et au bouton", async () => {
     // Préparer
     const overview = { seatsLeft: 3 };
     vi.mocked(getEventOverview).mockResolvedValue(/** @type {any} */ (overview));
@@ -24,8 +24,11 @@ describe("EventDetails", () => {
 
     // Vérifier
     expect(connection).toHaveBeenCalledTimes(1);
-    expect(element.props.overview).toBe(overview);
-    expect(element.props.lang).toBe("en");
+    expect(getEventOverview).toHaveBeenCalledWith(expect.any(Date));
+    const [summary, callToAction] = element.props.children;
+    expect(summary.props.overview).toBe(overview);
+    expect(summary.props.lang).toBe("en");
+    expect(callToAction.props.overview).toBe(overview);
   });
 
   it("journalise l'échec avec la route, sans donnée personnelle, puis relance l'erreur", async () => {

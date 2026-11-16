@@ -1,13 +1,18 @@
 import { expect, test } from "@playwright/test";
 import { getEnv } from "../src/config/env.js";
+import { formatEventDateTime } from "../src/lib/format.js";
 import { disconnectPrisma, getPrisma } from "../src/server/db/prisma-client.js";
 
 test.use({ locale: "fr-CA" });
 
-test.beforeAll(() => {
+/** @type {Date} */
+let eventStartsAt;
+
+test.beforeAll(async () => {
   if (getEnv().DATABASE_IS_TEST !== "true") {
     throw new Error("Ces parcours exigent la base dédiée aux tests.");
   }
+  eventStartsAt = (await getPrisma().event.findFirstOrThrow()).startsAt;
 });
 
 test.afterAll(async () => {
@@ -19,12 +24,15 @@ test.describe("accueil", () => {
     await page.goto("/fr");
 
     await expect(page.getByRole("heading", { level: 1, name: "Dîner de Noël 2026" })).toBeVisible();
-    await expect(page.getByText(/samedi 19 décembre 2026 à 18\sh\s00/)).toBeVisible();
+    await expect(page.getByText(formatEventDateTime(eventStartsAt, "fr"))).toBeVisible();
     await expect(page.getByText(/25,00\s\$/)).toBeVisible();
     await expect(page.getByText("120 places restantes")).toBeVisible();
     await expect(page.getByText("ICC Ottawa", { exact: false }).last()).toBeVisible();
     await expect(page.getByText("75 Auriga Drive, Nepean")).toBeVisible();
-    await expect(page.getByRole("button", { name: /réserver/i })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Réserver ma place" })).toHaveAttribute(
+      "href",
+      "/fr/reservation",
+    );
   });
 
   test("affiche le dîner en anglais", async ({ page }) => {
@@ -34,7 +42,7 @@ test.describe("accueil", () => {
       page.getByRole("heading", { level: 1, name: "Christmas Dinner 2026" }),
     ).toBeVisible();
     await expect(page.getByText("$25.00")).toBeVisible();
-    await expect(page.getByText(/Saturday, December 19, 2026 at 6:00\sp\.m\./)).toBeVisible();
+    await expect(page.getByText(formatEventDateTime(eventStartsAt, "en"))).toBeVisible();
     await expect(page.getByText("120 seats left")).toBeVisible();
   });
 

@@ -15,6 +15,65 @@
     "seatsLeftOne": "1 seat left",
     "soldOut": "Sold out"
   },
+  "booking": {
+    "cta": "Book my seat",
+    "soldOut": "The dinner is sold out: no seats are left.",
+    "closed": "Bookings are closed."
+  },
+  "reservation": {
+    "step": "Step {current} of {total}",
+    "title": "Your details",
+    "intro": "A single booking can cover your whole family.",
+    "backHome": "Back to home",
+    "loading": "Loading the form…",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "emailHelp": "Your confirmation will be sent to this address.",
+    "phone": "Phone",
+    "phoneHelp": "So we can reach you if there is a problem with your booking.",
+    "seats": "Number of seats",
+    "seatsHelp": "{max} seats maximum per booking · {left} seats left",
+    "seatsHelpOne": "{max} seats maximum per booking · 1 seat left",
+    "decreaseSeats": "Remove a seat",
+    "increaseSeats": "Add a seat",
+    "note": "Note",
+    "optional": "(optional)",
+    "notePlaceholder": "Anything useful for the organizers",
+    "lineItem": "{seats} seats × {price}",
+    "lineItemOne": "1 seat × {price}",
+    "total": "Total to pay",
+    "submit": "Continue to payment",
+    "submitting": "Saving…"
+  },
+  "payment": {
+    "title": "Pay by Interac e-Transfer",
+    "intro": "Send the transfer from your banking app.",
+    "saved": "Booking saved.",
+    "amountLabel": "Amount to send",
+    "sendTo": "Send the transfer to",
+    "messageLabel": "Transfer message (your code)",
+    "copy": "Copy",
+    "copied": "Copied",
+    "autoDeposit": "Autodeposit is enabled: no security question is needed.",
+    "stepsLabel": "How to pay",
+    "stepOne": "Open your banking app.",
+    "stepTwo": "Choose “Interac e-Transfer”.",
+    "stepThree": "Enter the email, the amount and your code above.",
+    "stepFour": "Take a screenshot of the transfer confirmation.",
+    "noRefund": "No refunds once the transfer is sent.",
+    "keepLink": "Keep the address of this page: you will use it to send your proof of payment."
+  },
+  "validation": {
+    "firstNameRequired": "Enter your first name.",
+    "firstNameTooLong": "The first name is too long (60 characters maximum).",
+    "lastNameRequired": "Enter your last name.",
+    "lastNameTooLong": "The last name is too long (60 characters maximum).",
+    "emailInvalid": "The email address is invalid.",
+    "phoneInvalid": "The phone number is invalid (10 to 15 digits).",
+    "seatsInvalid": "Choose between 1 and 10 seats.",
+    "noteTooLong": "The note is too long (500 characters maximum)."
+  },
   "language": {
     "switchLabel": "Change language",
     "otherLanguageName": "Français"
@@ -24,6 +83,11 @@
     "retry": "Try again",
     "notFoundTitle": "Page not found",
     "notFoundText": "This page does not exist or has been moved.",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "validation": "Some fields need to be corrected.",
+    "soldOut": "The dinner is sold out: no seats are left.",
+    "notEnoughSeats": "There are not enough seats left for this booking. Please choose fewer seats.",
+    "bookingClosed": "Bookings are closed.",
+    "tooManyRequests": "Too many attempts. Please try again in a few minutes."
   }
 }

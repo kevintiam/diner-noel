@@ -39,14 +39,43 @@ afterAll(async () => {
   await disconnectPrisma();
 });
 
+// Avant et après la date limite fictive du seed (12 décembre 2026, 23 h 59 à Ottawa).
+const BEFORE_DEADLINE = new Date("2026-11-20T15:00:00.000Z");
+const AFTER_DEADLINE = new Date("2026-12-13T05:00:00.000Z");
+
 describe("getEventOverview", () => {
-  it("renvoie l'événement de départ avec toutes ses places libres", async () => {
+  it("renvoie l'événement de départ avec toutes ses places libres et les réservations ouvertes", async () => {
     await seedDefaultEvent();
 
-    const overview = await getEventOverview();
+    const overview = await getEventOverview(BEFORE_DEADLINE);
 
-    expect(overview).toMatchObject({ capacity: 120, unitPriceCents: 2500, seatsLeft: 120 });
+    expect(overview).toMatchObject({
+      capacity: 120,
+      unitPriceCents: 2500,
+      seatsLeft: 120,
+      isClosedByDeadline: false,
+      isBookingOpen: true,
+    });
     expect(overview.startsAt.toISOString()).toBe("2026-12-19T23:00:00.000Z");
+  });
+
+  it("ferme les réservations une fois la date limite passée", async () => {
+    await seedDefaultEvent();
+
+    const overview = await getEventOverview(AFTER_DEADLINE);
+
+    expect(overview).toMatchObject({ isClosedByDeadline: true, isBookingOpen: false });
+  });
+
+  it("ferme les réservations à l'instant exact de la date limite", async () => {
+    await seedDefaultEvent();
+    const deadline = (await getPrisma().event.findFirstOrThrow()).bookingDeadline;
+
+    const atDeadline = await getEventOverview(deadline);
+    const justBefore = await getEventOverview(new Date(deadline.getTime() - 1));
+
+    expect(atDeadline).toMatchObject({ isClosedByDeadline: true, isBookingOpen: false });
+    expect(justBefore).toMatchObject({ isClosedByDeadline: false, isBookingOpen: true });
   });
 
   it("retire les places prises, sauf celles des réservations annulées", async () => {
@@ -56,7 +85,7 @@ describe("getEventOverview", () => {
     await createReservation("A-3", 1, "CONFIRMED");
     await createReservation("A-4", 4, "CANCELLED");
 
-    const overview = await getEventOverview();
+    const overview = await getEventOverview(BEFORE_DEADLINE);
 
     expect(overview.seatsLeft).toBe(114);
   });
@@ -67,13 +96,17 @@ describe("getEventOverview", () => {
     await createReservation("B-1", 3, "CONFIRMED");
     await createReservation("B-2", 2, "PENDING_PAYMENT");
 
-    const overview = await getEventOverview();
+    const overview = await getEventOverview(BEFORE_DEADLINE);
 
-    expect(overview.seatsLeft).toBe(0);
+    expect(overview).toMatchObject({
+      seatsLeft: 0,
+      isBookingOpen: false,
+      isClosedByDeadline: false,
+    });
   });
 
   it("échoue avec EVENT_NOT_CONFIGURED quand aucun événement n'existe", async () => {
-    const failure = getEventOverview();
+    const failure = getEventOverview(BEFORE_DEADLINE);
 
     await expect(failure).rejects.toBeInstanceOf(AppError);
     await expect(failure).rejects.toMatchObject({ statusCode: 500, code: "EVENT_NOT_CONFIGURED" });

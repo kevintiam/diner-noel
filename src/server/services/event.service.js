@@ -6,16 +6,21 @@ import { AppError } from "../errors/app-error.js";
 /** @typedef {import("../../validation/event.schema.js").EventOverview} EventOverview */
 
 /**
- * Rassemble ce que l'accueil affiche : l'événement et ses places restantes.
+ * Rassemble ce que l'accueil et le formulaire affichent : l'événement, ses places
+ * restantes et l'état des réservations (ouvertes, complètes ou fermées).
+ * @param {Date} now L'instant de la requête (architecture AD-12).
  * @returns {Promise<EventOverview>} L'aperçu de l'événement.
  * @throws {AppError} 500 `EVENT_NOT_CONFIGURED` si aucun événement n'existe en base.
  */
-export async function getEventOverview() {
+export async function getEventOverview(now) {
   const event = await getEvent();
   if (!event) {
     throw new AppError(500, "EVENT_NOT_CONFIGURED", "errors.internal");
   }
   const takenSeats = await sumTakenSeats();
+  // Jamais négatif, même si la capacité a été baissée par erreur sous les places prises.
+  const seatsLeft = Math.max(event.capacity - takenSeats, 0);
+  const isClosedByDeadline = now >= event.bookingDeadline;
   return {
     startsAt: event.startsAt,
     bookingDeadline: event.bookingDeadline,
@@ -23,7 +28,8 @@ export async function getEventOverview() {
     venueAddress: event.venueAddress,
     unitPriceCents: event.unitPriceCents,
     capacity: event.capacity,
-    // Jamais négatif, même si la capacité a été baissée par erreur sous les places prises.
-    seatsLeft: Math.max(event.capacity - takenSeats, 0),
+    seatsLeft,
+    isClosedByDeadline,
+    isBookingOpen: !isClosedByDeadline && seatsLeft > 0,
   };
 }

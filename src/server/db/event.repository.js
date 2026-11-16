@@ -11,6 +11,24 @@ export async function getEvent() {
   return getPrisma().event.findFirst();
 }
 
+/** @typedef {import("../../validation/event.schema.js").LockedEvent} LockedEvent */
+
+/**
+ * Verrouille l'unique événement jusqu'à la fin de la transaction (architecture AD-5) :
+ * deux réservations simultanées passent ainsi l'une après l'autre.
+ * @param {import("./transaction.js").TransactionClient} transaction La transaction en cours.
+ * @returns {Promise<LockedEvent | null>} L'événement verrouillé, ou null s'il n'existe pas.
+ */
+export async function lockEvent(transaction) {
+  /** @type {LockedEvent[]} */
+  const rows = await transaction.$queryRaw`
+    SELECT "id", "capacity", "unitPriceCents", "interacEmail", "bookingDeadline"
+    FROM "Event"
+    LIMIT 1
+    FOR UPDATE`;
+  return rows[0] ?? null;
+}
+
 /**
  * Crée l'unique événement, ou le met à jour s'il existe déjà.
  * Sert au jeu de données de départ : relancé, il ne crée jamais de second événement.

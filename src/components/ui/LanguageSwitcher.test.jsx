@@ -1,8 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import LanguageSwitcher, { switchPathLanguage } from "./LanguageSwitcher";
+import LanguageSwitcher, { LanguageLink, switchPathLanguage } from "./LanguageSwitcher";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/fr" }));
+
+describe("LanguageLink", () => {
+  it("affiche le lien de repli vers l'accueil de l'autre langue", () => {
+    render(
+      <LanguageLink
+        href="/fr"
+        otherLang="fr"
+        label="Change language"
+        otherLanguageName="Français"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Français" })).toHaveAttribute("href", "/fr");
+  });
+});
 
 describe("switchPathLanguage", () => {
   it("remplace la langue de l'accueil", () => {

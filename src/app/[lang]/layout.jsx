@@ -1,9 +1,10 @@
 // Layout racine du site public : une version par langue (architecture AD-3).
 import { EB_Garamond, Source_Sans_3 } from "next/font/google";
 import { notFound } from "next/navigation";
-import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import { Suspense } from "react";
+import LanguageSwitcher, { LanguageLink } from "@/components/ui/LanguageSwitcher";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { isLocale, LOCALES } from "@/i18n/locales";
+import { getOtherLanguage, isLocale, LOCALES } from "@/i18n/locales";
 import { translate } from "@/i18n/translate";
 import "../globals.css";
 import styles from "./layout.module.css";
@@ -44,15 +45,26 @@ export default async function PublicLayout({ children, params }) {
     notFound();
   }
   const dictionary = getDictionary(lang);
+  const label = translate(dictionary, "language.switchLabel");
+  const otherLanguageName = translate(dictionary, "language.otherLanguageName");
+  const otherLang = getOtherLanguage(lang);
   return (
     <html lang={lang} className={`${titleFont.variable} ${textFont.variable}`}>
       <body>
         <header className={styles.header}>
-          <LanguageSwitcher
-            lang={lang}
-            label={translate(dictionary, "language.switchLabel")}
-            otherLanguageName={translate(dictionary, "language.otherLanguageName")}
-          />
+          {/* Sous Suspense : l'adresse d'une page à lien personnel n'est connue qu'à la demande. */}
+          <Suspense
+            fallback={
+              <LanguageLink
+                href={`/${otherLang}`}
+                otherLang={otherLang}
+                label={label}
+                otherLanguageName={otherLanguageName}
+              />
+            }
+          >
+            <LanguageSwitcher lang={lang} label={label} otherLanguageName={otherLanguageName} />
+          </Suspense>
         </header>
         {children}
       </body>
