@@ -3,7 +3,7 @@ title: 'Déposer la preuve de paiement'
 type: feature
 ticket: '4'
 created: '2026-11-15'
-status: in-review
+status: done
 baseline_commit: '249eb34d79a58d62f174cbc29b4bb0ca2cc6b1ae'
 baseline_revision: 'cd900f3a9d3f3af58a603f9cc34096e5d1b9348c'
 route: dispatch
@@ -11,7 +11,7 @@ route_source: auto
 risk: medium
 review: ''
 review_source: ''
-lenses_ran: []
+lenses_ran: [blind-hunter, edge-case-hunter, verification-gap]
 review_loop_iteration: 0
 context:
   - '{project-root}/AGENTS.md'
@@ -108,6 +108,9 @@ context:
 
 ## Implementation Notes
 
+- Après les corrections de revue : 602 tests réussis dans 85 fichiers, lint et contrôle Prettier global réussis. Les tests couvrent désormais le plafond de pixels, l'orientation EXIF, les types MIME indéterminés, l'annulation du flux rejetée et le focus après dépôt.
+- La première passe navigateur après revue a validé les cinq parcours de dépôt, mais dix parcours de l'accueil/réservation ont rencontré des styles absents. Diagnostic : un build concurrent a remplacé les artefacts pendant que le serveur de test les servait ; aucune source CSS concernée n'avait changé. Une nouvelle passe sérialisée est exécutée. Aucun candidat de feedback Next.js retenu : cause extérieure au framework établie.
+
 - Implémentation du dépôt disponible sur `feature/payment-proof-upload` : normalisation privée, lecture bornée, route API, transaction conditionnelle, formulaire bilingue et affichage des statuts. Aucune migration, aucun commit de cette story, aucun fichier d'environnement réel modifié.
 - Lint et build réussis. La suite globale valide 470 tests unitaires et composants. Les 69 cas de base échouent dès leur préparation : Neon refuse l'authentification (`P1000` / `28P01`), y compris hors du bac à sable. Ils ne prouvent donc pas encore l'atomicité/concurrence en base. Les quatre nouveaux parcours Playwright sont découverts mais leur exécution reste à faire après rétablissement de l'accès test.
 - Sorties conservées localement dans `node_modules/.cache/proof-verification/` : `vitest.log`, `database.log`, `lint.log`, `build.log`, `prettier.log`, `e2e-list.log`. Prettier global signale cinq fichiers extérieurs à cette story ; ils sont préservés.
@@ -181,6 +184,10 @@ return runInTransaction(async (tx) => {
 Texte sous le formulaire (décision D, qui remplace celui de la maquette 5) : « Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs. Sans paiement confirmé, la réservation sera annulée la veille du dîner. »
 
 ## Verification
+
+**Clôture du 16 novembre 2026 :** 602 tests réussis dans 85 fichiers (`vitest-reviewed.log`), lint et Prettier globaux réussis. Les 34 parcours publics concernés sont validés : 33 réussites dans `e2e-proof-scope.log`, puis réussite du seul cas promotionnel ayant dépassé son délai dans `pricing-final.log`, sans modification de code, d'assertion ou de délai. Les cinq parcours de dépôt, dont le formulaire périmé et le focus, passent. La reconstruction et les tests publics sont terminés.
+
+La passe globale intermédiaire avait rencontré un parcours d'export admin ajouté en parallèle ; cet autre travail n'est pas inclus dans la clôture de 1.4. Le contrôle du délai des uploads suspendus est documenté dans le travail différé. Aucun défaut confirmé du dépôt ne reste ouvert après revue ; aucun candidat de feedback Next.js n'est retenu après diagnostic du build écrasé par une exécution concurrente.
 
 **Commandes :**
 - `npm run lint` et `npx prettier --check src e2e prisma "*.js" "*.mjs" "*.json" "*.md"` : attendu aucune erreur (la vérification sur `.` ne fonctionne pas sur cette machine).
