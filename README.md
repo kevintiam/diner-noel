@@ -127,7 +127,6 @@ Un seul service applique les règles (AD-14), sous le verrou de l'événement :
 - la date limite tombe avant le jour du dîner ;
 - le nombre de places ne descend jamais sous les places déjà prises ;
 - une nouvelle adresse Interac exige de confirmer que son dépôt automatique est activé ;
-- une nouvelle date du dîner relance l'alerte aux organisateurs ;
 - les réservations déjà faites gardent leur prix et leur adresse Interac.
 
 Le tarif promotionnel ne se modifie pas depuis cet écran. Les inscrits ne sont pas prévenus d'un
@@ -156,3 +155,7 @@ précédée d'une apostrophe, pour qu'aucun tableur ne l'exécute comme une form
 Netlify construit le site avec `netlify.toml`. Dans Netlify, définir `DATABASE_URL` pour chaque
 contexte : branche `dev` pour les aperçus, branche principale pour la production. Les migrations
 se lancent à la main avant le déploiement qui en a besoin, jamais pendant le build.
+
+## Gestion de fin d’événement
+
+Les organisateurs gèrent manuellement les réservations non confirmées. L’alerte avant clôture et l’annulation automatique de la veille ont été retirées des exigences le 16 novembre 2026. L’export CSV des confirmés reste disponible.

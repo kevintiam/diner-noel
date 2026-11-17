@@ -215,7 +215,9 @@
     "reservationNotFound": "This booking could not be found.",
     "proofTooLarge": "The screenshot exceeds 4 MB. Choose a smaller file.",
     "proofInvalidType": "Choose a valid JPG, PNG or WEBP image.",
-    "reservationStatusChanged": "This booking changed in the meantime. Reload the page to see its current status."
+    "reservationStatusChanged": "This booking changed in the meantime. Reload the page to see its current status.",
+    "unauthenticated": "Sign in to access this resource.",
+    "proofNotFound": "This screenshot could not be found."
   },
   "countdown": {
     "title": "Countdown to the celebration",
@@ -246,7 +248,7 @@
     "submitting": "Sending…",
     "later": "I’ll send it later",
     "laterMessage": "Your place remains reserved for now. Return with this link to send your payment proof.",
-    "privacy": "Your place remains reserved for now. Your screenshot is visible only to the organizers. Without confirmed payment, the reservation will be cancelled the day before the dinner.",
+    "privacy": "Your place remains reserved for now. Your screenshot is visible only to the organizers.",
     "fileRequired": "Choose a non-empty screenshot.",
     "confirmRequired": "Confirm that you have sent the transfer.",
     "langInvalid": "Choose a valid language."

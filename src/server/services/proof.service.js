@@ -1,6 +1,6 @@
 import { isValidPersonalToken } from "../../validation/reservation.schema.js";
 import { MAX_PROOF_BYTES } from "../../validation/proof.schema.js";
-import { insertProof } from "../db/proof.repository.js";
+import { findProofImage, insertProof } from "../db/proof.repository.js";
 import { findReservationStatusByToken } from "../db/reservation.repository.js";
 import { runInTransaction } from "../db/transaction.js";
 import { AppError } from "../errors/app-error.js";
@@ -36,4 +36,26 @@ export async function submitProof({ token, imageBytes }) {
     await insertProof(tx, { reservationId: reservation.id, ...image });
     return { status: "TO_VERIFY" };
   });
+}
+
+// Les identifiants Prisma (cuid) n'ont que des lettres et des chiffres.
+const PROOF_ID_PATTERN = /^[a-z0-9]{1,64}$/i;
+// Types écrits par normalizeProofImage ; tout autre type ne part jamais vers le navigateur.
+const DISPLAYABLE_TYPES = new Set(["image/webp", "image/png", "image/jpeg"]);
+
+/**
+ * Lit une capture pour l'afficher à un organisateur connecté (architecture AD-8, story 2.2).
+ * @param {unknown} proofId L'identifiant reçu dans l'adresse.
+ * @returns {Promise<{ data: Uint8Array, mimeType: string }>} Les octets et leur type.
+ * @throws {AppError} 404 `PROOF_NOT_FOUND` si l'identifiant est invalide ou inconnu.
+ */
+export async function getProofImage(proofId) {
+  if (typeof proofId !== "string" || !PROOF_ID_PATTERN.test(proofId)) {
+    throw new AppError(404, "PROOF_NOT_FOUND", "errors.proofNotFound");
+  }
+  const image = await findProofImage(proofId);
+  if (!image || !DISPLAYABLE_TYPES.has(image.mimeType)) {
+    throw new AppError(404, "PROOF_NOT_FOUND", "errors.proofNotFound");
+  }
+  return image;
 }

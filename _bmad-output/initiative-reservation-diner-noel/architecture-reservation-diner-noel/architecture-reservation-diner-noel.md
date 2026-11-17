@@ -4,10 +4,10 @@ type: architecture-spine
 purpose: build-substrate
 altitude: initiative
 paradigm: 'architecture en couches (squelette A de AGENTS.md)'
-scope: 'Site public bilingue, tableau de bord des organisateurs, courriels et tâches planifiées du dîner de Noël 2026'
+scope: 'Site public bilingue, tableau de bord des organisateurs, courriels et export CSV du dîner de Noël 2026'
 status: final
 created: '2026-11-15'
-updated: '2026-11-15'
+updated: '2026-11-16'
 binds: ['docs/projet-brief.md §3–§17']
 sources: ['docs/projet-brief.md', 'AGENTS.md', '_bmad-output/initiative-reservation-diner-noel/initiative-reservation-diner-noel.md']
 ---
@@ -80,11 +80,10 @@ flowchart TD
   - Montants et dates s'affichent par `src/lib/format.js` avec `Intl`, en `fr-CA` ou `en-CA`.
   - La réservation enregistre la langue de la page où elle a été créée. Tout courriel au participant utilise cette langue.
   - Le tableau de bord `/admin` est en français écrit directement, sans dictionnaire [ASSUMPTION]. Ses messages d'erreur passent quand même par `handleApiError` avec `lang: 'fr'` (AD-2).
-  - L'alerte aux organisateurs (AD-13) est en français.
 
 ### AD-4 — Une seule machine à états de la réservation
 
-- **Binds:** la réservation, le dépôt de preuve, les décisions des organisateurs, la tâche planifiée, le tableau de bord
+- **Binds:** la réservation, le dépôt de preuve, les décisions des organisateurs, le tableau de bord
 - **Prevents:** deux fonctionnalités qui autorisent des transitions différentes, ou qui comptent les places différemment.
 - **Rule:** Les statuts sont `PENDING_PAYMENT`, `TO_VERIFY`, `CONFIRMED` et `CANCELLED`, et il n'y a pas de statut « refusé ». Les seules transitions autorisées sont définies dans `src/server/services/reservation-status.service.js` :
 
@@ -94,7 +93,6 @@ flowchart TD
   | `TO_VERIFY` | `CONFIRMED` | Un organisateur confirme [ASSUMPTION : jamais sans capture] | `CONFIRM` |
   | `TO_VERIFY` | `PENDING_PAYMENT` | Un organisateur refuse, avec un code de motif | `REFUSE` + `reasonCode` |
   | `PENDING_PAYMENT`, `TO_VERIFY`, `CONFIRMED` | `CANCELLED` | Un organisateur annule | `CANCEL` |
-  | `PENDING_PAYMENT`, `TO_VERIFY` | `CANCELLED` | Annulation automatique de la veille | `AUTO_CANCEL` (sans organisateur) |
 
   Une place est comptée si et seulement si `status !== CANCELLED`. Le total des places prises n'est calculé que par `sumTakenSeats()` (`src/server/db/reservation.repository.js`). Cette même fonction sert à la transaction verrouillée (AD-5) et à l'affichage des places restantes. Chaque décision écrit une ligne `ReservationDecision` (type, organisateur, date, motif) dans la même transaction que le changement de statut. Les codes de motif sont `NO_TRANSFER`, `INCOMPLETE_AMOUNT` et `UNREADABLE_PROOF` (liste à confirmer, brief §15.3).
 
@@ -152,7 +150,7 @@ flowchart TD
 
 ### AD-10 — Courriels
 
-- **Binds:** les 3 courriels aux participants et l'alerte aux organisateurs
+- **Binds:** les 3 courriels aux participants
 - **Prevents:** un fournisseur de courriel inscrit dans le code ; une réservation annulée parce qu'un courriel a échoué ; un courriel envoyé alors que la transaction est ensuite annulée.
 - **Rule:**
   - **Envoi.** Un seul point d'envoi existe : `sendEmail({ to, subject, text, html })` dans `src/server/email/`. Il passe par Nodemailer en SMTP, configuré seulement par l'environnement (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`). Changer de fournisseur ne demande donc aucune ligne de code.
@@ -173,37 +171,27 @@ flowchart TD
 
 ### AD-12 — Heure et fuseau
 
-- **Binds:** les paramètres, la date limite, le compte à rebours, la tâche planifiée, les courriels
-- **Prevents:** une date limite décalée de 5 heures ; deux calculs différents de « la veille ».
+- **Binds:** les paramètres, la date limite, le compte à rebours, les courriels
+- **Prevents:** une date limite décalée de 5 heures ou un affichage dans le mauvais fuseau.
 - **Rule:**
   - **Stockage et affichage.** La base stocke de l'UTC. L'heure de l'événement, la saisie et l'affichage sont à l'heure d'Ottawa, avec la constante `EVENT_TIME_ZONE = 'America/Toronto'`.
   - **Un seul module.** Toute conversion entre heure locale et UTC passe par `src/lib/dates.js` (`@date-fns/tz`).
-  - **Instants calculés.** `src/lib/dates.js` est aussi le seul à calculer deux instants :
-    - `cancelAt` = la veille de l'événement à 0 h, heure d'Ottawa [ASSUMPTION, brief §15.4] ;
-    - `alertAt` = `cancelAt` moins 48 heures.
   - **Horloge injectable.** Un service qui dépend de l'heure reçoit `now` en paramètre ; c'est l'entrée qui fournit `new Date()`.
 
-### AD-13 — Tâche planifiée unique et idempotente
+### AD-13 — Retirée du périmètre le 16 novembre 2026
 
-- **Binds:** l'alerte aux organisateurs et l'annulation automatique
-- **Prevents:** une alerte envoyée plusieurs fois ; une annulation qui ne passe pas par la machine à états ; une logique métier cachée dans une fonction Netlify.
-- **Rule:**
-  - **Déclenchement.** `netlify/functions/hourly.mjs`, une fonction planifiée `@hourly` (UTC), fait seulement un appel `POST {URL}/api/cron/hourly` avec `Authorization: Bearer CRON_SECRET`. La route refuse `401` sans ce secret.
-  - **Traitement.** Le service lancé par cette route est sans effet s'il est relancé. Il fait deux choses :
-    1. Si `now ≥ alertAt`, que `Event.alertSentAt` est vide et qu'il existe des réservations `TO_VERIFY`, il envoie un courriel à chaque organisateur, puis remplit `alertSentAt`.
-    2. Si `now ≥ cancelAt`, il annule les réservations `PENDING_PAYMENT` et `TO_VERIFY` par les transitions de l'AD-4 et de l'AD-5, sans courriel au participant.
-  - **Bandeau.** Le bandeau du tableau de bord est **calculé** au moment de l'affichage (`alertAt ≤ now < cancelAt` et des `TO_VERIFY` existent). Il n'est pas stocké.
-  - **Planificateur de secours.** Si la fonction planifiée Netlify ne se déclenche pas (à vérifier au premier déploiement de production), n'importe quel planificateur externe gratuit peut appeler la même route avec le même secret. Le code ne change pas.
+À la demande du propriétaire, l’alerte aux organisateurs (R19) et l’annulation automatique de la veille (R20) sont annulées. Aucun déclencheur planifié, route cron, secret de planification ni bandeau d’alerte de clôture n’est requis. Les réservations non confirmées restent actives jusqu’à une décision manuelle. L’identifiant AD-13 est conservé pour la traçabilité.
+
+Les champs techniques existants `Event.alertSentAt` et `DecisionType.AUTO_CANCEL` sont des vestiges du schéma initial, sans exigence fonctionnelle active. Ce changement de périmètre ne nécessite pas de migration.
 
 ### AD-14 — Un seul événement et ses paramètres
 
-- **Binds:** l'accueil, la réservation, les paramètres, la tâche planifiée
+- **Binds:** l'accueil, la réservation, les paramètres
 - **Prevents:** deux sources de vérité pour le prix ou les dates ; une date limite placée après l'événement.
 - **Rule:**
   - La base contient exactement une ligne `Event`, créée par `prisma/seed.js`, et chaque service la lit par `getEvent()`.
   - Toute modification passe par un seul service, qui vérifie deux choses : la date limite tombe avant l'événement, et le nombre de places n'est pas sous les places prises (avec le verrou de l'AD-5).
   - Une modification ne touche jamais les réservations existantes (AD-6).
-  - Changer la date de l'événement vide `alertSentAt`, pour que l'alerte reparte avec la nouvelle date.
   - Le dépôt automatique Interac est obligatoire : il n'y a aucun champ de question de sécurité [ASSUMPTION, brief §15.6].
 
 ### AD-15 — Rendu avec `cacheComponents` [ADOPTED]
@@ -251,7 +239,7 @@ flowchart TD
 | Données et formats | Argent en cents entiers (AD-6). `DateTime` en UTC en base et en ISO 8601 UTC dans le JSON (AD-12). Clés JSON en camelCase |
 | Validation | Un schéma Zod par entrée dans `src/validation/*.schema.js`, avec son `@typedef`, réutilisé par le formulaire et par l'entrée serveur. Les messages sont des clés de dictionnaire (AD-3) |
 | Formulaires | Server Action et `useActionState`. La réponse suit l'enveloppe de l'AD-2. Seul le dépôt de capture passe par `fetch` vers le Route Handler (AD-8) |
-| Configuration | `src/config/env.js` est le seul à lire `process.env`. `.env.example` liste toutes les variables : `DATABASE_URL` (URL poolée), `DIRECT_URL` (migrations), `SITE_URL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`, `CRON_SECRET` |
+| Configuration | `src/config/env.js` est le seul à lire `process.env`. `.env.example` liste toutes les variables : `DATABASE_URL` (URL poolée), `DIRECT_URL` (migrations), `SITE_URL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM` |
 | Journalisation | `src/lib/logger.js` seulement. On journalise l'identifiant de la réservation et le code d'erreur. Jamais de nom, de courriel, de téléphone, de jeton, de mot de passe ni de capture |
 | Styles | CSS Modules et variables CSS dans `src/app/globals.css` [ADOPTED du starter]. Couleurs, tailles de texte et contrastes (brief §10) sont définis une seule fois comme variables. Ni dégradé ni emoji. Icônes `lucide-react`. Polices chargées une seule fois par `next/font` dans le layout racine (proposition : EB Garamond pour les titres, Source Sans 3 pour le texte). Animations en CSS seulement, désactivées sous `prefers-reduced-motion: reduce` |
 | Dépendances | Versions exactes, sans `^`. `prisma` doit être installé en `7.10.1` explicitement, parce que son tag npm `latest` pointe sur une version candidate de Prisma 8. Chaque ajout est demandé avant (`AGENTS.md`) |
@@ -290,9 +278,7 @@ flowchart LR
   organizer["Organisateur"] --> app
   subgraph netlify["Netlify Free"]
     app["Next.js 16 (fonctions serveur)"]
-    cron["Fonction planifiée @hourly"]
   end
-  cron -->|"POST /api/cron/hourly + CRON_SECRET"| app
   app -->|"@prisma/adapter-pg, URL poolée"| neon[("Neon Postgres : main, dev, test")]
   app -->|"SMTP"| smtp["Gmail SMTP, puis SMTP Resend"]
   smtp --> inbox["Boîtes de courriel"]
@@ -326,20 +312,18 @@ src/
       reservations/[token]/proofs/route.js           # dépôt d'une capture (AD-8)
       admin/proofs/[id]/route.js                     # lecture d'une capture (AD-8, AD-9)
       admin/exports/confirmed-participants/route.js  # export CSV
-      cron/hourly/route.js                           # tâche planifiée (AD-13)
   components/ui/  components/reservations/  components/admin/
   i18n/dictionaries/fr.json  en.json   i18n/get-dictionary.js
   validation/                  # *.schema.js + @typedef
   server/
     actions/                   # réserver, se connecter, confirmer, refuser, annuler, paramètres
     auth/                      # require-organizer.js
-    services/                  # reservation, reservation-status, proof, event, accounting, auth, rate-limit, scheduled-task
+    services/                  # reservation, reservation-status, proof, event, accounting, auth, rate-limit
     db/                        # client Prisma + *.repository.js
     email/                     # send-email.js + templates/
     errors/                    # AppError, handleApiError
   config/env.js
   lib/                         # dates.js, format.js, logger.js, client-ip.js
-netlify/functions/hourly.mjs
 prisma/schema.prisma  prisma/seed.js
 scripts/create-organizer.js
 e2e/
@@ -355,8 +339,7 @@ e2e/
 | §4.11, §5.6–5.7 : confirmer, refuser, annuler | `app/admin`, `reservation-status.service` | AD-4, AD-5, AD-9 |
 | §5.2, §6 : compteurs, état des comptes | `accounting.service` | AD-6, AD-15 |
 | §5.8, §8 : paramètres de l'événement | `app/admin`, `event.service` | AD-5, AD-12, AD-14 |
-| §6 : courriels aux participants et alerte | `server/email` | AD-3, AD-10 |
-| §8 : alerte et annulation de la veille | `netlify/functions/hourly.mjs`, `api/cron/hourly`, `scheduled-task.service` | AD-4, AD-12, AD-13 |
+| §6 : courriels aux participants | `server/email` | AD-3, AD-10 |
 | §6 : export CSV des confirmés | `api/admin/exports/confirmed-participants` | AD-2, AD-9, AD-15 |
 | §3, §6 : bilingue | `app/[lang]`, `i18n` | AD-3 |
 | §12 : sécurité, limites, données personnelles | transverse | AD-8, AD-9, AD-11, conventions de journalisation |
