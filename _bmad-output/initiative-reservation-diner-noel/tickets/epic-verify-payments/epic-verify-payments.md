@@ -56,7 +56,7 @@ Les organisateurs vérifient chaque virement depuis le tableau de bord en moins 
 
 - Hors de cette épopée :
   - les filtres, la recherche, les compteurs, l'état des comptes, l'annulation et les paramètres (epic-manage-event) ;
-  - l'alerte, l'annulation de la veille et l'export CSV (epic-close-event).
+  - l’export CSV (epic-close-event).
 - Must not change: une place reste comptée tant que la réservation n'est pas annulée (AD-4).
 
 ## References

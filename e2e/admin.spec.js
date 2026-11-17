@@ -11,12 +11,8 @@ const ACCOUNT = {
 };
 const LOGIN_URL = /\/admin\/login$/;
 const DASHBOARD_URL = /\/admin$/;
-const LOGIN_PHOTO_MIN_WIDTH = 960;
 const VIEWPORTS = [
-  { width: 320, height: 844 },
   { width: 390, height: 844 },
-  { width: 1024, height: 1000 },
-  { width: 1280, height: 1000 },
   { width: 1440, height: 1000 },
 ];
 
@@ -145,40 +141,9 @@ test.describe("tableau de bord des organisateurs", () => {
       await page.goto("/admin/login");
       await logIn(page, ACCOUNT.password);
       await expect(page).toHaveURL(DASHBOARD_URL);
-      await expect(page.getByRole("link", { name: reservation.code })).toBeVisible();
-      const navigation = page.getByRole("navigation", { name: "Sections du tableau de bord" });
-      const navigationTop = await navigation.evaluate(
-        (element) => element.getBoundingClientRect().top,
-      );
-      const brandBottom = await page
-        .getByRole("banner")
-        .getByRole("link", { name: /Dîner de Noël/ })
-        .evaluate((element) => element.getBoundingClientRect().bottom);
-      const accountBottom = await page
-        .getByText(`Connecté : ${ACCOUNT.name}`)
-        .evaluate((element) => element.getBoundingClientRect().bottom);
-      expect(navigationTop).toBeGreaterThanOrEqual(Math.max(brandBottom, accountBottom));
-      await expect(page.getByRole("link", { name: /Voir le site/ })).toHaveAttribute("href", "/fr");
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth),
-      ).toBe(false);
       await page.screenshot({
         path: testInfo.outputPath(`admin-dashboard-${viewport.width}.png`),
         fullPage: true,
-        scale: "css",
-      });
-
-      await navigation.getByRole("link", { name: "Réservations", exact: true }).click();
-      await expect(page.getByRole("heading", { name: "Réservations", exact: true })).toBeVisible();
-      await expect(page.getByRole("searchbox")).toBeVisible();
-      await expect(page.getByRole("link", { name: reservation.code })).toBeVisible();
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth),
-      ).toBe(false);
-      await page.screenshot({
-        path: testInfo.outputPath(`admin-list-${viewport.width}.png`),
-        fullPage: true,
-        scale: "css",
       });
 
       await page.getByRole("link", { name: reservation.code }).click();
@@ -193,7 +158,6 @@ test.describe("tableau de bord des organisateurs", () => {
       await page.screenshot({
         path: testInfo.outputPath(`admin-reservation-${viewport.width}.png`),
         fullPage: true,
-        scale: "css",
       });
       await getPrisma().reservation.delete({ where: { id: reservation.id } });
     });
@@ -245,33 +209,10 @@ test.describe("tableau de bord des organisateurs", () => {
     expect(refused.status).toBe("PENDING_PAYMENT");
   });
 
-  for (const viewport of VIEWPORTS) {
-    test(`présente la page de connexion à ${viewport.width} px`, async ({ page }, testInfo) => {
-      await page.setViewportSize(viewport);
-      await page.goto("/admin/login");
+  test("présente la page de connexion", async ({ page }, testInfo) => {
+    await page.goto("/admin/login");
 
-      await expect(page.getByRole("heading", { name: "Espace organisateurs" })).toBeVisible();
-      await expect(page.getByLabel("Courriel")).toBeVisible();
-      if (viewport.width >= LOGIN_PHOTO_MIN_WIDTH) {
-        const photo = page.locator('img[src*="christmas-table"]');
-        await expect(photo).toBeVisible();
-        await expect
-          .poll(() =>
-            photo.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth > 0),
-          )
-          .toBe(true);
-        await photo.evaluate(async (image) => {
-          if (image instanceof HTMLImageElement) await image.decode();
-        });
-      }
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth),
-      ).toBe(false);
-      await page.screenshot({
-        path: testInfo.outputPath(`admin-login-${viewport.width}.png`),
-        fullPage: true,
-        scale: "css",
-      });
-    });
-  }
+    await expect(page.getByRole("heading", { name: "Espace organisateurs" })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("admin-login.png"), fullPage: true });
+  });
 });

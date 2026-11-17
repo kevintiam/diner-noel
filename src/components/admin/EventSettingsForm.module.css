@@ -17,15 +17,6 @@
   gap: var(--space-m);
   min-width: 0;
 }
-.form input:not([type="checkbox"]),
-.form select {
-  border-color: #879389;
-  border-radius: 0.5rem;
-  background: var(--color-cream);
-}
-.form input[aria-invalid="true"] {
-  border-color: var(--color-burgundy);
-}
 @media (min-width: 64rem) {
   .form {
     max-width: none;
@@ -71,7 +62,7 @@
   gap: 0.5rem;
   min-height: var(--tap-target);
   padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: 999px;
   font: inherit;
   font-size: 0.9375rem;
   font-weight: 700;

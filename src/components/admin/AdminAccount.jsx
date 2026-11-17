@@ -1,6 +1,6 @@
 // Partie du bandeau réservée à un organisateur connecté : son nom, la déconnexion et les onglets.
 // Sans session (page de connexion), rien ne s'affiche.
-import { ExternalLink, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { logoutOrganizerAction } from "@/server/actions/organizer.actions";
 import { getSignedInOrganizer } from "@/server/auth/require-organizer";
 import AdminTabs from "./AdminTabs";
@@ -24,16 +24,6 @@ export default async function AdminAccount() {
           <span className={styles.accountLabel}>Connecté :</span>{" "}
           <strong className={styles.accountName}>{organizer.name}</strong>
         </span>
-        <a
-          href="/fr"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Voir le site (nouvel onglet)"
-          title="Voir le site du dîner"
-          className={styles.mobileSite}
-        >
-          <ExternalLink aria-hidden="true" className={styles.logoutIcon} />
-        </a>
       </div>
       <form action={logoutOrganizerAction} className={styles.logoutForm}>
         <button type="submit" className={styles.logout}>

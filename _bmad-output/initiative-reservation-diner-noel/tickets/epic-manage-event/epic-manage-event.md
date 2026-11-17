@@ -33,7 +33,7 @@ Les organisateurs voient d'un coup d'œil les places et l'argent, et ajustent l'
 
 - Hors de cette épopée :
   - la connexion, la liste et la fiche, déjà livrées par epic-verify-payments ;
-  - l'alerte, l'annulation de la veille et l'export CSV (epic-close-event).
+  - l’export CSV (epic-close-event).
 
 ## References
 

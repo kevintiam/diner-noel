@@ -1,10 +1,12 @@
-// Captures reçues pour une réservation. Les images elles-mêmes s'afficheront par la route
-// protégée des organisateurs (architecture AD-8, story 2.2) : la fiche ne les intègre pas.
+// Captures reçues pour une réservation (story 2.2). Les images passent par la route
+// protégée des organisateurs (architecture AD-8) ; un clic les ouvre en grand.
 import { FileImage, ImageOff } from "lucide-react";
 import { formatShortDateTime } from "@/lib/format";
+import ProofGallery from "./ProofGallery";
 import styles from "./ReservationDetail.module.css";
 
 const BYTES_PER_KILOBYTE = 1024;
+const PROOF_IMAGE_PATH = "/api/admin/proofs";
 
 /**
  * @param {{ proofs: Array<{ id: string, byteSize: number, createdAt: Date }> }} props
@@ -25,22 +27,15 @@ export default function ProofList({ proofs }) {
           Aucune capture reçue pour l’instant.
         </p>
       ) : (
-        <ul className={styles.proofs}>
-          {proofs.map((proof, index) => (
-            <li key={proof.id} className={styles.proof}>
-              <span className={styles.proofTile} aria-hidden="true">
-                <FileImage className={styles.proofIcon} />
-              </span>
-              <span className={styles.proofText}>
-                <span className={styles.proofName}>Capture {proofs.length - index}</span>
-                <span className={styles.proofMeta}>
-                  reçue le {formatShortDateTime(proof.createdAt, "fr")} ·{" "}
-                  {Math.ceil(proof.byteSize / BYTES_PER_KILOBYTE)} Ko
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
+        // Textes mis en forme ici, côté serveur : la galerie les affiche tels quels.
+        <ProofGallery
+          proofs={proofs.map((proof, index) => ({
+            id: proof.id,
+            src: `${PROOF_IMAGE_PATH}/${encodeURIComponent(proof.id)}`,
+            name: `Capture ${proofs.length - index}`,
+            meta: `reçue le ${formatShortDateTime(proof.createdAt, "fr")} · ${Math.ceil(proof.byteSize / BYTES_PER_KILOBYTE)} Ko`,
+          }))}
+        />
       )}
     </section>
   );

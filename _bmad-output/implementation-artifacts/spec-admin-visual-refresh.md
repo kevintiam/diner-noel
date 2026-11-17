@@ -2,7 +2,7 @@
 title: Refaire les écrans et clarifier la navigation de l’admin
 type: feature
 created: 2026-11-16
-status: done
+status: reverted
 route: oneshot
 review_loop_iteration: 0
 context: []
@@ -17,6 +17,8 @@ Refaire les écrans de l’espace admin et clarifier leur navigation dans le th�
 </frozen-after-approval>
 
 ## Implementation Notes
+
+- Le 17 novembre 2026, à la demande du propriétaire, la refonte et la correction de l’en-tête ont été annulées. Les 15 fichiers de code et de parcours ont été rétablis à leur contenu précédant le commit de refonte (`4b93374`). Les prochaines modifications visuelles doivent se faire pas à pas avec le propriétaire. Les notes ci-dessous décrivent la refonte annulée.
 
 - La branche dédiée est `feature/admin-visual-refresh`. Le manuel local préexistant reste sous le contrôle du propriétaire.
 - La connexion réutilise la photo de Noël du projet. Le tableau de bord regroupe le suivi du dîner et les compteurs, avec un accès prioritaire aux paiements à vérifier.

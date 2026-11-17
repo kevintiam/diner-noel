@@ -215,7 +215,9 @@
     "reservationNotFound": "Cette réservation est introuvable.",
     "proofTooLarge": "La capture dépasse 4 Mo. Choisissez un fichier plus petit.",
     "proofInvalidType": "Choisissez une image JPG, PNG ou WEBP valide.",
-    "reservationStatusChanged": "Cette réservation a changé entre-temps. Rechargez la fiche pour voir son statut actuel."
+    "reservationStatusChanged": "Cette réservation a changé entre-temps. Rechargez la fiche pour voir son statut actuel.",
+    "unauthenticated": "Connectez-vous pour accéder à cette ressource.",
+    "proofNotFound": "Cette capture est introuvable."
   },
   "countdown": {
     "title": "Compte à rebours avant la célébration",
@@ -246,7 +248,7 @@
     "submitting": "Envoi en cours…",
     "later": "Je l’enverrai plus tard",
     "laterMessage": "Votre place reste réservée en attendant. Revenez avec ce lien pour envoyer votre preuve de paiement.",
-    "privacy": "Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs. Sans paiement confirmé, la réservation sera annulée la veille du dîner.",
+    "privacy": "Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs.",
     "fileRequired": "Choisissez une capture d’écran non vide.",
     "confirmRequired": "Confirmez avoir effectué le virement.",
     "langInvalid": "Choisissez une langue valide."

@@ -12,7 +12,7 @@ risk: high
 
 ## Description
 
-Aujourd'hui, les réservations et les paiements du dîner de Noël d'ICC Ottawa se suivent à la main. À la fin de cette initiative, un site bilingue est en production. Les participants y réservent leurs places, paient par virement Interac et déposent la preuve de leur virement. Les quatre organisateurs vérifient chaque virement, confirment ou refusent, et suivent les places et l'argent. Les tâches de fin d'événement (alerte, annulation de la veille, export) tournent seules. Source : `docs/projet-brief.md`. Décisions techniques : l'architecture adoptée en compagnon.
+Aujourd'hui, les réservations et les paiements du dîner de Noël d'ICC Ottawa se suivent à la main. À la fin de cette initiative, un site bilingue est en production. Les participants y réservent leurs places, paient par virement Interac et déposent la preuve de leur virement. Les quatre organisateurs vérifient chaque virement, confirment ou refusent, et suivent les places et l'argent. Les organisateurs disposent d’un export CSV des participants confirmés et gèrent manuellement les annulations. Source : `docs/projet-brief.md`. Décisions techniques : l'architecture adoptée en compagnon.
 
 ## Outcome
 
@@ -35,11 +35,11 @@ Les participants réservent et paient seuls depuis leur téléphone, et les orga
 - R13 (§5.6, §5.7, §6, §8): un organisateur confirme le paiement d'une réservation « À vérifier » ; le participant reçoit dans sa langue le courriel de confirmation avec le récapitulatif.
 - R14 (§4.11, §5.6, §5.7, §8): un organisateur refuse une preuve avec un motif choisi dans une liste (dont « Montant incomplet ») ; la réservation revient « En attente de paiement » sans libérer ses places, et le participant reçoit dans sa langue l'avis de refus avec le motif et le même lien.
 - R15 (§6, §8): un organisateur annule une réservation (désistement, doublon), y compris confirmée ; ses places sont libérées et aucun courriel ne part.
-- R16 (§8): chaque décision (confirmer, refuser, annuler, annulation automatique) garde la date, l'organisateur quand il y en a un et, pour un refus, le motif.
+- R16 (§8): chaque décision (confirmer, refuser, annuler) garde la date, l'organisateur et, pour un refus, le motif.
 - R17 (§5.2, §6, §8): le tableau de bord affiche les places confirmées sur le total, les réservations à vérifier et en attente de paiement, le montant encaissé (réservations confirmées + annulées après confirmation) et le montant en attente.
 - R18 (§5.8, §6, §8): un organisateur modifie la date et l'heure, la date limite, le nombre de places, le prix, le lieu et le courriel Interac ; la date limite reste avant le dîner, le nombre de places jamais sous les places prises, et les changements ne touchent que les nouvelles réservations.
-- R19 (§5.9, §6, §8): deux jours avant l'annulation automatique, s'il reste des réservations « À vérifier », les quatre organisateurs reçoivent un courriel d'alerte et un bandeau s'affiche dans le tableau de bord jusqu'à l'annulation.
-- R20 (§8): la veille de l'événement, les réservations « En attente de paiement » et « À vérifier » sont annulées automatiquement, sans courriel au participant.
+- R19 : annulée par le propriétaire le 16 novembre 2026 — alerte aux organisateurs avant la clôture, retirée du périmètre.
+- R20 : annulée par le propriétaire le 16 novembre 2026 — annulation automatique de la veille, retirée du périmètre.
 - R21 (§6): un organisateur exporte en CSV la liste des participants confirmés pour l'accueil le soir du dîner.
 - R22 (§12): les captures ne sont visibles que par un organisateur connecté, jamais par une adresse publique, et restent protégées après le dîner.
 - R23 (§12): le formulaire de réservation, le dépôt de preuve et la connexion limitent les envois en masse.
@@ -62,7 +62,7 @@ Les participants réservent et paient seuls depuis leur téléphone, et les orga
 - Le vendredi 20 novembre 2026, le site bilingue est en production. Un participant y réserve et dépose sa preuve sur téléphone, sans aide, en moins de 5 minutes, en français ou en anglais.
 - En production, les organisateurs confirment ou refusent chaque paiement depuis le tableau de bord en moins d'une minute, et chaque participant reçoit son accusé de réception puis sa confirmation.
 - Aucune place n'est vendue en trop, y compris dans un test de réservations simultanées.
-- Avant le dîner, l'alerte et l'annulation de la veille ont tourné en production, et l'export CSV des confirmés est prêt pour l'accueil.
+- Avant le dîner, l’export CSV des confirmés est prêt pour l’accueil.
 - Aucune capture n'est accessible sans la connexion d'un organisateur.
 
 ## Boundaries
@@ -90,7 +90,6 @@ Les participants réservent et paient seuls depuis leur téléphone, et les orga
 ## Notes
 
 - Assumption: maximum de 10 places par réservation (brief §15.1).
-- Assumption: l'annulation automatique se fait la veille à 0 h, heure d'Ottawa (brief §15.4, architecture AD-12).
 - Assumption: le dépôt automatique Interac est exigé, sans question de sécurité (brief §15.6, architecture AD-14).
 - Assumption: le lien « Modifier mes informations » de la maquette 3 est retiré (brief §15.5).
 - Assumption: le tableau de bord est en français seulement (architecture AD-3).
@@ -100,7 +99,8 @@ Les participants réservent et paient seuls depuis leur téléphone, et les orga
 - Open question: les vraies valeurs de l'événement (§13) et les textes de la page d'accueil en français et en anglais sont à fournir d'ici le mercredi 18 novembre. La story de fondation les attend pour son jeu de données de départ.
 - Decision (2026-11-15): une capture fait 4 Mo au maximum. C'est le choix de l'utilisateur ; le brief proposait 5 Mo (§15.2), mais 4 Mo reste sous la limite des fonctions serveur (architecture AD-8).
 - Decision (2026-11-15): 5 épopées, découpées par capacité et alignées sur les échéances du §17. Les épopées 1 et 2 sont prévues pour jeudi, les épopées 3 et 4 pour la semaine du 23 novembre, l'épopée 5 pour avant le 16 décembre.
-- Decision (2026-11-15): l'épopée 5 attend aussi l'épopée 3, parce que les deux modifient la page du tableau de bord (constat de la vérification des dépendances).
+- Decision (2026-11-15): l'épopée 5 attend aussi l'épopée 3, pour réutiliser la navigation et les données des participants confirmés.
 - Decision (2026-11-15): les nettoyages (refactor sweep) et la suite de bout en bout passent après la mise en ligne, pour protéger jeudi.
 - Decision (2026-11-15): `docs/` reste ignoré par git, volontairement. Le brief et les maquettes ne sont pas dans le dépôt.
 - Decision (2026-11-15): toute la maquette 1 de l'accueil est livrée avant la mise en ligne de vendredi (choix de l'utilisateur). L'épopée 4 passe de la semaine du 23 novembre à jeudi 19, juste après l'épopée 1. Les textes sont ceux de la maquette, à titre provisoire, et des cadres photo tiennent lieu de photos en attendant les vraies.
+- Decision (2026-11-16): R19 et R20 sont annulées à la demande du propriétaire. Les réservations non confirmées restent actives jusqu’à une décision manuelle. R16 couvre uniquement les décisions des organisateurs; l’épopée 5 conserve l’export CSV (R21). Les identifiants des exigences sont conservés pour la traçabilité.

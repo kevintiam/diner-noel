@@ -181,7 +181,7 @@ return runInTransaction(async (tx) => {
 | `TO_VERIFY` | `ProofReceived` |
 | `CONFIRMED` / `CANCELLED` | `ReservationStatusNotice` |
 
-Texte sous le formulaire (décision D, qui remplace celui de la maquette 5) : « Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs. Sans paiement confirmé, la réservation sera annulée la veille du dîner. »
+Texte sous le formulaire (décision D, qui remplace celui de la maquette 5) : « Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs. »
 
 ## Verification
 
@@ -194,3 +194,5 @@ La passe globale intermédiaire avait rencontré un parcours d'export admin ajou
 - `npm test` : attendu tous les tests au vert, dont `proof.service.db.test.js` sur la base `test`.
 - `npm run build` : attendu une construction réussie.
 - `npm run test:e2e` : attendu les parcours de dépôt, ainsi que ceux des stories 1.1 et 1.2.
+
+**Changement de périmètre du 16 novembre 2026 :** retrait, à la demande du propriétaire, de la promesse d’annulation automatique dans le texte sous le formulaire, en français et en anglais. Les décisions de réservation restent manuelles.

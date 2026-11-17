@@ -5,7 +5,7 @@
 .eyebrow {
   margin-bottom: 0.25rem;
   color: var(--admin-gold-ink);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -36,7 +36,7 @@
   min-height: var(--tap-target);
   padding: 0 1.25rem;
   border: 1px solid var(--color-fir);
-  border-radius: 0.5rem;
+  border-radius: 999px;
   background: var(--color-surface);
   color: var(--color-fir);
   font-size: var(--font-size-small);
@@ -63,21 +63,11 @@
   flex-direction: column;
   gap: var(--space-l);
 }
-.overview {
-  display: grid;
-  gap: 1.5rem;
-  align-items: stretch;
-}
-.overview > :only-child {
-  grid-column: 1 / -1;
-}
-@media (min-width: 64rem) {
-  .overview {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-  }
-  .overview > :only-child {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+/* Bandeaux « À faire » et « Le dîner », l'un sous l'autre, en pleine largeur. */
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 .sectionHeader {
   display: flex;

@@ -35,7 +35,7 @@ after = [{ epic = 2, needs = "la connexion des organisateurs, la liste et la fic
 [[epic]]
 id = 5
 slug = "epic-close-event"
-title = "Le dîner se clôture sans travail manuel"
-description = "Les organisateurs sont alertés s'il reste des preuves à vérifier, les réservations non confirmées sont annulées la veille, et la liste des confirmés s'exporte en CSV."
-covers = ["R16", "R19", "R20", "R21"]
-after = [{ epic = 2, needs = "les comptes des organisateurs, les changements de statut et l'envoi de courriels" }, { epic = 3, needs = "le tableau de bord avec ses compteurs (le bandeau d'alerte s'y ajoute) et l'annulation" }]
+title = "Exporter les participants confirmés"
+description = "Un organisateur connecté exporte les participants confirmés en CSV pour l’accueil du dîner."
+covers = ["R21"]
+after = [{ epic = 2, needs = "la connexion des organisateurs et les réservations confirmées" }, { epic = 3, needs = "la navigation du tableau de bord" }]

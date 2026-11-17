@@ -40,4 +40,4 @@ Accueil → formulaire → lien personnel de paiement, dépôt et statut, réuti
 
 ## Cross-Story Dependencies
 
-Fondation → réservation → accusé et dépôt indépendants. Le dépôt installe « À vérifier » ; l'épopée organisateurs ajoute connexion, consultation protégée, confirmation/refus. Celle de clôture ajoute les automatismes. Leur courriel réutilise le même adaptateur. Le propriétaire configure le SMTP dédié et vérifie une réception réelle sur l'aperçu. Préserver les travaux locaux accueil/tarifs ; aucune autorisation de commit, push ou production n'en découle.
+Fondation → réservation → accusé et dépôt indépendants. Le dépôt installe « À vérifier » ; l'épopée organisateurs ajoute connexion, consultation protégée, confirmation/refus. Celle de clôture conserve seulement l’export CSV. L’alerte et l’annulation automatique sont annulées (décision du 16 novembre 2026). Les annulations restent manuelles. Le propriétaire configure le SMTP dédié et vérifie une réception réelle sur l'aperçu. Préserver les travaux locaux accueil/tarifs ; aucune autorisation de commit, push ou production n'en découle.
