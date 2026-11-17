@@ -76,8 +76,8 @@ async function DashboardOverview() {
   const summary = summarizeReservations(reservations);
   return (
     <div className={styles.stack}>
-      <div className={styles.highlights}>
-        <TodoCallout toVerifyCount={summary.TO_VERIFY.count} />
+      <TodoCallout toVerifyCount={summary.TO_VERIFY.count} />
+      <div className={styles.overview}>
         {event ? (
           <EventFillCard
             event={event}
@@ -86,8 +86,8 @@ async function DashboardOverview() {
             expectedCents={accounting.pendingCents}
           />
         ) : null}
+        <DashboardStats reservations={reservations} />
       </div>
-      <DashboardStats reservations={reservations} />
       <section aria-labelledby="recent-title">
         <div className={styles.sectionHeader}>
           <h2 id="recent-title" className={styles.sectionTitle}>

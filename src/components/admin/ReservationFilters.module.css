@@ -37,8 +37,8 @@
   width: 100%;
   min-height: var(--tap-target);
   padding: 0 3rem 0 2.875rem;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border: 1px solid #879389;
+  border-radius: 0.5rem;
   background: var(--color-surface);
   box-shadow: var(--admin-shadow);
   color: var(--color-ink);
@@ -86,7 +86,7 @@
   min-height: var(--tap-target);
   padding: 0;
   border: 1px solid var(--color-fir);
-  border-radius: 999px;
+  border-radius: 0.5rem;
   background: var(--color-fir);
   color: var(--color-cream);
   font: inherit;

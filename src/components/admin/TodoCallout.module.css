@@ -12,7 +12,7 @@
 .work {
   border-color: color-mix(in srgb, var(--color-gold) 50%, var(--color-border));
   background: color-mix(in srgb, var(--color-gold-light) 38%, var(--color-surface));
-  box-shadow: var(--admin-shadow);
+  box-shadow: none;
 }
 .iconCircle {
   display: inline-flex;
@@ -53,8 +53,8 @@
   gap: 0.5rem;
   min-height: var(--tap-target);
   padding: 0 1.25rem;
-  border-radius: 999px;
-  background: var(--color-fir);
+  border-radius: 0.5rem;
+  background: var(--color-burgundy);
   color: var(--color-cream);
   font-size: 0.9375rem;
   font-weight: 700;
@@ -63,7 +63,7 @@
   transition: background 0.15s ease;
 }
 .button:hover {
-  background: var(--color-fir-dark);
+  background: #9e2a38;
 }
 .buttonIcon {
   width: 1.125rem;
