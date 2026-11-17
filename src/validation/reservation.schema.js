@@ -140,6 +140,7 @@ export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
 /**
  * Ce que la page de paiement affiche d'une réservation.
  * @typedef {object} ReservationForPayment
+ * @property {string} firstName
  * @property {string} code
  * @property {string} status
  * @property {number} seats
@@ -151,6 +152,22 @@ export const personalTokenSchema = z.string().regex(PERSONAL_TOKEN_PATTERN);
 
 /**
  * @typedef {{ field: string, messageKey: string }} FieldError
+ */
+
+/**
+ * Instantané enregistré, réservé à l'accusé : aucune coordonnée superflue.
+ * @typedef {object} ReservationForReceipt
+ * @property {string} id Identifiant interne destiné au journal confidentiel.
+ * @property {string} code
+ * @property {string} token
+ * @property {string} firstName
+ * @property {string} email
+ * @property {"FR" | "EN"} language Langue effectivement enregistrée.
+ * @property {number} seats
+ * @property {number} childSeats
+ * @property {number} unitPriceCents
+ * @property {number} amountCents
+ * @property {string} interacEmail
  */
 
 /**

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { loadTestEnv } from "./load-test-env.js";
 
+/** @type {string[]} */
 const directories = [];
 const TEST_URL = "postgresql://test:fake@localhost/test";
 
@@ -37,7 +38,7 @@ describe("loadTestEnv", () => {
 
     loadTestEnv(path, environment);
 
-    expect(environment).toEqual({
+    expect(environment).toMatchObject({
       DATABASE_URL: TEST_URL,
       DATABASE_IS_TEST: "true",
       DIRECT_URL: "",
@@ -74,6 +75,20 @@ describe("loadTestEnv", () => {
     const environment = createInheritedEnv();
 
     expect(() => loadTestEnv(createFixture(contents), environment)).toThrow();
-    expect(Object.values(environment)).toEqual(["", "", "", ""]);
+    for (const key of Object.keys(createInheritedEnv())) expect(environment[key]).toBe("");
+  });
+
+  it("neutralise SMTP hérité et déclaré dans le fichier de test", () => {
+    const keys = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_FROM"];
+    const environment = createInheritedEnv();
+    for (const key of keys) environment[key] = "valeur-heritee-fictive";
+    environment.SITE_URL = "https://production.example.test";
+    const contents = `DATABASE_URL=${TEST_URL}\nDATABASE_IS_TEST=true\nSITE_URL=https://test.example.test\n`;
+    const smtpContents = keys.map((key) => `${key}=valeur-fictive`).join("\n");
+
+    loadTestEnv(createFixture(contents + smtpContents), environment);
+
+    for (const key of keys) expect(environment[key]).toBe("");
+    expect(environment.SITE_URL).toBe("http://localhost:3100");
   });
 });

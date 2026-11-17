@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import PaymentInstructions from "@/components/reservations/PaymentInstructions";
 import FreeReservationConfirmation from "@/components/reservations/FreeReservationConfirmation";
+import ProofUploadForm from "@/components/reservations/ProofUploadForm";
+import ProofReceived from "@/components/reservations/ProofReceived";
+import ReservationStatusNotice from "@/components/reservations/ReservationStatusNotice";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { describeError, logger } from "@/lib/logger";
 import { getReservationForPayment } from "@/server/services/reservation.service";
@@ -31,12 +34,21 @@ export default async function PaymentDetails({ params }) {
   if (!reservation) {
     notFound();
   }
+  const props = { reservation, lang, dictionary: getDictionary(lang) };
+  if (reservation.status === "CANCELLED") return <ReservationStatusNotice {...props} />;
+  if (reservation.status === "TO_VERIFY") return <ProofReceived {...props} />;
   if (reservation.amountCents === 0) {
     return (
       <FreeReservationConfirmation reservation={reservation} dictionary={getDictionary(lang)} />
     );
   }
+  if (reservation.status === "CONFIRMED") return <ReservationStatusNotice {...props} />;
   return (
-    <PaymentInstructions reservation={reservation} lang={lang} dictionary={getDictionary(lang)} />
+    <>
+      <PaymentInstructions {...props} />
+      {reservation.status === "PENDING_PAYMENT" && (
+        <ProofUploadForm token={token} lang={lang} dictionary={props.dictionary} />
+      )}
+    </>
   );
 }

@@ -1,0 +1,192 @@
+/* Panneau de décision : vérifier, puis confirmer, refuser ou annuler. */
+.checklist {
+  padding: 1rem 1.125rem;
+  border-radius: var(--admin-radius-small);
+  background: color-mix(in srgb, var(--color-gold-light) 32%, var(--color-surface));
+}
+.checkTitle {
+  color: var(--admin-gold-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+.checks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+.checks strong {
+  color: var(--color-fir);
+}
+.checkIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2rem;
+  color: var(--admin-gold-ink);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: var(--tap-target);
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.buttonIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.confirmButton {
+  min-height: 3.25rem;
+  border: 1px solid var(--color-fir);
+  background: var(--color-fir);
+  color: var(--color-cream);
+  font-size: var(--font-size-base);
+}
+.confirmButton:hover {
+  background: var(--color-fir-dark);
+}
+.button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.confirmForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+/* Ce que la décision déclenche pour la personne. */
+.hint {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+/* Refus du serveur : réservation changée entre-temps, motif manquant. */
+.formError {
+  padding: 0.875rem 1rem;
+  border-left: 3px solid var(--color-burgundy);
+  border-radius: var(--admin-radius-small);
+  background: var(--admin-burgundy-light);
+  color: var(--color-burgundy);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+/* « ou » entre deux filets */
+.separator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.refuseForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.fieldLabel {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.select {
+  width: 100%;
+  min-height: var(--tap-target);
+  padding: 0 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius-small);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--font-size-small);
+}
+.select:focus {
+  border-color: var(--color-fir);
+  outline: 3px solid var(--color-gold-light);
+}
+.refuseButton {
+  border: 1px solid var(--color-burgundy);
+  background: var(--color-surface);
+  color: var(--color-burgundy);
+}
+.refuseButton:hover {
+  background: var(--admin-burgundy-light);
+}
+
+/* Annulation : discrète, à l'écart des deux décisions principales. */
+.cancelForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding-top: var(--space-s);
+  border-top: 1px dashed var(--color-border);
+}
+.cancelHelp {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.cancelButton {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+}
+.cancelButton:hover {
+  border-color: var(--color-burgundy);
+  color: var(--color-burgundy);
+}
+
+/* État final : paiement confirmé ou réservation annulée. */
+.state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--admin-radius-small);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+.stateConfirmed {
+  background: var(--color-fir-light);
+  color: var(--color-fir);
+}
+.stateCancelled {
+  background: var(--admin-burgundy-light);
+  color: var(--color-burgundy);
+}
+.stateWaiting {
+  background: var(--color-sand);
+  color: var(--color-muted);
+}
+.stateIcon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}

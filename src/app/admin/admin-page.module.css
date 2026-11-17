@@ -1,0 +1,178 @@
+/* Mise en page commune des pages du tableau de bord. */
+.heading {
+  margin-bottom: var(--space-l);
+}
+.eyebrow {
+  margin-bottom: 0.25rem;
+  color: var(--admin-gold-ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.title {
+  font-size: var(--font-size-title);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  max-width: 40rem;
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+}
+/* Bandeaux « À faire » et « Le dîner », l'un sous l'autre, en pleine largeur. */
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: var(--space-s);
+}
+.sectionTitle {
+  font-size: var(--font-size-section);
+}
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--tap-target);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  text-decoration-color: var(--color-gold);
+}
+.linkIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  transition: transform 0.15s ease;
+}
+.textLink:hover .linkIcon {
+  transform: translateX(3px);
+}
+.backLink .textLink:hover .linkIcon {
+  transform: translateX(-3px);
+}
+.count {
+  margin-bottom: var(--space-xs);
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.noMatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--space-l) var(--space-m);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  text-align: center;
+}
+.noMatchIcon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-gold);
+}
+
+/* Fiche d'une réservation */
+.backLink {
+  margin-bottom: var(--space-s);
+}
+.detailHero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: var(--space-m);
+  padding: var(--space-m);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-gold);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  box-shadow: var(--admin-shadow);
+}
+.detailIdentity {
+  min-width: 0;
+}
+.detailTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+/* Chiffres alignés : les chiffres anciens de Playfair rendent le code moins lisible. */
+.code {
+  color: var(--color-burgundy);
+  font-size: clamp(1.875rem, 6vw, 2.75rem);
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+}
+.detailMeta {
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+.detailActions {
+  grid-column: 1 / -1;
+}
+/* Avis après une décision dont le courriel n'a pas pu partir. */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: var(--space-m);
+  padding: 0.875rem 1rem;
+  border-left: 3px solid var(--color-gold);
+  border-radius: var(--admin-radius-small);
+  background: color-mix(in srgb, var(--color-gold-light) 32%, var(--color-surface));
+  color: var(--admin-gold-ink);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+.noticeIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+}
+.detailGrid {
+  display: grid;
+  gap: var(--space-m);
+  align-items: start;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  min-width: 0;
+}
+@media (min-width: 48rem) {
+  .detailHero {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.25rem;
+    padding: var(--space-m) var(--space-l);
+  }
+  .detailActions {
+    grid-column: auto;
+  }
+}
+@media (min-width: 64rem) {
+  .detailGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+}

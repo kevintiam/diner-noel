@@ -31,16 +31,41 @@ afterEach(() => {
 });
 
 describe("PaymentDetails", () => {
+  it.each(["TO_VERIFY", "CONFIRMED", "CANCELLED"])(
+    "masque le formulaire pour %s",
+    async (status) => {
+      const { default: ProofReceived } = await import("@/components/reservations/ProofReceived");
+      const { default: ReservationStatusNotice } =
+        await import("@/components/reservations/ReservationStatusNotice");
+      vi.mocked(getReservationForPayment).mockResolvedValue(
+        /** @type {any} */ ({ status, amountCents: 5000 }),
+      );
+      const element = await PaymentDetails({ params: buildParams("fr") });
+      expect(element.type).toBe(status === "TO_VERIFY" ? ProofReceived : ReservationStatusNotice);
+    },
+  );
+
+  it("affiche une réservation gratuite annulée comme annulée", async () => {
+    const { default: ReservationStatusNotice } =
+      await import("@/components/reservations/ReservationStatusNotice");
+    vi.mocked(getReservationForPayment).mockResolvedValue(
+      /** @type {any} */ ({ status: "CANCELLED", amountCents: 0 }),
+    );
+    expect((await PaymentDetails({ params: buildParams("fr") })).type).toBe(
+      ReservationStatusNotice,
+    );
+  });
   it("lit la réservation du lien à la demande et affiche ses instructions", async () => {
-    const reservation = { code: "NOEL-4821", amountCents: 5000 };
+    const reservation = { code: "NOEL-4821", amountCents: 5000, status: "PENDING_PAYMENT" };
     vi.mocked(getReservationForPayment).mockResolvedValue(/** @type {any} */ (reservation));
 
     const element = await PaymentDetails({ params: buildParams("en") });
 
     expect(connection).toHaveBeenCalledTimes(1);
     expect(getReservationForPayment).toHaveBeenCalledWith(TOKEN);
-    expect(element.type).toBe(PaymentInstructions);
-    expect(element.props).toMatchObject({ reservation, lang: "en" });
+    expect(element.props.children[0].type).toBe(PaymentInstructions);
+    expect(element.props.children[0].props).toMatchObject({ reservation, lang: "en" });
+    expect(element.props.children[1].props.token).toBe(TOKEN);
   });
 
   it("choisit la confirmation gratuite pour un montant nul", async () => {

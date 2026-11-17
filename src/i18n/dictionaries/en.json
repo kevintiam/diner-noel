@@ -1,4 +1,55 @@
 {
+  "receipt": {
+    "paidSubject": "Your booking {code} — Christmas Dinner",
+    "freeSubject": "Booking confirmed {code} — Christmas Dinner",
+    "greeting": "Hello {firstName},",
+    "paidIntro": "Your booking has been saved. Your payment is awaiting verification by the organizers.",
+    "freeIntro": "Your free booking is already confirmed.",
+    "code": "Booking code: {code}",
+    "guests": "Guests: {adults} person(s) aged 15 and over; {children} child(ren) aged 0–14.",
+    "price": "Booked price per person aged 15 and over: {price}",
+    "amount": "Amount to send: {amount}",
+    "transfer": "Send the Interac e-Transfer to {email}.",
+    "transferCode": "Include the code {code} in the transfer message.",
+    "keepLink": "Keep your personal link to view your booking.",
+    "openLink": "Open my booking"
+  },
+  "emailCommon": {
+    "eventName": "Christmas Dinner {year}",
+    "row": "{label}: {value}",
+    "codeLabel": "Booking code",
+    "signature": "The organizing team",
+    "footer": "You are receiving this email because you booked a seat at the Christmas Dinner."
+  },
+  "confirmation": {
+    "subject": "Your seat at the Christmas Dinner is confirmed",
+    "title": "Your seat is confirmed",
+    "intro": "We have received your Interac e-Transfer. Your seats for the Christmas Dinner are confirmed. We look forward to welcoming you.",
+    "seatsLabel": "Seats",
+    "seatsWithChildren": "{seats}, including {children} child(ren) aged 0–14",
+    "amountLabel": "Amount paid",
+    "dateLabel": "Date",
+    "arrival": "Doors open at {time}",
+    "venueLabel": "Venue",
+    "showCode": "Show your code {code} at the welcome desk on the evening of the dinner.",
+    "blessing": "May the peace and joy of Christmas be with you."
+  },
+  "refusal": {
+    "subject": "Your proof of payment was not accepted — {code}",
+    "title": "New proof of payment needed",
+    "intro": "An organizer reviewed your proof of payment and could not accept it.",
+    "reasonLabel": "Reason",
+    "amountLabel": "Amount due",
+    "transferLabel": "Interac e-Transfer to",
+    "seatsKept": "Your seats remain reserved: your booking is awaiting payment again.",
+    "nextStep": "Send a new proof, or proof of the remaining amount, using your personal link.",
+    "openLink": "Send a new proof",
+    "reasons": {
+      "NO_TRANSFER": "No transfer received",
+      "INCOMPLETE_AMOUNT": "Incomplete amount",
+      "UNREADABLE_PROOF": "Unreadable or incorrect screenshot"
+    }
+  },
   "meta": {
     "title": "Christmas Dinner 2026 — ICC Ottawa",
     "description": "Book your seat at the ICC Ottawa community Christmas dinner."
@@ -127,7 +178,21 @@
     "phoneInvalid": "The phone number is invalid (10 to 15 digits).",
     "seatsInvalid": "Choose between 1 and 10 seats.",
     "noteTooLong": "The note is too long (500 characters maximum).",
-    "ageSeatsInvalid": "Choose a whole number from 0 to 10."
+    "ageSeatsInvalid": "Choose a whole number from 0 to 10.",
+    "passwordRequired": "Enter your password.",
+    "passwordTooShort": "The password must be at least 12 characters long.",
+    "passwordTooLong": "The password is too long.",
+    "decisionInvalid": "Choose a valid decision.",
+    "refusalReasonRequired": "Choose a refusal reason from the list.",
+    "dateInvalid": "Enter a valid date.",
+    "timeInvalid": "Enter a valid time, for example 18:00.",
+    "deadlineAfterEvent": "The deadline must fall before the day of the dinner.",
+    "venueNameInvalid": "Enter the venue name (120 characters at most).",
+    "venueAddressInvalid": "Enter the venue address (200 characters at most).",
+    "capacityInvalid": "Enter a whole number of seats, from 1 to 2000.",
+    "capacityBelowTaken": "The number of seats cannot go below the seats already taken.",
+    "priceInvalid": "Enter a price in dollars, for example 35 or 35.50.",
+    "autoDepositRequired": "Confirm that autodeposit is turned on for the new address."
   },
   "language": {
     "switchLabel": "Change language",
@@ -143,7 +208,12 @@
     "soldOut": "The dinner is sold out: no seats are left.",
     "notEnoughSeats": "There are not enough seats left for this booking. Please choose fewer seats.",
     "bookingClosed": "Bookings are closed.",
-    "tooManyRequests": "Too many attempts. Please try again in a few minutes."
+    "tooManyRequests": "Too many attempts. Please try again in a few minutes.",
+    "invalidCredentials": "Invalid email or password.",
+    "reservationNotFound": "This booking could not be found.",
+    "proofTooLarge": "The screenshot exceeds 4 MB. Choose a smaller file.",
+    "proofInvalidType": "Choose a valid JPG, PNG or WEBP image.",
+    "reservationStatusChanged": "This booking changed in the meantime. Reload the page to see its current status."
   },
   "countdown": {
     "title": "Countdown to the celebration",
@@ -163,6 +233,37 @@
     "proofAnswer": "Keep your personal booking link to send a screenshot of your transfer, right away or later.",
     "refundQuestion": "Can I get a refund?",
     "refundAnswer": "No refunds once the transfer is sent."
+  },
+  "proof": {
+    "title": "Send your payment proof",
+    "intro": "Attach a screenshot of your transfer confirmation.",
+    "choose": "Choose a screenshot or drop it here",
+    "formats": "JPG, PNG or WEBP · 4 MB maximum",
+    "confirm": "I confirm that I have sent the Interac e-Transfer.",
+    "submit": "Send my payment proof",
+    "submitting": "Sending…",
+    "later": "I’ll send it later",
+    "laterMessage": "Your place remains reserved for now. Return with this link to send your payment proof.",
+    "privacy": "Your place remains reserved for now. Your screenshot is visible only to the organizers. Without confirmed payment, the reservation will be cancelled the day before the dinner.",
+    "fileRequired": "Choose a non-empty screenshot.",
+    "confirmRequired": "Confirm that you have sent the transfer.",
+    "langInvalid": "Choose a valid language."
+  },
+  "received": {
+    "title": "Payment proof received",
+    "greeting": "Thank you {firstName}, we have received your payment proof.",
+    "seats": "Reserved seats",
+    "amount": "Transfer amount",
+    "nextTitle": "What happens next?",
+    "next": "The organizers will verify your transfer. You will receive an email when your reservation is confirmed.",
+    "keepLink": "Keep your personal link to check the status of your reservation."
+  },
+  "status": {
+    "toVerify": "To verify — awaiting verification",
+    "confirmedTitle": "Your reservation is confirmed",
+    "confirmed": "The organizers have confirmed your payment. We look forward to welcoming you!",
+    "cancelledTitle": "Your reservation is cancelled",
+    "cancelled": "This reservation has been cancelled. Payment proof cannot be submitted."
   },
   "pricing": {
     "details": "View promotional pricing",

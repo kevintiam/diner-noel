@@ -42,18 +42,80 @@ proviennent exclusivement de ce fichier : les connexions PostgreSQL héritées d
 | `npm run db:deploy`               | Applique les migrations à la base de `.env`                                         |
 | `npm run db:test:deploy`          | Applique les migrations à la base de `.env.test`                                    |
 | `npm run db:seed`                 | Crée ou remet à jour l'événement de départ                                          |
+| `npm run organizer:create`        | Crée un compte organisateur, ou change son mot de passe (voir plus bas)             |
 
 ## Variables d'environnement
 
-| Variable                | Rôle                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| `DATABASE_URL`          | Connexion poolée à Neon, utilisée par l'application                                |
-| `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                              |
-| `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente |
-| `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base           |
+| Variable                | Rôle                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------- |
+| `DATABASE_URL`          | Connexion poolée à Neon, utilisée par l'application                                     |
+| `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                                   |
+| `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente      |
+| `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base                |
+| `SITE_URL`              | Origine HTTPS publique utilisée pour les liens personnels ; HTTP autorisé sur localhost |
+| `SMTP_HOST`             | Nom du serveur SMTP dédié                                                               |
+| `SMTP_PORT`             | Port SMTP : 465 pour TLS immédiat, 587 pour STARTTLS obligatoire                        |
+| `SMTP_USER`             | Identifiant SMTP privé                                                                  |
+| `SMTP_PASSWORD`         | Mot de passe SMTP privé                                                                 |
+| `EMAIL_FROM`            | Adresse d'expédition autorisée par le fournisseur SMTP                                  |
 
 Les valeurs de l'événement dans `prisma/default-event.js` sont fictives : les remplacer par les
 vraies avant la mise en ligne.
+
+## Comptes des organisateurs
+
+Le tableau de bord `/admin` n'a ni inscription ni compte par défaut. Chaque compte se crée depuis
+un terminal interactif, sur la base de `.env` :
+
+```bash
+npm run organizer:create -- --email orga@example.org --name "Prénom Nom"
+```
+
+Le mot de passe (12 caractères au moins) est demandé deux fois sans s'afficher. Relancer la
+commande avec le même courriel change le nom et le mot de passe, et ferme les sessions ouvertes de
+ce compte. Pour la production, lancer le script avec les variables de la base de production, par
+exemple `node --env-file=.env.production scripts/create-organizer.js --email … --name "…"`.
+
+La connexion est limitée à 5 essais par quart d'heure et par adresse IP ; une session dure 7 jours.
+
+## Accusé de réception
+
+Après le commit de la réservation, un accusé texte et HTML est envoyé dans sa langue enregistrée.
+Les effectifs, le tarif, le montant et l'adresse Interac viennent de l'instantané enregistré.
+Une inscription gratuite reçoit directement sa confirmation, sans demande de virement ni de preuve.
+Le lien personnel est construit depuis `SITE_URL`, jamais depuis les en-têtes de la requête.
+
+La configuration du courriel est vérifiée à sa première utilisation, indépendamment du build et
+de la connexion à la base. Une panne ou une configuration absente conserve la réservation et sa
+redirection ; le journal `reservation_receipt_failed` contient seulement l'identifiant interne.
+L'envoi attend au maximum dix secondes, sans file ni nouvelle tentative automatique. Les tests
+neutralisent toutes les variables SMTP héritées, locales ou présentes dans `.env.test`.
+
+Pour la recette manuelle sur l'aperçu, le propriétaire configure les six variables du courriel
+dans l'environnement privé de l'hébergeur et vérifie une réservation anglaise fictive : réception
+texte et HTML, montant, instructions, absence de remboursement et lien ouvrant `/en/r/...`.
+Vérifier également qu'une inscription gratuite n'exige aucun paiement. Ne pas publier le lien
+personnel ni les identifiants SMTP dans un ticket ou une capture. Cette réception réelle reste
+à valider après la configuration du propriétaire.
+
+## Confirmation et avis de refus
+
+Sur la fiche d'une réservation « À vérifier », un organisateur confirme le paiement ou le refuse
+avec un motif. Les règles suivent l'architecture (AD-4, AD-5) :
+
+- **Confirmer** : la réservation passe « Confirmée » et le participant reçoit la confirmation
+  (code, places, montant payé, date et lieu du dîner).
+- **Refuser** : la réservation revient « En attente de paiement » sans libérer ses places. Le
+  participant reçoit l'avis de refus avec le motif, le montant attendu et son lien personnel pour
+  envoyer une nouvelle preuve.
+- **Annuler** : les places sont libérées et aucun courriel ne part.
+- Si deux organisateurs décident en même temps, une seule décision est appliquée ; l'autre voit
+  « Cette réservation a changé entre-temps ».
+
+Chaque courriel part dans la langue de la réservation, après l'enregistrement de la décision.
+Si l'envoi échoue, la décision reste valide, la fiche affiche « le courriel n'a pas pu être
+envoyé » et le journal `reservation_confirmation_failed` ou `reservation_refusal_failed` contient
+seulement l'identifiant interne.
 
 ## Déploiement
 

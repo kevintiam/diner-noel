@@ -15,6 +15,7 @@ import {
 import { AppError } from "../errors/app-error.js";
 import { generatePersonalToken, generateReservationCode } from "./reservation-identifiers.js";
 import { getEffectiveUnitPrice } from "./event-pricing.service.js";
+import { sendReservationReceipt } from "./reservation-receipt.service.js";
 
 // 9 000 codes possibles pour une centaine de réservations : 20 essais suffisent largement.
 const MAX_CODE_ATTEMPTS = 20;
@@ -54,7 +55,7 @@ export async function createReservation(input, { lang, now }) {
   }
   input = validation.data;
   const seats = input.adultSeats + input.childSeats;
-  return runInTransaction(async (transaction) => {
+  const reservation = await runInTransaction(async (transaction) => {
     const event = await lockEvent(transaction);
     if (!event) {
       throw new AppError(500, "EVENT_NOT_CONFIGURED", "errors.internal");
@@ -90,6 +91,9 @@ export async function createReservation(input, { lang, now }) {
       interacEmail: event.interacEmail,
     });
   });
+  // La résolution confirme le commit : aucun verrou n'est retenu pendant le SMTP.
+  await sendReservationReceipt(reservation);
+  return { code: reservation.code, token: reservation.token };
 }
 
 /**

@@ -3,9 +3,10 @@ title: 'Déposer la preuve de paiement'
 type: feature
 ticket: '4'
 created: '2026-11-15'
-status: draft
+status: in-progress
+baseline_commit: '249eb34d79a58d62f174cbc29b4bb0ca2cc6b1ae'
 baseline_revision: 'cd900f3a9d3f3af58a603f9cc34096e5d1b9348c'
-route: full
+route: dispatch
 route_source: auto
 risk: medium
 review: ''
@@ -80,6 +81,9 @@ context:
 - `src/validation/reservation.schema.js` [à réutiliser] : `isValidPersonalToken` ; ajouter `firstName` au type `ReservationForPayment`.
 - `src/server/services/rate-limit.service.js`, `src/lib/client-ip.js`, `src/server/errors/handle-api-error.js` et `src/server/db/transaction.js` [à réutiliser].
 - `sharp` 0.35.5 est déjà installé avec Next.js : l'ajouter en dépendance **directe** et exacte dans `package.json`.
+- `src/lib/read-limited-form-data.js` (+ test) : lecture bornée du corps multipart, même sans `content-length`, avant son décodage. Réutiliser les API Web du Route Handler documentées dans `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/route.md`.
+- `src/server/services/organizer.service.js` : les décisions et la consultation admin existent maintenant. Les préserver ; la correction du refus et l'unification des décisions organisateurs relèvent de 2.3, pas du dépôt.
+- `src/components/reservations/FreeReservationConfirmation.jsx` : préserver la confirmation gratuite existante ; aucun dépôt pour un montant nul.
 
 ## Tasks & Acceptance
 
@@ -91,6 +95,7 @@ context:
 - [ ] `src/server/services/reservation-status.service.js` (+ test) : table des transitions de l'AD-4 et `transitionReservationStatus(tx, { reservationId, from, to })`, avec 409 si aucune ligne n'a changé.
 - [ ] `src/server/db/proof.repository.js`, `src/server/db/reservation.repository.js`, `src/server/services/proof.service.js` (+ `.db.test.js`) : `submitProof({ token, imageBytes })`, dont deux dépôts simultanés et un second dépôt.
 - [ ] `src/app/api/reservations/[token]/proofs/route.js` (+ test) : limite → `content-length` → `formData` → Zod → service → 201 `{ data: { status } }`, ou erreur par `handleApiError`.
+- [ ] `src/lib/read-limited-form-data.js` (+ test) : plafonner réellement les octets lus, annuler le flux au dépassement et refuser le multipart malformé ; couvrir l'absence d'en-tête et l'en-tête mensonger.
 - [ ] `src/components/reservations/ProofUploadForm.jsx` (+ CSS et test) : zone de dépôt, nom et taille du fichier, contrôle de taille et de type avant l'envoi, case de confirmation, envoi par `fetch`, puis `router.refresh()`, et bouton « Je l'enverrai plus tard ».
 - [ ] `src/components/reservations/ProofReceived.jsx`, `ReservationStatusNotice.jsx` (+ CSS et tests) : maquette 6 (prénom, code, statut, places, montant, « Et maintenant ? ») et états confirmé ou annulé.
 - [ ] `src/lib/format.js` : `formatFileSize(bytes, lang)` (« 1,2 Mo » / « 1.2 MB ») ; `src/i18n/dictionaries/{fr,en}.json` : sections `proof`, `received`, `status` et les codes d'erreur.
@@ -103,7 +108,15 @@ context:
 
 ## Implementation Notes
 
+- Implémentation du dépôt disponible sur `feature/payment-proof-upload` : normalisation privée, lecture bornée, route API, transaction conditionnelle, formulaire bilingue et affichage des statuts. Aucune migration, aucun commit de cette story, aucun fichier d'environnement réel modifié.
+- Lint et build réussis. La suite globale valide 470 tests unitaires et composants. Les 69 cas de base échouent dès leur préparation : Neon refuse l'authentification (`P1000` / `28P01`), y compris hors du bac à sable. Ils ne prouvent donc pas encore l'atomicité/concurrence en base. Les quatre nouveaux parcours Playwright sont découverts mais leur exécution reste à faire après rétablissement de l'accès test.
+- Sorties conservées localement dans `node_modules/.cache/proof-verification/` : `vitest.log`, `database.log`, `lint.log`, `build.log`, `prettier.log`, `e2e-list.log`. Prettier global signale cinq fichiers extérieurs à cette story ; ils sont préservés.
+- Le statut reste `in-progress` : audit complet de la matrice, revue finale et clôture attendent la validation DB/E2E. Les cases restent ouvertes pour éviter de confondre code écrit et acceptation vérifiée.
+
 ## Plan Change Log
+
+- Reprise du 16 novembre 2026 : intention et matrice historiques conservées intégralement. Adaptation des éléments techniques à la gratuité et aux travaux organisateurs présents. La branche `feature/reservation-receipt` contient des modifications non commitées ; l'approbation du plan propose de les conserver et de créer `feature/payment-proof`, sans commit global ni push. Les fichiers personnels et autres stories restent hors du périmètre.
+- L'ajout direct de `sharp@0.35.5` est proposé à l'approbation, conformément à AGENTS.md ; version vérifiée dans `node_modules/sharp/package.json`. Aucune autre dépendance, configuration d'outils ou variable d'environnement ne sera modifiée.
 
 ## Review Triage Log
 
@@ -115,6 +128,12 @@ context:
 3. `request.formData()` : une erreur de lecture donne 400.
 4. Validation Zod des champs : le fichier est refusé s'il dépasse la limite, avant `arrayBuffer()`.
 5. Le service, dont la langue des messages est celle du champ `lang`.
+
+**Précisions de reprise.** Entre les étapes 2 et 3, lire le flux avec un plafond de 4 × 1 024 × 1 024 + 64 × 1 024 octets, puis décoder uniquement ce corps borné ; un en-tête absent ou mensonger ne doit pas contourner le plafond. Le fichier lui-même reste limité à 4 Mio. Valider aussi le jeton et le type multipart ; langue invalide ou illisible : réponse française par défaut. Les journaux utilisent le chemin modèle `/api/reservations/[token]/proofs`, jamais l'adresse réelle. Ne retourner ni octets, ni nom du fichier, ni identifiant de capture, ni coordonnées dans la réponse.
+
+Les transitions conditionnelles du dépôt et l'insertion `Proof` doivent être atomiques ; aucune capture ne doit subsister si l'insertion ou le changement de statut échoue. Conserver le montant et les places. Les changements de statut organisateurs préexistants ne sont pas réécrits dans cette story ; tester le rejet du dépôt dès que le statut n'est plus `PENDING_PAYMENT`. Dans la page, traiter d'abord `CANCELLED`, puis `TO_VERIFY`, puis la confirmation gratuite ou payante, enfin `PENDING_PAYMENT` : une inscription gratuite annulée ne doit pas apparaître confirmée. Ne pas afficher de formulaire et refuser aussi l'envoi direct d'une preuve pour une réservation gratuite.
+
+Les images de test sont synthétiques ; aucun virement réel, aucune capture privée dans `public/`, les fixtures ou les captures de contrôle. Conserver la palette et les composants du formulaire actuel, les deux langues et les focus/messages accessibles. La lecture/visualisation des captures admin reste la story 2.2.
 
 **Service :** contrôle de l'image d'abord, transaction ensuite.
 

@@ -13,6 +13,33 @@ const migrationEnvSchema = z.object({
   DIRECT_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
 });
 
+const emailEnvSchema = z.object({
+  SITE_URL: z.url({ protocol: /^https?$/ }).refine((value) => {
+    if (!URL.canParse(value)) return false;
+    const url = new URL(value);
+    const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+    return (
+      (url.protocol === "https:" || isLocal) &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash &&
+      url.pathname === "/"
+    );
+  }),
+  SMTP_HOST: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[a-zA-Z0-9.-]+$/),
+  SMTP_PORT: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1).max(65535)),
+  SMTP_USER: z.string().trim().min(1),
+  SMTP_PASSWORD: z.string().min(1),
+  EMAIL_FROM: z.email(),
+});
+
+/** @typedef {z.infer<typeof emailEnvSchema>} EmailEnv */
+
 /**
  * @typedef {z.infer<typeof envSchema>} AppEnv
  */
@@ -45,6 +72,37 @@ export function getEnv() {
     cachedEnv = parseEnv(process.env);
   }
   return cachedEnv;
+}
+
+/**
+ * Valide le courriel indépendamment de la base, sans divulguer les valeurs fautives.
+ * @param {Record<string, unknown>} source Les variables à vérifier.
+ * @returns {EmailEnv} La configuration validée.
+ * @throws {Error} Si une variable est absente ou invalide (noms uniquement).
+ */
+export function parseEmailEnv(source) {
+  const result = emailEnvSchema.safeParse(source);
+  if (result.success) return result.data;
+  const names = result.error.issues.map((issue) => issue.path.join("."));
+  throw new Error(`Variables de courriel manquantes ou invalides : ${names.join(", ")}`);
+}
+
+/**
+ * Valide la configuration seulement quand un courriel est demandé, jamais au build.
+ * @returns {EmailEnv} Les variables du processus validées.
+ * @throws {Error} Si la configuration du courriel est incomplète.
+ */
+export function getEmailEnv() {
+  return parseEmailEnv(process.env);
+}
+
+/**
+ * Indique si l'application tourne en production : le cookie de session y exige HTTPS.
+ * @param {Record<string, string | undefined>} [source] Les variables à lire.
+ * @returns {boolean} Vrai seulement quand NODE_ENV vaut « production ».
+ */
+export function isProduction(source = process.env) {
+  return source.NODE_ENV === "production";
 }
 
 /**

@@ -1,24 +1,13 @@
 // Layout racine du site public : une version par langue (architecture AD-3).
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteHeader from "@/components/layout/SiteHeader";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { isLocale, LOCALES } from "@/i18n/locales";
 import { translate } from "@/i18n/translate";
+import { textFont, titleFont } from "../fonts";
 import "../globals.css";
 import styles from "./layout.module.css";
-
-const titleFont = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-title",
-  display: "swap",
-});
-const textFont = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-text",
-  display: "swap",
-});
 
 /**
  * Les deux langues sont construites à l'avance.

@@ -75,6 +75,35 @@ export function formatEventDate(date, lang) {
 }
 
 /**
+ * Donne l'année d'un instant à l'heure d'Ottawa (ex. « 2026 »).
+ * @param {Date} date L'instant.
+ * @returns {string} L'année sur quatre chiffres.
+ */
+export function formatEventYear(date) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    timeZone: EVENT_TIME_ZONE,
+  });
+  return formatter.format(date);
+}
+
+/**
+ * Formate un instant en version courte pour les tableaux, à l'heure d'Ottawa
+ * (ex. « 15 nov. 2026, 15 h 02 » ou « Nov 15, 2026, 3:02 p.m. »).
+ * @param {Date} date L'instant à afficher.
+ * @param {string} lang `fr` ou `en`.
+ * @returns {string} La date et l'heure formatées.
+ */
+export function formatShortDateTime(date, lang) {
+  const formatter = new Intl.DateTimeFormat(toIntlLocale(lang), {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: EVENT_TIME_ZONE,
+  });
+  return formatter.format(date);
+}
+
+/**
  * Formate l'heure seule, à l'heure d'Ottawa ; une heure pile s'écrit sans minutes
  * (ex. « 18 h », « 18 h 30 », « 6 p.m. », « 6:30 p.m. »).
  * @param {Date} date L'instant à afficher.
@@ -105,4 +134,17 @@ export function formatEventTime(date, lang) {
 export function getAddressCity(address) {
   const parts = address.split(",");
   return parts[parts.length - 1].trim();
+}
+
+/**
+ * Formate le poids d'un fichier en mégaoctets (« 1,2 Mo » / « 1.2 MB »).
+ * @param {number} bytes Le nombre d'octets.
+ * @param {string} lang La langue d'affichage.
+ * @returns {string} Le poids lisible.
+ */
+export function formatFileSize(bytes, lang) {
+  const size = new Intl.NumberFormat(toIntlLocale(lang), { maximumFractionDigits: 1 }).format(
+    bytes / (1024 * 1024),
+  );
+  return `${size} ${lang === "en" ? "MB" : "Mo"}`;
 }

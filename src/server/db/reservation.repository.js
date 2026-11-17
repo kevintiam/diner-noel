@@ -37,7 +37,7 @@ export async function isCodeTaken(transaction, code) {
  * Enregistre une nouvelle réservation, en attente de paiement.
  * @param {Pick<ReturnType<typeof getPrisma>, "reservation">} transaction La transaction en cours.
  * @param {NewReservation} values Les valeurs de la réservation.
- * @returns {Promise<{ code: string, token: string }>} Le code et le jeton enregistrés.
+ * @returns {Promise<import("../../validation/reservation.schema.js").ReservationForReceipt>} L'instantané enregistré pour l'accusé.
  */
 export async function insertReservation(transaction, values) {
   return transaction.reservation.create({
@@ -46,7 +46,19 @@ export async function insertReservation(transaction, values) {
       note: values.note ?? null,
       language: LANGUAGE_BY_LOCALE[values.language] ?? Language.FR,
     },
-    select: { code: true, token: true },
+    select: {
+      id: true,
+      code: true,
+      token: true,
+      firstName: true,
+      email: true,
+      language: true,
+      seats: true,
+      childSeats: true,
+      unitPriceCents: true,
+      amountCents: true,
+      interacEmail: true,
+    },
   });
 }
 
@@ -59,6 +71,7 @@ export async function findReservationByToken(token) {
   return getPrisma().reservation.findUnique({
     where: { token },
     select: {
+      firstName: true,
       code: true,
       status: true,
       seats: true,
@@ -68,4 +81,33 @@ export async function findReservationByToken(token) {
       interacEmail: true,
     },
   });
+}
+
+/**
+ * Lit uniquement l'état nécessaire au dépôt, dans sa transaction.
+ * @param {import("./transaction.js").TransactionClient} tx La transaction.
+ * @param {string} token Le jeton personnel.
+ * @returns {Promise<{id: string, status: string, amountCents: number} | null>} L'état courant.
+ */
+export function findReservationStatusByToken(tx, token) {
+  return tx.reservation.findUnique({
+    where: { token },
+    select: { id: true, status: true, amountCents: true },
+  });
+}
+
+/**
+ * Applique une transition conditionnelle, sans décision sur le statut ailleurs.
+ * @param {import("./transaction.js").TransactionClient} tx La transaction.
+ * @param {string} id La réservation.
+ * @param {string} from L'état attendu.
+ * @param {string} to Le nouvel état.
+ * @returns {Promise<number>} Le nombre de lignes modifiées.
+ */
+export async function updateReservationStatus(tx, id, from, to) {
+  const result = await tx.reservation.updateMany({
+    where: { id, status: from },
+    data: { status: to },
+  });
+  return result.count;
 }

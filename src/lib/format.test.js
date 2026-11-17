@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   formatEventDate,
   formatEventDateTime,
+  formatEventYear,
   formatEventTime,
   formatMoney,
+  formatShortDateTime,
   getAddressCity,
 } from "./format.js";
 
@@ -27,6 +29,26 @@ describe("formatMoney", () => {
 
   it("revient au français pour une langue inconnue", () => {
     expect(normalizeSpaces(formatMoney(2500, "de"))).toBe("25,00 $");
+  });
+});
+
+describe("formatShortDateTime", () => {
+  it("abrège la date et l'heure d'Ottawa en français et en anglais", () => {
+    const receivedAt = new Date("2026-11-15T20:02:00.000Z");
+
+    expect(normalizeSpaces(formatShortDateTime(receivedAt, "fr"))).toBe("15 nov. 2026, 15 h 02");
+    expect(normalizeSpaces(formatShortDateTime(receivedAt, "en"))).toBe("Nov 15, 2026, 3:02 p.m.");
+  });
+
+  it("garde le jour d'Ottawa juste avant minuit UTC", () => {
+    // 4 h 59 UTC le 16 = 23 h 59 le 15 à Ottawa.
+    const lateEvening = new Date("2026-11-16T04:59:00.000Z");
+
+    expect(normalizeSpaces(formatShortDateTime(lateEvening, "fr"))).toBe("15 nov. 2026, 23 h 59");
+  });
+
+  it("refuse une date invalide", () => {
+    expect(() => formatShortDateTime(new Date("pas une date"), "fr")).toThrow(RangeError);
   });
 });
 
@@ -87,6 +109,13 @@ describe("formatEventTime", () => {
 
   it("refuse une date invalide", () => {
     expect(() => formatEventTime(new Date("pas une date"), "fr")).toThrow(RangeError);
+  });
+});
+
+describe("formatEventYear", () => {
+  it("donne l'année à Ottawa, même quand l'année UTC a déjà changé", () => {
+    expect(formatEventYear(DINNER_START)).toBe("2026");
+    expect(formatEventYear(new Date("2027-01-01T03:00:00.000Z"))).toBe("2026");
   });
 });
 

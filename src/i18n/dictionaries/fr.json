@@ -1,4 +1,55 @@
 {
+  "receipt": {
+    "paidSubject": "Votre réservation {code} — Dîner de Noël",
+    "freeSubject": "Réservation confirmée {code} — Dîner de Noël",
+    "greeting": "Bonjour {firstName},",
+    "paidIntro": "Votre réservation est enregistrée. Votre paiement reste en attente de vérification par les organisateurs.",
+    "freeIntro": "Votre inscription gratuite est déjà confirmée.",
+    "code": "Code de réservation : {code}",
+    "guests": "Effectifs : {adults} personne(s) de 15 ans et plus ; {children} enfant(s) de 0 à 14 ans.",
+    "price": "Tarif réservé par personne de 15 ans et plus : {price}",
+    "amount": "Montant à envoyer : {amount}",
+    "transfer": "Envoyez le virement Interac à {email}.",
+    "transferCode": "Inscrivez le code {code} dans le message du virement.",
+    "keepLink": "Conservez votre lien personnel pour consulter votre réservation.",
+    "openLink": "Ouvrir ma réservation"
+  },
+  "emailCommon": {
+    "eventName": "Dîner de Noël {year}",
+    "row": "{label} : {value}",
+    "codeLabel": "Code de réservation",
+    "signature": "L'équipe d'organisation",
+    "footer": "Vous recevez ce courriel parce que vous avez réservé une place au dîner de Noël."
+  },
+  "confirmation": {
+    "subject": "Votre place au dîner de Noël est confirmée",
+    "title": "Votre place est confirmée",
+    "intro": "Nous avons bien reçu votre virement Interac. Vos places pour le dîner de Noël sont confirmées. Nous nous réjouissons de vous accueillir.",
+    "seatsLabel": "Places",
+    "seatsWithChildren": "{seats}, dont {children} enfant(s) de 0 à 14 ans",
+    "amountLabel": "Montant payé",
+    "dateLabel": "Date",
+    "arrival": "Accueil à {time}",
+    "venueLabel": "Lieu",
+    "showCode": "Présentez votre code {code} à l'accueil le soir du dîner.",
+    "blessing": "Que la paix et la joie de Noël vous accompagnent."
+  },
+  "refusal": {
+    "subject": "Votre preuve de paiement n'a pas été validée — {code}",
+    "title": "Nouvelle preuve de paiement demandée",
+    "intro": "Un organisateur a examiné votre preuve de paiement et n'a pas pu la valider.",
+    "reasonLabel": "Motif",
+    "amountLabel": "Montant attendu",
+    "transferLabel": "Virement Interac à",
+    "seatsKept": "Vos places restent réservées : votre réservation est de nouveau en attente de paiement.",
+    "nextStep": "Envoyez une nouvelle preuve, ou la preuve du complément, avec votre lien personnel.",
+    "openLink": "Envoyer une nouvelle preuve",
+    "reasons": {
+      "NO_TRANSFER": "Aucun virement reçu",
+      "INCOMPLETE_AMOUNT": "Montant incomplet",
+      "UNREADABLE_PROOF": "Capture illisible ou incorrecte"
+    }
+  },
   "meta": {
     "title": "NOËL ON EST ENSEMBLE",
     "description": "Réservez votre place au dîner de Noël de la communauté ICC Ottawa."
@@ -127,7 +178,21 @@
     "phoneInvalid": "Le numéro de téléphone est invalide (10 à 15 chiffres).",
     "seatsInvalid": "Choisissez entre 1 et 10 places.",
     "noteTooLong": "La remarque est trop longue (500 caractères au maximum).",
-    "ageSeatsInvalid": "Choisissez un nombre entier de 0 à 10."
+    "ageSeatsInvalid": "Choisissez un nombre entier de 0 à 10.",
+    "passwordRequired": "Indiquez votre mot de passe.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 12 caractères.",
+    "passwordTooLong": "Le mot de passe est trop long.",
+    "decisionInvalid": "Choisissez une décision valide.",
+    "refusalReasonRequired": "Choisissez un motif de refus dans la liste.",
+    "dateInvalid": "Entrez une date valide.",
+    "timeInvalid": "Entrez une heure valide, par exemple 18:00.",
+    "deadlineAfterEvent": "La date limite doit tomber avant le jour du dîner.",
+    "venueNameInvalid": "Entrez le nom du lieu (120 caractères au plus).",
+    "venueAddressInvalid": "Entrez l'adresse du lieu (200 caractères au plus).",
+    "capacityInvalid": "Entrez un nombre entier de places, de 1 à 2000.",
+    "capacityBelowTaken": "Le nombre de places ne peut pas descendre sous les places déjà prises.",
+    "priceInvalid": "Entrez un prix en dollars, par exemple 35 ou 35,50.",
+    "autoDepositRequired": "Confirmez que le dépôt automatique est activé sur la nouvelle adresse."
   },
   "language": {
     "switchLabel": "Changer de langue",
@@ -143,7 +208,12 @@
     "soldOut": "Le dîner est complet : il n'y a plus de place.",
     "notEnoughSeats": "Il ne reste pas assez de places pour cette réservation. Réduisez le nombre de places.",
     "bookingClosed": "Les réservations sont fermées.",
-    "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes."
+    "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "invalidCredentials": "Courriel ou mot de passe invalide.",
+    "reservationNotFound": "Cette réservation est introuvable.",
+    "proofTooLarge": "La capture dépasse 4 Mo. Choisissez un fichier plus petit.",
+    "proofInvalidType": "Choisissez une image JPG, PNG ou WEBP valide.",
+    "reservationStatusChanged": "Cette réservation a changé entre-temps. Rechargez la fiche pour voir son statut actuel."
   },
   "countdown": {
     "title": "Compte à rebours avant la célébration",
@@ -163,6 +233,37 @@
     "proofAnswer": "Gardez le lien personnel de votre réservation pour transmettre la capture d’écran de votre virement, tout de suite ou plus tard.",
     "refundQuestion": "Puis-je obtenir un remboursement ?",
     "refundAnswer": "Aucun remboursement après le virement."
+  },
+  "proof": {
+    "title": "Envoyez votre preuve de paiement",
+    "intro": "Joignez la capture d’écran de la confirmation de votre virement.",
+    "choose": "Choisir une capture ou la déposer ici",
+    "formats": "JPG, PNG ou WEBP · 4 Mo maximum",
+    "confirm": "Je confirme avoir effectué le virement Interac.",
+    "submit": "Envoyer ma preuve de paiement",
+    "submitting": "Envoi en cours…",
+    "later": "Je l’enverrai plus tard",
+    "laterMessage": "Votre place reste réservée en attendant. Revenez avec ce lien pour envoyer votre preuve de paiement.",
+    "privacy": "Votre place reste réservée en attendant. Votre capture d'écran est visible seulement par les organisateurs. Sans paiement confirmé, la réservation sera annulée la veille du dîner.",
+    "fileRequired": "Choisissez une capture d’écran non vide.",
+    "confirmRequired": "Confirmez avoir effectué le virement.",
+    "langInvalid": "Choisissez une langue valide."
+  },
+  "received": {
+    "title": "Preuve de paiement reçue",
+    "greeting": "Merci {firstName}, votre preuve de paiement a bien été reçue.",
+    "seats": "Places réservées",
+    "amount": "Montant du virement",
+    "nextTitle": "Et maintenant ?",
+    "next": "Les organisateurs vont vérifier votre virement. Vous recevrez un courriel lorsque votre réservation sera confirmée.",
+    "keepLink": "Conservez votre lien personnel pour consulter le statut de votre réservation."
+  },
+  "status": {
+    "toVerify": "À vérifier — en attente de vérification",
+    "confirmedTitle": "Votre réservation est confirmée",
+    "confirmed": "Votre paiement a été confirmé par les organisateurs. Nous avons hâte de vous accueillir !",
+    "cancelledTitle": "Votre réservation est annulée",
+    "cancelled": "Cette réservation a été annulée. Aucun dépôt de preuve n’est possible."
   },
   "pricing": {
     "details": "Voir les tarifs promotionnels",

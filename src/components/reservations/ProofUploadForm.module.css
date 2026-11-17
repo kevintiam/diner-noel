@@ -1,0 +1,86 @@
+.card {
+  margin-top: var(--space-l);
+  padding: var(--space-m);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  margin-block: var(--space-m);
+}
+
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  align-items: center;
+  border: 2px dashed var(--color-fir);
+  padding: var(--space-m);
+  border-radius: var(--radius);
+  background: var(--color-fir-light);
+  text-align: center;
+}
+
+.dropZone label {
+  font-weight: 600;
+}
+
+.dropZone input {
+  width: 100%;
+  max-width: 25rem;
+}
+
+.filename {
+  overflow-wrap: anywhere;
+}
+
+.confirm {
+  display: flex;
+  gap: var(--space-s);
+  align-items: flex-start;
+}
+
+.confirm input {
+  margin-top: 0.35em;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+.submit,
+.later {
+  padding: var(--space-s) var(--space-m);
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-fir);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit {
+  color: var(--color-surface);
+  background: var(--color-fir);
+}
+
+.later {
+  color: var(--color-fir);
+  background: var(--color-surface);
+}
+
+.form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.error {
+  color: var(--color-burgundy);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--color-muted);
+}

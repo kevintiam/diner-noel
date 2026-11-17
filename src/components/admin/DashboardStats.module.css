@@ -1,0 +1,122 @@
+/* Deux colonnes sur téléphone : les quatre compteurs tiennent sur un seul écran. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+}
+.item {
+  display: flex;
+}
+/* Une couleur par statut, la même que celle des pastilles. */
+.toVerify {
+  --tone-background: var(--color-gold-light);
+  --tone-ink: var(--admin-gold-ink);
+}
+.pending {
+  --tone-background: var(--color-sand);
+  --tone-ink: var(--color-muted);
+}
+.confirmed {
+  --tone-background: var(--color-fir-light);
+  --tone-ink: var(--color-fir);
+}
+.cancelled {
+  --tone-background: var(--admin-burgundy-light);
+  --tone-ink: var(--color-burgundy);
+}
+.card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  box-shadow: var(--admin-shadow);
+  color: var(--color-ink);
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.card:hover {
+  border-color: var(--tone-ink);
+  box-shadow: var(--admin-shadow-hover);
+  transform: translateY(-2px);
+}
+.urgent {
+  border-color: var(--color-gold);
+  box-shadow:
+    inset 0 4px 0 var(--color-gold),
+    var(--admin-shadow);
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+}
+.iconCircle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--tone-background);
+  color: var(--tone-ink);
+}
+.icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+.label {
+  color: var(--tone-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.value {
+  color: var(--color-fir);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 2.25rem;
+  font-variant-numeric: lining-nums;
+  font-weight: 600;
+  line-height: 1.05;
+}
+/* Le mot « réservation » passe sous le nombre quand la carte est étroite. */
+.unit {
+  display: block;
+  color: var(--color-ink);
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.detail {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+@media (min-width: 48rem) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-s);
+  }
+  .card {
+    padding: 1.25rem 1.5rem;
+  }
+  .label {
+    font-size: 0.9375rem;
+  }
+  .value {
+    font-size: 2.75rem;
+  }
+  .unit {
+    display: inline;
+    font-size: 1rem;
+  }
+}

@@ -11,6 +11,10 @@ const MILLISECONDS_PER_SECOND = 1000;
 // Large, car beaucoup de participants réservent depuis le même wifi de l'église.
 export const RESERVE_RATE_LIMIT = { limit: 20, windowSeconds: 15 * 60 };
 
+// Strict : 5 essais par quart d'heure, la sixième tentative est bloquée (story 2.1).
+// Les quatre organisateurs se connectent rarement, et leur session dure une semaine.
+export const LOGIN_RATE_LIMIT = { limit: 5, windowSeconds: 15 * 60 };
+
 /**
  * Construit la clé d'une action pour une adresse IP, à partir de son empreinte.
  * @param {string} action L'action limitée (ex. `reserve`).

@@ -1,0 +1,22 @@
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.light {
+  background: var(--color-fir-light);
+  color: var(--color-fir);
+}
+.gold {
+  border: 2px solid var(--color-gold);
+  background: var(--color-gold-light);
+  color: var(--color-fir-dark);
+}

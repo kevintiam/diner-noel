@@ -201,6 +201,7 @@ describe("getReservationForPayment", () => {
     });
 
     expect(await getReservationForPayment(token)).toEqual({
+      firstName: "Prénom",
       code,
       status: "PENDING_PAYMENT",
       seats: 2,

@@ -1,0 +1,142 @@
+/* Bande vert sapin, comme le bandeau du haut : elle parle de l'événement lui-même.
+   Trois zones (date, remplissage, argent) empilées sur téléphone, côte à côte sur ordinateur. */
+.card {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--admin-radius);
+  background: var(--color-fir);
+  box-shadow: var(--admin-shadow);
+  color: var(--color-cream);
+}
+/* Filet doré intérieur, à la manière d'un carton d'invitation. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0.375rem;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+  border-radius: calc(var(--admin-radius) - 0.25rem);
+  pointer-events: none;
+}
+.when,
+.fill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.fill,
+.money {
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-cream) 16%, transparent);
+}
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+.eyebrow {
+  color: var(--color-gold-light);
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.countdown {
+  padding: 0.0625rem 0.625rem;
+  border-radius: 999px;
+  background: var(--color-gold-light);
+  color: var(--color-fir-dark);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  font-size: 0.875rem;
+}
+.facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.factIcon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.2rem;
+  color: var(--color-gold-light);
+}
+.seats {
+  font-family: var(--font-title), Georgia, serif;
+  font-variant-numeric: lining-nums;
+  line-height: 1;
+}
+.taken {
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+.capacity {
+  color: var(--color-gold-light);
+  font-size: 1.125rem;
+}
+.track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-cream) 18%, transparent);
+  overflow: hidden;
+}
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-gold);
+}
+.left {
+  color: color-mix(in srgb, var(--color-cream) 85%, transparent);
+  font-size: 0.875rem;
+}
+.money {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.money dt {
+  color: var(--color-gold-light);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.money dd {
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.5rem;
+  font-variant-numeric: lining-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+@media (min-width: 64rem) {
+  .card {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) auto;
+    align-items: center;
+    gap: 0;
+    padding: 1.25rem 0.5rem;
+  }
+  /* Séparateurs verticaux entre les trois zones. */
+  .when,
+  .fill,
+  .money {
+    padding: 0.25rem 1.75rem;
+  }
+  .fill,
+  .money {
+    border-top: none;
+    border-left: 1px solid color-mix(in srgb, var(--color-cream) 16%, transparent);
+  }
+  .money {
+    grid-template-columns: repeat(2, auto);
+    column-gap: 2rem;
+  }
+}
