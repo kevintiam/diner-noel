@@ -27,6 +27,23 @@ export function localDateTimeToUtc(localDate, localTime) {
 }
 
 /**
+ * Avance (ou recule) une date `AAAA-MM-JJ` d'un nombre de jours. Le calcul se fait en UTC,
+ * sans heure : aucun changement d'heure ne peut faire glisser le jour.
+ * @param {string} localDate La date de départ, `AAAA-MM-JJ`.
+ * @param {number} days Le nombre de jours à ajouter ; négatif pour reculer.
+ * @returns {string} La nouvelle date, `AAAA-MM-JJ`.
+ * @throws {Error} Si la date n'a pas le bon format.
+ */
+export function addDaysToLocalDate(localDate, days) {
+  const parts = LOCAL_DATE_PATTERN.exec(localDate);
+  if (!parts) {
+    throw new Error(`Date locale invalide : « ${localDate} »`);
+  }
+  const [, year, month, day] = parts.map(Number);
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
+}
+
+/**
  * Donne la date et l'heure d'Ottawa d'un instant UTC, au format des champs de formulaire.
  * @param {Date} instant L'instant stocké en base.
  * @returns {{ date: string, time: string }} La date `AAAA-MM-JJ` et l'heure `HH:MM` (24 h).

@@ -4,6 +4,7 @@ import { seedDefaultEvent } from "../../../prisma/default-event.js";
 import { disconnectPrisma, getPrisma } from "../db/prisma-client.js";
 import { resetTestDatabase } from "../db/reset-test-database.js";
 import { getAccountingSummary } from "./accounting.service.js";
+import { getEffectiveUnitPrice } from "./event-pricing.service.js";
 import { getEventSettings, updateEventSettings } from "./event-settings.service.js";
 
 /**
@@ -68,6 +69,32 @@ describe("paramètres de l'événement sur la base", () => {
       where: { id: reservation.id },
     });
     expect(stored).toMatchObject({ unitPriceCents: 3000, interacEmail: "ancienne@example.test" });
+  });
+
+  it("enregistre la promo, la relit à l'identique, puis l'efface quand la case est décochée", async () => {
+    const { values } = await getEventSettings();
+    const promotion = {
+      hasPromotion: true,
+      promotionalUnitPrice: "28,50",
+      promotionStartDate: "2026-11-25",
+      promotionEndDate: "2026-12-05",
+    };
+
+    await updateEventSettings({ ...values, unitPrice: "35", ...promotion });
+
+    expect((await getEventSettings()).values).toMatchObject({ unitPrice: "35", ...promotion });
+    const event = await getPrisma().event.findFirstOrThrow();
+    // Le site public lit ce calendrier : promo le dernier jour, prix normal le lendemain.
+    expect(getEffectiveUnitPrice(event, new Date("2026-12-06T04:59:00.000Z"))).toBe(2850);
+    expect(getEffectiveUnitPrice(event, new Date("2026-12-06T05:00:00.000Z"))).toBe(3500);
+
+    await updateEventSettings({ ...values, ...promotion, hasPromotion: false });
+
+    expect(await getPrisma().event.findFirstOrThrow()).toMatchObject({
+      promotionalUnitPriceCents: null,
+      promotionStartsAt: null,
+      promotionEndsAt: null,
+    });
   });
 
   it("refuse de descendre sous les places prises, annulations exclues", async () => {

@@ -192,6 +192,8 @@
     "capacityInvalid": "Entrez un nombre entier de places, de 1 à 2000.",
     "capacityBelowTaken": "Le nombre de places ne peut pas descendre sous les places déjà prises.",
     "priceInvalid": "Entrez un prix en dollars, par exemple 35 ou 35,50.",
+    "promotionPriceNotLower": "Le prix promo doit être plus bas que le prix normal.",
+    "promotionEndBeforeStart": "La fin de la promo doit tomber le même jour que le début ou après.",
     "autoDepositRequired": "Confirmez que le dépôt automatique est activé sur la nouvelle adresse."
   },
   "language": {

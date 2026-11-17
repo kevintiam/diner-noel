@@ -137,6 +137,20 @@ Sur la vue d'ensemble, « Encaissé » additionne les réservations confirmées,
 annulées après leur confirmation, et « À recevoir » celles en attente de paiement ou à vérifier.
 Ces deux sommes n'existent que dans `accounting.service.js` (AD-6).
 
+## Export des participants confirmés
+
+Sur la page « Réservations », le bouton « Exporter les confirmés (CSV) » télécharge
+`participants-confirmes-AAAA-MM-JJ.csv`, lu dans la base au moment du clic (AD-15). Une ligne par
+réservation confirmée, rangée par nom : nom, prénom, code, places (15 ans et plus et enfants),
+courriel, téléphone, langue, montant payé, date de confirmation et remarque. Les réservations
+annulées, même après confirmation, n'y figurent pas.
+
+Le fichier est en UTF-8 avec sa marque d'octets, pour que les accents s'affichent dans Excel, et
+ses colonnes sont séparées par des points-virgules, comme l'attend Excel en français. Google Sheets
+et LibreOffice le lisent aussi. Une cellule qui commencerait par `=`, `+`, `-` ou `@` est
+précédée d'une apostrophe, pour qu'aucun tableur ne l'exécute comme une formule. La route
+`/api/admin/exports/confirmed-participants` exige une session d'organisateur.
+
 ## Déploiement
 
 Netlify construit le site avec `netlify.toml`. Dans Netlify, définir `DATABASE_URL` pour chaque

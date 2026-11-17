@@ -26,6 +26,13 @@ const VALUES = {
   unitPrice: "35",
   interacEmail: "paiements@example.test",
 };
+// Ce que l'action lit pour la promo quand le formulaire n'en envoie pas.
+const NO_PROMOTION = {
+  hasPromotion: false,
+  promotionalUnitPrice: "",
+  promotionStartDate: "",
+  promotionEndDate: "",
+};
 
 /** @param {Record<string, string>} values */
 function buildFormData(values) {
@@ -58,8 +65,35 @@ describe("updateEventSettingsAction", () => {
     await expect(
       updateEventSettingsAction(null, buildFormData({ ...VALUES, autoDepositConfirmed: "on" })),
     ).rejects.toBe(NEXT_REDIRECT);
-    expect(updateEventSettings).toHaveBeenCalledWith({ ...VALUES, autoDepositConfirmed: true });
+    expect(updateEventSettings).toHaveBeenCalledWith({
+      ...VALUES,
+      ...NO_PROMOTION,
+      autoDepositConfirmed: true,
+    });
     expect(redirect).toHaveBeenCalledWith("/admin/parametres?enregistre=1");
+  });
+
+  it("transmet le prix promo et sa période quand la case est cochée", async () => {
+    vi.mocked(requireOrganizer).mockResolvedValue({
+      id: "org_1",
+      email: "o@example.test",
+      name: "O",
+    });
+    const promotion = {
+      promotionalUnitPrice: "30",
+      promotionStartDate: "2026-11-20",
+      promotionEndDate: "2026-12-03",
+    };
+
+    await expect(
+      updateEventSettingsAction(
+        null,
+        buildFormData({ ...VALUES, ...promotion, hasPromotion: "on" }),
+      ),
+    ).rejects.toBe(NEXT_REDIRECT);
+    expect(updateEventSettings).toHaveBeenCalledWith(
+      expect.objectContaining({ ...promotion, hasPromotion: true }),
+    );
   });
 
   it("renvoie les erreurs traduites et garde les valeurs saisies", async () => {
@@ -90,7 +124,7 @@ describe("updateEventSettingsAction", () => {
           },
         ],
       },
-      values: { ...VALUES, capacity: "2" },
+      values: { ...VALUES, ...NO_PROMOTION, capacity: "2" },
     });
     expect(vi.mocked(updateEventSettings).mock.calls[0][0]).toMatchObject({
       autoDepositConfirmed: false,

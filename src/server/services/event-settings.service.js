@@ -1,7 +1,7 @@
 // Paramètres de l'événement modifiés par les organisateurs (architecture AD-14, maquette 8).
 // C'est le seul service qui change la ligne Event ; les réservations existantes gardent
 // leur prix et leur adresse Interac figés (AD-6). Les heures saisies sont celles d'Ottawa (AD-12).
-import { localDateTimeToUtc, utcToLocalDateTime } from "../../lib/dates.js";
+import { addDaysToLocalDate, localDateTimeToUtc, utcToLocalDateTime } from "../../lib/dates.js";
 import {
   BOOKING_DEADLINE_LOCAL_TIME,
   centsToPriceInput,
@@ -14,6 +14,7 @@ import { runInTransaction } from "../db/transaction.js";
 import { AppError } from "../errors/app-error.js";
 
 /** @typedef {import("../../validation/event-settings.schema.js").EventSettingsFormValues} EventSettingsFormValues */
+/** @typedef {import("../../validation/event-settings.schema.js").PromotionInput} PromotionInput */
 /** @typedef {import("../../validation/field-errors.js").FieldError} FieldError */
 
 /**
@@ -22,8 +23,60 @@ import { AppError } from "../errors/app-error.js";
  * @property {EventSettingsFormValues} values Les valeurs actuelles, au format des champs.
  * @property {number} takenSeats Places déjà prises : le minimum du nombre de places.
  * @property {number} activeReservations Réservations non annulées, qui gardent leur prix.
- * @property {{ unitPriceCents: number, endsAt: Date } | null} promotion Le tarif promotionnel, s'il existe.
  */
+
+// Une journée de promo commence à minuit, heure d'Ottawa.
+const DAY_START_LOCAL_TIME = "00:00";
+const ONE_MILLISECOND = 1;
+
+/**
+ * Écrit la promo stockée au format des champs : prix, premier jour et dernier jour inclus.
+ * La base garde une fin exclue (minuit du lendemain) : le dernier jour est la veille de cette fin.
+ * @param {{ promotionalUnitPriceCents?: number | null, promotionStartsAt?: Date | null, promotionEndsAt?: Date | null }} event
+ * @returns {Pick<EventSettingsFormValues, "hasPromotion" | "promotionalUnitPrice" | "promotionStartDate" | "promotionEndDate">}
+ */
+function toPromotionValues(event) {
+  const { promotionalUnitPriceCents, promotionStartsAt, promotionEndsAt } = event;
+  if (
+    typeof promotionalUnitPriceCents !== "number" ||
+    !(promotionStartsAt instanceof Date) ||
+    !(promotionEndsAt instanceof Date)
+  ) {
+    return {
+      hasPromotion: false,
+      promotionalUnitPrice: "",
+      promotionStartDate: "",
+      promotionEndDate: "",
+    };
+  }
+  return {
+    hasPromotion: true,
+    promotionalUnitPrice: centsToPriceInput(promotionalUnitPriceCents),
+    promotionStartDate: utcToLocalDateTime(promotionStartsAt).date,
+    promotionEndDate: utcToLocalDateTime(new Date(promotionEndsAt.getTime() - ONE_MILLISECOND))
+      .date,
+  };
+}
+
+/**
+ * Prépare la promo pour la base : début inclus à minuit du premier jour, fin exclue à minuit
+ * du lendemain du dernier jour (heure d'Ottawa). Sans promo, les trois valeurs sont effacées.
+ * @param {PromotionInput | null} promotion
+ * @returns {{ promotionalUnitPriceCents: number | null, promotionStartsAt: Date | null, promotionEndsAt: Date | null }}
+ */
+function toStoredPromotion(promotion) {
+  if (!promotion) {
+    return { promotionalUnitPriceCents: null, promotionStartsAt: null, promotionEndsAt: null };
+  }
+  return {
+    promotionalUnitPriceCents: promotion.unitPriceCents,
+    promotionStartsAt: localDateTimeToUtc(promotion.startDate, DAY_START_LOCAL_TIME),
+    promotionEndsAt: localDateTimeToUtc(
+      addDaysToLocalDate(promotion.endDate, 1),
+      DAY_START_LOCAL_TIME,
+    ),
+  };
+}
 
 /** @returns {AppError} */
 function eventNotConfigured() {
@@ -53,8 +106,6 @@ export async function getEventSettings() {
     countActiveReservations(),
   ]);
   const startsAt = utcToLocalDateTime(event.startsAt);
-  const hasPromotion =
-    typeof event.promotionalUnitPriceCents === "number" && event.promotionEndsAt instanceof Date;
   return {
     values: {
       startsAtDate: startsAt.date,
@@ -64,21 +115,17 @@ export async function getEventSettings() {
       venueAddress: event.venueAddress,
       capacity: String(event.capacity),
       unitPrice: centsToPriceInput(event.unitPriceCents),
+      ...toPromotionValues(event),
       interacEmail: event.interacEmail,
     },
     takenSeats,
     activeReservations,
-    promotion: hasPromotion
-      ? {
-          unitPriceCents: /** @type {number} */ (event.promotionalUnitPriceCents),
-          endsAt: /** @type {Date} */ (event.promotionEndsAt),
-        }
-      : null,
   };
 }
 
 /**
- * Enregistre les paramètres de l'événement après avoir vérifié les règles de l'AD-14 :
+ * Enregistre les paramètres de l'événement, prix normal et promo compris (la promo est
+ * effacée si la case est décochée), après avoir vérifié les règles de l'AD-14 :
  * la date limite tombe avant le dîner, et le nombre de places ne descend pas sous les places
  * prises (vérifié sous le verrou de l'événement, AD-5). Changer l'adresse Interac exige de
  * confirmer son dépôt automatique ; changer la date du dîner relance l'alerte (AD-13).
@@ -131,6 +178,7 @@ export async function updateEventSettings(raw) {
       bookingDeadline,
       capacity: settings.capacity,
       unitPriceCents: settings.unitPriceCents,
+      ...toStoredPromotion(settings.promotion),
       venueName: settings.venueName,
       venueAddress: settings.venueAddress,
       interacEmail: settings.interacEmail,

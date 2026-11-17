@@ -20,6 +20,44 @@
   margin-top: 0.5rem;
   color: var(--color-muted);
 }
+/* Titre de la liste et bouton d'export CSV, sur la même ligne. */
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.downloadLink {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--tap-target);
+  padding: 0 1.25rem;
+  border: 1px solid var(--color-fir);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-fir);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  text-decoration: none;
+}
+.downloadLink:hover {
+  background: var(--color-fir-light);
+}
+/* Texte long du bouton à partir de 36rem ; avant, seul « CSV » tient à côté du titre. */
+.wideOnly {
+  display: none;
+}
+@media (min-width: 36rem) {
+  .wideOnly {
+    display: inline;
+  }
+  .narrowOnly {
+    display: none;
+  }
+}
 .stack {
   display: flex;
   flex-direction: column;
@@ -143,9 +181,14 @@
   font-size: var(--font-size-small);
   font-weight: 600;
 }
-/* Même largeur que le formulaire des paramètres. */
+/* Même largeur que le formulaire des paramètres : limitée en une colonne, pleine en deux. */
 .formWidth {
   max-width: 56rem;
+}
+@media (min-width: 64rem) {
+  .formWidth {
+    max-width: none;
+  }
 }
 /* Confirmation après un enregistrement réussi. */
 .success {

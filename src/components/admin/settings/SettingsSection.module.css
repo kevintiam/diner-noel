@@ -1,0 +1,131 @@
+/* Cartes de l'écran Paramètres, et mises en page partagées par leurs champs. */
+/* La carte est un conteneur : ses grilles de champs suivent sa largeur, qu'elle occupe
+   toute la page ou une demi-colonne. */
+.card {
+  container: settings-card / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  box-shadow: var(--admin-shadow);
+}
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding-bottom: var(--space-s);
+  border-bottom: 1px solid var(--color-border);
+}
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--color-fir-light);
+  color: var(--color-fir);
+}
+.icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.title {
+  font-size: 1.375rem;
+}
+.description {
+  margin-top: 0.125rem;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+
+/* Grilles des champs : une colonne dans une carte étroite, plusieurs quand elle s'élargit. */
+.columns2,
+.columns3,
+.venueColumns {
+  display: grid;
+  gap: var(--space-s);
+  align-items: start;
+}
+@container settings-card (min-width: 24rem) {
+  .columns2,
+  .columns3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* Date et heure côte à côte ; la date limite et son aide prennent toute la ligne. */
+  .columns3 > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+@container settings-card (min-width: 40rem) {
+  .columns3 {
+    grid-template-columns: 1fr 0.75fr 1fr;
+  }
+  .columns3 > :last-child {
+    grid-column: auto;
+  }
+  .venueColumns {
+    grid-template-columns: 2fr 3fr;
+  }
+}
+
+/* Remarque discrète en bas d'une carte. */
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.noteIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2rem;
+  color: var(--admin-gold-ink);
+}
+
+/* Case à cocher et son texte. */
+.checkboxField {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.25rem 0.75rem;
+}
+.checkbox {
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: 0.125rem;
+  accent-color: var(--color-fir);
+  cursor: pointer;
+}
+.checkbox[aria-invalid="true"] {
+  outline: 2px solid var(--color-burgundy);
+  outline-offset: 2px;
+}
+.checkboxLabel {
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+.fieldError {
+  grid-column: 2;
+  color: var(--color-burgundy);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+@media (min-width: 48rem) {
+  .card {
+    padding: var(--space-m) var(--space-l) var(--space-l);
+  }
+}
+/* En deux colonnes, des marges plus fines laissent la place aux champs. */
+@media (min-width: 64rem) {
+  .card {
+    padding: var(--space-m);
+  }
+}

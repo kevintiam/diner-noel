@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { centsToPriceInput, validateEventSettings } from "./event-settings.schema.js";
+import {
+  centsToPriceInput,
+  parsePriceInput,
+  validateEventSettings,
+} from "./event-settings.schema.js";
 
 const VALID = {
   startsAtDate: "2026-12-19",
@@ -31,6 +35,7 @@ describe("validateEventSettings", () => {
         venueAddress: "1 rue Exemple, Ottawa",
         capacity: 120,
         unitPriceCents: 3500,
+        promotion: null,
         interacEmail: "paiements@example.test",
         autoDepositConfirmed: true,
       },
@@ -71,6 +76,81 @@ describe("validateEventSettings", () => {
     [{ interacEmail: "pas-un-courriel" }, "interacEmail", "validation.emailInvalid"],
   ])("refuse %o", (changes, field, messageKey) => {
     expect(firstErrorOf(changes)).toEqual({ field, messageKey });
+  });
+});
+
+describe("validateEventSettings — prix promo", () => {
+  const PROMOTION = {
+    hasPromotion: true,
+    promotionalUnitPrice: " 30 ",
+    promotionStartDate: "2026-11-20",
+    promotionEndDate: "2026-12-03",
+  };
+
+  it("garde le prix normal et la promo, du premier au dernier jour inclus", () => {
+    expect(validateEventSettings({ ...VALID, ...PROMOTION })).toMatchObject({
+      success: true,
+      data: {
+        unitPriceCents: 3500,
+        promotion: { unitPriceCents: 3000, startDate: "2026-11-20", endDate: "2026-12-03" },
+      },
+    });
+  });
+
+  it("accepte une promo d'un seul jour", () => {
+    const oneDay = { ...PROMOTION, promotionEndDate: "2026-11-20" };
+    expect(validateEventSettings({ ...VALID, ...oneDay })).toMatchObject({ success: true });
+  });
+
+  it("ignore les champs de promo, même invalides, quand la case est décochée", () => {
+    const unchecked = { ...PROMOTION, hasPromotion: false, promotionalUnitPrice: "trente" };
+    expect(validateEventSettings({ ...VALID, ...unchecked })).toMatchObject({
+      success: true,
+      data: { promotion: null },
+    });
+  });
+
+  it.each([
+    [{ promotionalUnitPrice: "35" }, "promotionalUnitPrice", "validation.promotionPriceNotLower"],
+    [{ promotionalUnitPrice: "40" }, "promotionalUnitPrice", "validation.promotionPriceNotLower"],
+    [{ promotionalUnitPrice: "" }, "promotionalUnitPrice", "validation.priceInvalid"],
+    [{ promotionStartDate: "2026-02-30" }, "promotionStartDate", "validation.dateInvalid"],
+    [{ promotionEndDate: "" }, "promotionEndDate", "validation.dateInvalid"],
+    [
+      { promotionStartDate: "2026-12-04", promotionEndDate: "2026-12-03" },
+      "promotionEndDate",
+      "validation.promotionEndBeforeStart",
+    ],
+  ])("refuse la promo %o", (changes, field, messageKey) => {
+    expect(firstErrorOf({ ...PROMOTION, ...changes })).toEqual({ field, messageKey });
+  });
+
+  it("refuse des champs de promo d'un mauvais type sans planter", () => {
+    const result = validateEventSettings({
+      ...VALID,
+      hasPromotion: true,
+      promotionalUnitPrice: 30,
+      promotionStartDate: null,
+      promotionEndDate: ["2026-12-03"],
+    });
+
+    expect(result).toEqual({
+      success: false,
+      fieldErrors: [
+        { field: "promotionalUnitPrice", messageKey: "validation.priceInvalid" },
+        { field: "promotionStartDate", messageKey: "validation.dateInvalid" },
+        { field: "promotionEndDate", messageKey: "validation.dateInvalid" },
+      ],
+    });
+  });
+});
+
+describe("parsePriceInput", () => {
+  it("lit un prix valide en cents et renvoie null sinon", () => {
+    expect(parsePriceInput(" 35,50 ")).toBe(3550);
+    expect(parsePriceInput("30")).toBe(3000);
+    expect(parsePriceInput("")).toBeNull();
+    expect(parsePriceInput("-5")).toBeNull();
   });
 });
 

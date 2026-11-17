@@ -192,6 +192,8 @@
     "capacityInvalid": "Enter a whole number of seats, from 1 to 2000.",
     "capacityBelowTaken": "The number of seats cannot go below the seats already taken.",
     "priceInvalid": "Enter a price in dollars, for example 35 or 35.50.",
+    "promotionPriceNotLower": "The sale price must be lower than the regular price.",
+    "promotionEndBeforeStart": "The sale must end on or after the day it starts.",
     "autoDepositRequired": "Confirm that autodeposit is turned on for the new address."
   },
   "language": {

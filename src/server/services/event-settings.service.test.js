@@ -64,11 +64,35 @@ describe("getEventSettings", () => {
         venueAddress: "1 rue Exemple, Ottawa",
         capacity: "120",
         unitPrice: "35",
+        hasPromotion: true,
+        promotionalUnitPrice: "30",
+        // La fin stockée (4 décembre à minuit, exclue) devient le dernier jour inclus.
+        promotionStartDate: "2026-11-20",
+        promotionEndDate: "2026-12-03",
         interacEmail: "Paiements@example.test",
       },
       takenSeats: 82,
       activeReservations: 34,
-      promotion: { unitPriceCents: 3000, endsAt: EVENT.promotionEndsAt },
+    });
+  });
+
+  it("laisse les champs de promo vides quand il n'y a pas de promo", async () => {
+    vi.mocked(getEvent).mockResolvedValue(
+      /** @type {never} */ ({
+        ...EVENT,
+        promotionalUnitPriceCents: null,
+        promotionStartsAt: null,
+        promotionEndsAt: null,
+      }),
+    );
+
+    const { values } = await getEventSettings();
+
+    expect(values).toMatchObject({
+      hasPromotion: false,
+      promotionalUnitPrice: "",
+      promotionStartDate: "",
+      promotionEndDate: "",
     });
   });
 
@@ -89,10 +113,60 @@ describe("updateEventSettings", () => {
       bookingDeadline: EVENT.bookingDeadline,
       capacity: 130,
       unitPriceCents: 4000,
+      promotionalUnitPriceCents: null,
+      promotionStartsAt: null,
+      promotionEndsAt: null,
       venueName: "Salle fictive",
       venueAddress: "1 rue Exemple, Ottawa",
       interacEmail: "paiements@example.test",
     });
+  });
+
+  it("enregistre la promo de minuit le premier jour à minuit le lendemain du dernier", async () => {
+    await updateEventSettings({
+      ...FORM,
+      hasPromotion: true,
+      promotionalUnitPrice: "32,50",
+      promotionStartDate: "2026-11-20",
+      promotionEndDate: "2026-12-03",
+    });
+
+    expect(vi.mocked(updateEvent).mock.calls[0][2]).toMatchObject({
+      unitPriceCents: 4000,
+      promotionalUnitPriceCents: 3250,
+      promotionStartsAt: new Date("2026-11-20T05:00:00.000Z"),
+      promotionEndsAt: new Date("2026-12-04T05:00:00.000Z"),
+    });
+  });
+
+  it("garde une promo d'un seul jour valide pour le site (début avant fin)", async () => {
+    await updateEventSettings({
+      ...FORM,
+      hasPromotion: true,
+      promotionalUnitPrice: "30",
+      promotionStartDate: "2026-12-01",
+      promotionEndDate: "2026-12-01",
+    });
+
+    expect(vi.mocked(updateEvent).mock.calls[0][2]).toMatchObject({
+      promotionStartsAt: new Date("2026-12-01T05:00:00.000Z"),
+      promotionEndsAt: new Date("2026-12-02T05:00:00.000Z"),
+    });
+  });
+
+  it("refuse un prix promo qui n'est pas plus bas que le prix normal", async () => {
+    const promotion = {
+      hasPromotion: true,
+      promotionalUnitPrice: "40",
+      promotionStartDate: "2026-11-20",
+      promotionEndDate: "2026-12-03",
+    };
+
+    await expect(updateEventSettings({ ...FORM, ...promotion })).rejects.toMatchObject({
+      statusCode: 400,
+      details: [{ field: "promotionalUnitPrice", messageKey: "validation.promotionPriceNotLower" }],
+    });
+    expect(updateEvent).not.toHaveBeenCalled();
   });
 
   it("relance l'alerte quand la date du dîner change", async () => {
