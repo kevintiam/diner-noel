@@ -8,6 +8,7 @@ import DecisionHistory from "@/components/admin/DecisionHistory";
 import DecisionPanel from "@/components/admin/DecisionPanel";
 import InitialsAvatar from "@/components/admin/InitialsAvatar";
 import LoadingBlocks from "@/components/admin/LoadingBlocks";
+import PersonalLinkPanel from "@/components/admin/PersonalLinkPanel";
 import ProofList from "@/components/admin/ProofList";
 import ReservationFacts from "@/components/admin/ReservationFacts";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -17,6 +18,7 @@ import { formatShortDateTime } from "@/lib/format";
 import { requireOrganizer } from "@/server/auth/require-organizer";
 import { AppError } from "@/server/errors/app-error";
 import { getReservationDetail } from "@/server/services/organizer.service";
+import { getPersonalLinkForOrganizer } from "@/server/services/personal-link.service";
 import styles from "../../admin-page.module.css";
 
 const NOT_FOUND_STATUS = 404;
@@ -72,6 +74,8 @@ async function ReservationDetail({ params, searchParams }) {
   await requireOrganizer();
   const { id } = await params;
   const reservation = await readReservation(id);
+  // Après requireOrganizer() : le lien donne accès à la réservation (AD-7).
+  const personalLink = getPersonalLinkForOrganizer(reservation);
   const hasEmailFailed = (await searchParams)[EMAIL_NOTICE_PARAM] === EMAIL_NOTICE_FAILED;
   const fullName = `${reservation.firstName} ${reservation.lastName}`;
   return (
@@ -103,6 +107,7 @@ async function ReservationDetail({ params, searchParams }) {
       <div className={styles.detailGrid}>
         <div className={styles.column}>
           <ReservationFacts reservation={reservation} />
+          <PersonalLinkPanel url={personalLink} />
           <ProofList proofs={reservation.proofs} />
         </div>
         <div className={styles.column}>
