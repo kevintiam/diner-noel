@@ -1,0 +1,35 @@
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.125rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #f5f3ee;
+}
+.current,
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-target);
+  min-height: var(--tap-target);
+  padding: 0 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.current {
+  color: var(--color-fir);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.4em;
+}
+.option {
+  color: var(--color-muted);
+}
+.option:hover {
+  background: var(--color-sand);
+  color: var(--color-fir);
+}

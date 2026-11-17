@@ -1,0 +1,12 @@
+node_modules
+.next
+src/generated
+prisma/migrations
+package-lock.json
+docs
+_bmad
+_bmad-output
+.agents
+.claude
+AGENTS.md
+CLAUDE.md

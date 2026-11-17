@@ -1,0 +1,49 @@
+.section {
+  padding: 4rem 0;
+}
+.title {
+  margin-bottom: 2.5rem;
+  font-size: var(--font-size-section);
+}
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  list-style: none;
+}
+.card {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-content: start;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+}
+.icon {
+  grid-row: 1 / 4;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-burgundy);
+}
+.label {
+  color: var(--color-fir);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.value {
+  grid-column: 2;
+  color: var(--color-muted);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 40rem) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+}
+@media (min-width: 64rem) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}

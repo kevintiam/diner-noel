@@ -1,0 +1,138 @@
+// Schéma complet de la base (architecture AD-17) : toutes les tables du projet
+// sont créées ici, en une seule migration initiale, pour que les stories
+// suivantes n'aient pas à se disputer le schéma.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReservationStatus {
+  PENDING_PAYMENT
+  TO_VERIFY
+  CONFIRMED
+  CANCELLED
+}
+
+enum DecisionType {
+  CONFIRM
+  REFUSE
+  CANCEL
+  AUTO_CANCEL
+}
+
+enum RefusalReason {
+  NO_TRANSFER
+  INCOMPLETE_AMOUNT
+  UNREADABLE_PROOF
+}
+
+enum Language {
+  FR
+  EN
+}
+
+// L'unique événement (AD-14). Les heures sont en UTC (AD-12), l'argent en cents (AD-6).
+model Event {
+  id              String    @id @default(cuid())
+  startsAt        DateTime
+  bookingDeadline DateTime
+  capacity        Int
+  unitPriceCents  Int
+  promotionalUnitPriceCents Int?
+  promotionStartsAt DateTime?
+  promotionEndsAt DateTime?
+  venueName       String
+  venueAddress    String
+  interacEmail    String
+  alertSentAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Le prix et le courriel Interac sont copiés à la création et ne changent plus (AD-6).
+model Reservation {
+  id             String                @id @default(cuid())
+  code           String                @unique
+  token          String                @unique
+  status         ReservationStatus     @default(PENDING_PAYMENT)
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  seats          Int
+  childSeats     Int                   @default(0)
+  note           String?
+  language       Language
+  unitPriceCents Int
+  amountCents    Int
+  interacEmail   String
+  confirmedAt    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  proofs         Proof[]
+  decisions      ReservationDecision[]
+
+  @@index([status])
+}
+
+// Capture de paiement, jamais modifiée ni supprimée (AD-8).
+model Proof {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  data          Bytes
+  mimeType      String
+  byteSize      Int
+  createdAt     DateTime    @default(now())
+
+  @@index([reservationId])
+}
+
+// Historique des décisions ; organizerId est vide pour l'annulation automatique (AD-4).
+model ReservationDecision {
+  id            String         @id @default(cuid())
+  reservationId String
+  reservation   Reservation    @relation(fields: [reservationId], references: [id])
+  type          DecisionType
+  reasonCode    RefusalReason?
+  organizerId   String?
+  organizer     Organizer?     @relation(fields: [organizerId], references: [id])
+  createdAt     DateTime       @default(now())
+
+  @@index([reservationId])
+}
+
+model Organizer {
+  id           String                @id @default(cuid())
+  email        String                @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime              @default(now())
+  sessions     Session[]
+  decisions    ReservationDecision[]
+}
+
+// Seul le hachage SHA-256 du jeton de session est stocké (AD-9).
+model Session {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  organizerId String
+  organizer   Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([organizerId])
+}
+
+// Compteur à fenêtre fixe de la limite de requêtes (AD-11).
+model RateLimit {
+  key         String   @id
+  windowStart DateTime
+  count       Int
+}

@@ -1,0 +1,208 @@
+/* Panneaux de la fiche d'une réservation : informations, captures, décision, historique. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  box-shadow: var(--admin-shadow);
+}
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.375rem;
+}
+.panelIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-fir-light);
+  color: var(--color-fir);
+}
+.panelIcon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+.empty {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--admin-radius-small);
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+.emptyIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-gold);
+}
+
+/* Informations du participant */
+.facts {
+  display: flex;
+  flex-direction: column;
+}
+.fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-small);
+}
+.fact:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.fact dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-muted);
+}
+.factIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-gold);
+}
+/* Même passée à la ligne, la valeur reste alignée à droite. */
+.fact dd {
+  margin-left: auto;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.amount {
+  color: var(--color-fir);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.25rem;
+  font-variant-numeric: lining-nums;
+}
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border-left: 3px solid var(--color-gold);
+  border-radius: 0 var(--admin-radius-small) var(--admin-radius-small) 0;
+  background: color-mix(in srgb, var(--color-gold-light) 30%, var(--color-surface));
+  font-size: var(--font-size-small);
+}
+.noteLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--admin-gold-ink);
+  font-weight: 700;
+}
+
+/* Captures */
+.proofs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+}
+.proof {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius-small);
+  background: color-mix(in srgb, var(--color-sand) 40%, var(--color-surface));
+}
+.proofTile {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--admin-radius-small);
+  background: var(--color-surface);
+  color: var(--color-fir);
+}
+.proofIcon {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+.proofText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.proofName {
+  font-weight: 700;
+}
+.proofMeta {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* Historique, en frise verticale */
+.history {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+.historyItem {
+  position: relative;
+  padding: 0 0 1.25rem 1.75rem;
+}
+.historyItem:last-child {
+  padding-bottom: 0;
+}
+/* Point coloré de la décision. */
+.historyItem::before {
+  content: "";
+  position: absolute;
+  top: 0.375rem;
+  left: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 3px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--tone, var(--color-muted));
+  box-shadow: 0 0 0 1px var(--tone, var(--color-muted));
+}
+/* Trait qui relie les décisions entre elles. */
+.historyItem:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  bottom: 0.125rem;
+  left: 0.375rem;
+  width: 2px;
+  background: var(--color-border);
+}
+.toneConfirm {
+  --tone: var(--color-fir);
+}
+.toneRefuse {
+  --tone: var(--color-burgundy);
+}
+.toneNeutral {
+  --tone: var(--color-muted);
+}
+.historyLabel {
+  font-size: var(--font-size-small);
+  font-weight: 700;
+}
+.historyMeta {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}

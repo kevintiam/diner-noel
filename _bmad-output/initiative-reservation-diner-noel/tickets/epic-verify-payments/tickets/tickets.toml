@@ -1,0 +1,56 @@
+# Stories de l'épopée « Les organisateurs vérifient les paiements », dans l'ordre de construction.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Un organisateur se connecte et voit les réservations"
+description = "Sessions en base (AD-9), connexion et déconnexion, script de création des comptes, limite des tentatives, requireOrganizer() en tête de /admin, et liste simple des réservations (code, nom, places, montant, statut, date de réservation)."
+verify = "Sur l'aperçu, /admin renvoie vers la connexion ; après connexion avec un compte créé par le script, la liste montre les réservations ; 6 mauvais mots de passe de suite sont bloqués ; la déconnexion ferme l'accès."
+covers = ["R2", "R3", "R8"]
+after = ["1.2"]
+hitl = true # l'utilisateur fournit les courriels des quatre organisateurs et lance le script de création des comptes
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Voir la fiche d'une réservation et ses captures"
+description = "La fiche montre les informations du participant, le montant attendu, le code, l'historique des décisions et toutes les captures agrandissables, lues par la route réservée aux organisateurs (AD-8) ; elle accueille les boutons de la story 3."
+verify = "Connecté, l'organisateur ouvre une réservation qui a deux captures et agrandit chacune ; déconnecté, l'adresse d'une capture répond 401 et la fiche renvoie vers la connexion."
+covers = ["R3", "R7"]
+after = [1, "1.4"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Confirmer ou refuser un paiement"
+description = "Ajoute « confirmer » et « refuser » (avec un motif) au service des changements de statut créé par la story 1.4 : mise à jour conditionnelle, erreur 409 si le statut a changé, décision enregistrée avec l'organisateur, la date et le motif ; envoie ensuite la confirmation ou l'avis de refus dans la langue du participant, par l'envoi de courriel de la story 1.3."
+verify = "Sur l'aperçu, confirmer envoie la confirmation ; refuser pour « Montant incomplet » envoie l'avis avec le motif et le lien, qui accepte alors une nouvelle capture sans que les places soient libérées ; deux confirmations simultanées donnent une seule décision et une erreur 409."
+covers = ["R1", "R4", "R5", "R6"]
+after = [2, "1.3"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Refactor sweep"
+description = "Nettoyage seulement, après la mise en ligne : sa portée est fixée à son démarrage à partir des plans et des remarques de revue que l'épopée a reportés ; une portée repoussée d'une autre story devient une nouvelle story."
+verify = "npm run lint, npm test et npm run test:e2e passent, sans changement de comportement visible."
+covers = []
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Parcours complet de bout en bout"
+description = "Suite Playwright, après la mise en ligne : réserver, déposer une capture, confirmer ; puis refuser, redéposer et confirmer, en français et en anglais, avec l'envoi de courriel simulé."
+verify = "npm run test:e2e passe et couvre les deux parcours dans les deux langues."
+covers = ["R4", "R5"]
+after = [3]
+hitl = false
+risk = "low"

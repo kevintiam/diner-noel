@@ -1,0 +1,13 @@
+.track {
+  width: 100%;
+  max-width: 20rem;
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--color-fir);
+}

@@ -1,0 +1,9 @@
+# Déploiement Netlify (architecture AD-16). Le runtime Next.js de Netlify est
+# ajouté automatiquement. Les migrations ne sont JAMAIS lancées ici : elles se
+# lancent à la main, avec `npm run db:deploy`, avant le déploiement qui en a besoin.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"

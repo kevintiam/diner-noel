@@ -1,0 +1,30 @@
+.indicator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.label {
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-burgundy);
+}
+
+.bars {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.bar,
+.barReached {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+}
+
+.barReached {
+  background: var(--color-fir);
+}

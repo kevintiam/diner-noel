@@ -1,0 +1,11 @@
+.sections {
+  width: 100%;
+  max-width: var(--page-wide-max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+.loading {
+  padding: 1.5rem;
+  color: var(--color-muted);
+  text-align: center;
+}

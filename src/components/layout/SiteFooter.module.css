@@ -1,0 +1,32 @@
+.footer {
+  border-top: 1px solid var(--color-border);
+  background: #eae8e1;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem 3rem;
+  max-width: var(--page-wide-max-width);
+  margin: 0 auto;
+  padding: 3rem var(--page-gutter);
+}
+.brand {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-title), Georgia, serif;
+  color: var(--color-fir);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.contact {
+  max-width: 25rem;
+  overflow-wrap: anywhere;
+}
+.contact a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+}

@@ -1,49 +1,108 @@
+/* Couleurs, tailles et contrastes du brief §10, définis une seule fois.
+   Couleurs pleines et calmes : ni dégradé, ni effet « généré par IA ». */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --color-cream: #fdfbf7;
+  --color-surface: #ffffff;
+  --color-fir: #1a382b;
+  --color-fir-dark: #12281e;
+  --color-fir-light: #ebf3ee;
+  --color-burgundy: #7a1c28;
+  --color-gold: #c29b38;
+  /* Or clair : lisible sur le vert du bandeau (contraste élevé). */
+  --color-gold-light: #ecdcae;
+  --color-sand: #f4efe6;
+  --color-ink: #16231c;
+  --color-muted: #424844;
+  --color-border: #d9d8cd;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+  --font-size-base: 1.125rem;
+  --font-size-small: 1rem;
+  --font-size-large: 1.25rem;
+  --font-size-section: clamp(1.75rem, 5vw, 2.25rem);
+  --font-size-title: clamp(2.125rem, 5vw, 3rem);
+  --line-height-text: 1.6;
 
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --space-xs: 0.5rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --page-gutter: 1.25rem;
+  --page-max-width: 44rem;
+  --page-wide-max-width: 75rem;
+  --radius: 0.25rem;
+  --tap-target: 3rem;
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%;
+  scroll-padding-top: 12rem;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title), Georgia, serif;
+  color: var(--color-fir);
+  line-height: 1.2;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--color-fir);
+  text-underline-offset: 0.2em;
 }
 
-@media (prefers-color-scheme: dark) {
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+summary:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-gold-light);
+  color: var(--color-fir-dark);
+}
+
+@media (min-width: 80rem) {
   html {
-    color-scheme: dark;
+    scroll-padding-top: 6rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --page-gutter: 2.5rem;
+  }
+}
+
+/* Les animations à venir (épopée 4) se coupent quand le téléphone le demande. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -1,0 +1,269 @@
+/* Bandeau vert sapin, liseré bordeaux comme l'en-tête du site public. */
+.header {
+  border-top: 3px solid var(--color-burgundy);
+  background: var(--color-fir);
+  color: var(--color-cream);
+}
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand logout"
+    "account account"
+    "tabs tabs";
+  align-items: center;
+  gap: 0.75rem 1rem;
+  max-width: var(--page-wide-max-width);
+  margin: 0 auto;
+  padding: 1rem var(--page-gutter) 0;
+}
+/* Sans onglets (page de connexion), le bandeau garde une marge en bas. */
+.inner:not(:has(.tabs)) {
+  padding-bottom: 1rem;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Marque */
+.brand {
+  grid-area: brand;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--tap-target);
+  color: var(--color-cream);
+  text-decoration: none;
+}
+.brandMark {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-gold);
+  border-radius: 50%;
+  background: var(--color-fir-dark);
+}
+.brandIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-gold-light);
+  fill: var(--color-gold-light);
+}
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.brandName {
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.brandSection {
+  color: var(--color-gold-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Compte connecté */
+.account {
+  grid-area: account;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--admin-radius-small);
+  background: var(--color-fir-dark);
+  font-size: var(--font-size-small);
+}
+.accountText {
+  min-width: 0;
+  line-height: 1.3;
+}
+.accountLabel {
+  color: var(--color-gold-light);
+}
+.accountName {
+  color: var(--color-cream);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.logoutForm {
+  grid-area: logout;
+}
+.logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: var(--tap-target);
+  min-height: var(--tap-target);
+  padding: 0 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-cream) 30%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-cream);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.logout:hover {
+  border-color: var(--color-gold-light);
+  background: var(--color-fir-dark);
+}
+.logoutIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+/* Sur un petit téléphone, l'icône suffit ; le texte reste lu par les lecteurs d'écran. */
+.logoutText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Onglets */
+.tabs {
+  grid-area: tabs;
+  min-width: 0;
+}
+.tabList {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+.tab,
+.siteLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--tap-target);
+  padding: 0 1rem;
+  color: var(--color-cream);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tab {
+  border-radius: 0.625rem 0.625rem 0 0;
+  transition: background 0.15s ease;
+}
+.tab:hover {
+  background: var(--color-fir-dark);
+}
+/* L'onglet ouvert se fond dans la page crème, comme un intercalaire. */
+.tab[aria-current="page"] {
+  background: var(--color-cream);
+  color: var(--color-fir);
+}
+.tab[aria-current="page"] .tabIcon {
+  color: var(--color-burgundy);
+}
+.tabIcon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-gold-light);
+}
+/* Sur un petit téléphone, les onglets prennent toute la largeur : le lien vers le site attend un écran plus large. */
+.siteItem {
+  display: none;
+  margin-left: auto;
+}
+.siteLink {
+  padding: 0 0.75rem;
+  color: var(--color-gold-light);
+}
+.siteLink:hover .siteText {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.siteText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Trois onglets sur un téléphone : sans icône et plus serrés, ils tiennent sur une ligne. */
+@media (max-width: 35.99rem) {
+  .tabList > li:not(.siteItem) {
+    flex: 1 1 auto;
+  }
+  .tab {
+    justify-content: center;
+    width: 100%;
+    padding: 0 0.5rem;
+    font-size: 0.8125rem;
+  }
+  .tab .tabIcon {
+    display: none;
+  }
+}
+@media (min-width: 30rem) {
+  .logoutText,
+  .siteText {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .logout {
+    padding: 0 1rem;
+  }
+}
+@media (min-width: 40rem) {
+  .siteItem {
+    display: block;
+  }
+}
+@media (min-width: 48rem) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "brand account logout"
+      "tabs tabs tabs";
+    gap: 1rem 1.25rem;
+    padding-top: 1.25rem;
+  }
+  .account {
+    padding: 0;
+    background: none;
+  }
+  .brandMark {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .brandName {
+    font-size: 1.375rem;
+  }
+  .tab {
+    padding: 0 1.25rem;
+  }
+}

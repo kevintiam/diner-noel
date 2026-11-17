@@ -1,0 +1,212 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-m);
+  padding-top: var(--space-xs);
+}
+.card {
+  display: grid;
+  width: 100%;
+  max-width: 28rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius);
+  background: var(--color-surface);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+/* Volet d'accueil : vert sapin et filet doré, comme un carton d'invitation. */
+.welcome {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 3rem 2.5rem;
+  background: var(--color-fir);
+  color: var(--color-cream);
+}
+.welcome::after {
+  content: "";
+  position: absolute;
+  inset: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+  border-radius: calc(var(--admin-radius) - 0.5rem);
+  pointer-events: none;
+}
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid var(--color-gold);
+  border-radius: 50%;
+  background: var(--color-fir-dark);
+}
+.markIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-gold-light);
+  fill: var(--color-gold-light);
+}
+.welcomeEyebrow {
+  margin-top: 0.5rem;
+  color: var(--color-gold-light);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.welcomeTitle {
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-cream) 16%, transparent);
+  list-style: none;
+  font-size: 0.9375rem;
+}
+.features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.featureIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  color: var(--color-gold-light);
+}
+
+/* Volet du formulaire */
+.formSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-l) var(--space-m);
+  border-top: 4px solid var(--color-gold);
+}
+.lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--admin-burgundy-light);
+  color: var(--color-burgundy);
+}
+.lockIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.title {
+  font-size: var(--font-size-section);
+}
+.intro {
+  color: var(--color-muted);
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  margin-top: var(--space-xs);
+}
+/* Champs plus doux que ceux du site public, avec un repère net au focus. */
+.form input:is([type="email"], [type="password"]) {
+  min-height: 3.25rem;
+  border-radius: var(--admin-radius-small);
+}
+.form input:is([type="email"], [type="password"]):focus {
+  border-color: var(--color-fir);
+  outline: 3px solid var(--color-gold-light);
+  outline-offset: 0;
+}
+.alert {
+  padding: 0.875rem 1rem;
+  border-left: 4px solid var(--color-burgundy);
+  border-radius: 0 var(--admin-radius-small) var(--admin-radius-small) 0;
+  background: var(--admin-burgundy-light);
+  color: var(--color-burgundy);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.875rem 1.5rem;
+  border: 1px solid var(--color-fir);
+  border-radius: 999px;
+  background: var(--color-fir);
+  color: var(--color-cream);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.submit:hover {
+  background: var(--color-fir-dark);
+}
+.submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.submitIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.note {
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--tap-target);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-decoration-color: var(--color-gold);
+}
+.backIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+@media (min-width: 48rem) {
+  .page {
+    padding-top: var(--space-m);
+  }
+  .formSide {
+    padding: var(--space-l);
+  }
+}
+@media (min-width: 60rem) {
+  .card {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    max-width: 60rem;
+  }
+  .welcome {
+    display: flex;
+  }
+  .formSide {
+    justify-content: center;
+    padding: 3rem;
+    border-top: none;
+  }
+}

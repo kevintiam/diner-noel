@@ -1,0 +1,9 @@
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Le contenu prend la place libre : le pied de page reste en bas sur une page courte. */
+.content {
+  flex: 1;
+}
