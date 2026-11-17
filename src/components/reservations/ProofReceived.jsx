@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { translate } from "@/i18n/translate";
 import { formatMoney } from "@/lib/format";
 import styles from "./ReservationStatusNotice.module.css";
@@ -8,10 +11,16 @@ import styles from "./ReservationStatusNotice.module.css";
  * @returns {React.ReactElement} La preuve reçue.
  */
 export default function ProofReceived({ reservation, lang, dictionary }) {
+  const titleRef = useRef(null);
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, []);
   const t = (key, values) => translate(dictionary, key, values);
   return (
     <section className={styles.page}>
-      <h1>{t("received.title")}</h1>
+      <h1 ref={titleRef} tabIndex={-1}>
+        {t("received.title")}
+      </h1>
       <p>{t("received.greeting", { firstName: reservation.firstName })}</p>
       <p role="status" className={styles.notice}>
         {t("status.toVerify")}

@@ -55,4 +55,26 @@ describe("readLimitedFormData", () => {
       });
     },
   );
+  it("préserve la 413 même si l'annulation du flux rejette", async () => {
+    const cancellationError = new Error("annulation impossible");
+    const cancel = vi.fn(() => Promise.reject(cancellationError));
+    const body = new ReadableStream({
+      pull(controller) {
+        controller.enqueue(new Uint8Array(101));
+      },
+      cancel,
+    });
+    const request = new Request("https://example.test", {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data; boundary=limite" },
+      body,
+      duplex: "half",
+    });
+    await expect(readLimitedFormData(request, 100)).rejects.toMatchObject({
+      statusCode: 413,
+      code: "PROOF_TOO_LARGE",
+      cause: cancellationError,
+    });
+    expect(cancel).toHaveBeenCalledOnce();
+  });
 });

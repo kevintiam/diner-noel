@@ -46,21 +46,21 @@ proviennent exclusivement de ce fichier : les connexions PostgreSQL héritées d
 
 ## Variables d'environnement
 
-| Variable                | Rôle                                                                                    |
-| ----------------------- | --------------------------------------------------------------------------------------- |
-| `DATABASE_URL`          | Connexion poolée à Neon, utilisée par l'application                                     |
-| `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                                   |
-| `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente      |
-| `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base                |
-| `SITE_URL`              | Origine HTTPS publique utilisée pour les liens personnels ; HTTP autorisé sur localhost |
-| `SMTP_HOST`             | Nom du serveur SMTP dédié                                                               |
-| `SMTP_PORT`             | Port SMTP : 465 pour TLS immédiat, 587 pour STARTTLS obligatoire                        |
-| `SMTP_USER`             | Identifiant SMTP privé                                                                  |
-| `SMTP_PASSWORD`         | Mot de passe SMTP privé                                                                 |
-| `EMAIL_FROM`            | Adresse d'expédition autorisée par le fournisseur SMTP                                  |
+| Variable                | Rôle                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`          | Connexion poolée à Neon, utilisée par l'application                                                             |
+| `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                                                           |
+| `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente                              |
+| `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base                                        |
+| `SITE_URL`              | Origine HTTPS publique utilisée pour les liens personnels ; HTTP autorisé sur localhost                         |
+| `SMTP_HOST`             | Nom du serveur SMTP dédié                                                                                       |
+| `SMTP_PORT`             | Port SMTP : 465 pour TLS immédiat, 587 pour STARTTLS obligatoire                                                |
+| `SMTP_USER`             | Identifiant SMTP privé                                                                                          |
+| `SMTP_PASSWORD`         | Mot de passe SMTP privé                                                                                         |
+| `EMAIL_FROM`            | Expéditeur autorisé par le fournisseur SMTP : `adresse` ou `Nom <adresse>` (nom par défaut : « Dîner de Noël ») |
 
 Les valeurs de l'événement dans `prisma/default-event.js` sont fictives : les remplacer par les
-vraies avant la mise en ligne.
+vraies avant la mise en ligne, ou les corriger ensuite depuis l'écran Paramètres du tableau de bord.
 
 ## Comptes des organisateurs
 
@@ -116,6 +116,26 @@ Chaque courriel part dans la langue de la réservation, après l'enregistrement 
 Si l'envoi échoue, la décision reste valide, la fiche affiche « le courriel n'a pas pu être
 envoyé » et le journal `reservation_confirmation_failed` ou `reservation_refusal_failed` contient
 seulement l'identifiant interne.
+
+## Paramètres de l'événement et état des comptes
+
+L'onglet « Paramètres » (`/admin/parametres`) modifie la date et l'heure d'accueil, la date
+limite, le lieu, le nombre de places, le prix d'une place de 15 ans et plus et le courriel Interac.
+Les heures sont celles d'Ottawa ; les réservations ferment à 23 h 59 le jour de la date limite.
+Un seul service applique les règles (AD-14), sous le verrou de l'événement :
+
+- la date limite tombe avant le jour du dîner ;
+- le nombre de places ne descend jamais sous les places déjà prises ;
+- une nouvelle adresse Interac exige de confirmer que son dépôt automatique est activé ;
+- une nouvelle date du dîner relance l'alerte aux organisateurs ;
+- les réservations déjà faites gardent leur prix et leur adresse Interac.
+
+Le tarif promotionnel ne se modifie pas depuis cet écran. Les inscrits ne sont pas prévenus d'un
+changement.
+
+Sur la vue d'ensemble, « Encaissé » additionne les réservations confirmées, y compris celles
+annulées après leur confirmation, et « À recevoir » celles en attente de paiement ou à vérifier.
+Ces deux sommes n'existent que dans `accounting.service.js` (AD-6).
 
 ## Déploiement
 

@@ -1,7 +1,7 @@
 "use client";
 
 // Onglets du tableau de bord ; l'onglet de la page ouverte est marqué pour les lecteurs d'écran.
-import { ExternalLink, LayoutDashboard, Ticket } from "lucide-react";
+import { ExternalLink, LayoutDashboard, Settings, Ticket } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./AdminHeader.module.css";
@@ -11,6 +11,7 @@ const PUBLIC_SITE_PATH = "/fr";
 const TABS = [
   { href: DASHBOARD_PATH, label: "Vue d’ensemble", Icon: LayoutDashboard },
   { href: "/admin/reservations", label: "Réservations", Icon: Ticket },
+  { href: "/admin/parametres", label: "Paramètres", Icon: Settings },
 ];
 
 /**

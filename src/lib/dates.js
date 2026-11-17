@@ -25,3 +25,18 @@ export function localDateTimeToUtc(localDate, localTime) {
   const zonedDate = new TZDate(year, month - 1, day, hours, minutes, EVENT_TIME_ZONE);
   return new Date(zonedDate.getTime());
 }
+
+/**
+ * Donne la date et l'heure d'Ottawa d'un instant UTC, au format des champs de formulaire.
+ * @param {Date} instant L'instant stocké en base.
+ * @returns {{ date: string, time: string }} La date `AAAA-MM-JJ` et l'heure `HH:MM` (24 h).
+ */
+export function utcToLocalDateTime(instant) {
+  const zoned = new TZDate(instant.getTime(), EVENT_TIME_ZONE);
+  /** @param {number} value */
+  const pad = (value) => String(value).padStart(2, "0");
+  return {
+    date: `${zoned.getFullYear()}-${pad(zoned.getMonth() + 1)}-${pad(zoned.getDate())}`,
+    time: `${pad(zoned.getHours())}:${pad(zoned.getMinutes())}`,
+  };
+}

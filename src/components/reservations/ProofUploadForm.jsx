@@ -35,7 +35,13 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
   function fileError(selected) {
     if (!selected || selected.size === 0) return t("proof.fileRequired");
     if (selected.size > MAX_PROOF_BYTES) return t("errors.proofTooLarge");
-    if (!ACCEPTED_PROOF_TYPES.includes(selected.type)) return t("errors.proofInvalidType");
+    if (
+      selected.type &&
+      selected.type !== "application/octet-stream" &&
+      !ACCEPTED_PROOF_TYPES.includes(selected.type)
+    ) {
+      return t("errors.proofInvalidType");
+    }
     return "";
   }
 
@@ -108,14 +114,14 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
             ref={inputRef}
             accept={ACCEPTED_PROOF_TYPES.join(",")}
             disabled={pending}
-            aria-describedby={`proof-help${errors.proof ? " proof-error" : ""}`}
+            aria-describedby={`proof-help${file ? " proof-selection" : ""}${errors.proof ? " proof-error" : ""}`}
             aria-invalid={Boolean(errors.proof)}
             onChange={(event) => chooseFile(event.target.files?.[0])}
           />
           <p id="proof-help">{t("proof.formats")}</p>
         </div>
         {file && (
-          <p className={styles.filename}>
+          <p id="proof-selection" className={styles.filename}>
             {file.name} · {formatFileSize(file.size, lang)}
           </p>
         )}

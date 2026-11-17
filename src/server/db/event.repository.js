@@ -44,3 +44,24 @@ export async function upsertSingleEvent(values) {
   }
   return prisma.event.create({ data: values });
 }
+
+/**
+ * Lit l'événement complet dans une transaction, après son verrou (architecture AD-5).
+ * @param {import("./transaction.js").TransactionClient} transaction La transaction en cours.
+ * @param {string} eventId
+ * @returns {Promise<(EventValues & { id: string, alertSentAt: Date | null }) | null>} L'événement.
+ */
+export async function findEventById(transaction, eventId) {
+  return transaction.event.findUnique({ where: { id: eventId } });
+}
+
+/**
+ * Enregistre les paramètres modifiés de l'événement. Les réservations existantes ne changent pas (AD-6).
+ * @param {import("./transaction.js").TransactionClient} transaction La transaction en cours.
+ * @param {string} eventId
+ * @param {Partial<EventValues> & { alertSentAt?: null }} values Les champs à remplacer.
+ * @returns {Promise<void>}
+ */
+export async function updateEvent(transaction, eventId, values) {
+  await transaction.event.update({ where: { id: eventId }, data: values });
+}

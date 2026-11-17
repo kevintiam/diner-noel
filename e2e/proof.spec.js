@@ -52,6 +52,11 @@ for (const lang of ["fr", "en"]) {
         name: lang === "fr" ? "Preuve de paiement reçue" : "Payment proof received",
       }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: lang === "fr" ? "Preuve de paiement reçue" : "Payment proof received",
+      }),
+    ).toBeFocused();
     await expect(page.getByText(/Marie/)).toBeVisible();
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
     await expect(page.getByText("Fictif", { exact: true })).toHaveCount(0);
@@ -88,6 +93,39 @@ test("refuse un faux PNG sur le serveur sans changer la réservation", async ({ 
   ).toBeVisible();
   expect(await getPrisma().proof.count()).toBe(0);
   expect((await getPrisma().reservation.findFirstOrThrow()).status).toBe("PENDING_PAYMENT");
+});
+
+test("actualise un formulaire périmé après une 409 et focalise la réception", async ({
+  page,
+  request,
+}) => {
+  const token = await reserve(page);
+  const image = await png();
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: "capture.png", mimeType: "image/png", buffer: image });
+  await page.getByRole("checkbox").check();
+  const first = await request.post(`/api/reservations/${token}/proofs`, {
+    multipart: {
+      proof: { name: "capture.png", mimeType: "image/png", buffer: image },
+      confirmTransfer: "on",
+      lang: "fr",
+    },
+  });
+  expect(first.status()).toBe(201);
+  await expect(page.locator('input[type="file"]')).toBeVisible();
+  const conflict = page.waitForResponse(
+    (response) =>
+      response.url().endsWith(`/api/reservations/${token}/proofs`) &&
+      response.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Envoyer ma preuve de paiement" }).click();
+  expect((await conflict).status()).toBe(409);
+  const title = page.getByRole("heading", { name: "Preuve de paiement reçue" });
+  await expect(title).toBeVisible();
+  await expect(title).toBeFocused();
+  await expect(page.locator('input[type="file"], form')).toHaveCount(0);
+  expect(await getPrisma().proof.count()).toBe(1);
 });
 
 test("refuse 5 Mio avant l'envoi et aussi par accès direct à l'API", async ({ page, request }) => {

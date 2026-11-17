@@ -31,6 +31,9 @@ describe("ProofUploadForm", () => {
       },
     });
     expect(screen.getByText("capture.png · 1,2 Mo")).toBeVisible();
+    expect(
+      screen.getByLabelText("Choisir une capture ou la déposer ici"),
+    ).toHaveAccessibleDescription("JPG, PNG ou WEBP · 4 Mo maximum capture.png · 1,2 Mo");
   });
   it("vérifie fichier et confirmation avant toute requête", async () => {
     show();
@@ -74,6 +77,21 @@ describe("ProofUploadForm", () => {
     expect(options.body.get("confirmTransfer")).toBe("on");
     expect(options.body.get("lang")).toBe("fr");
   });
+  it.each(["", "application/octet-stream"])(
+    "laisse le serveur vérifier un type indéterminé (%s)",
+    async (type) => {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { status: "TO_VERIFY" } }),
+      });
+      show();
+      choose(new File(["image"], "capture.png", { type }));
+      fireEvent.click(screen.getByRole("checkbox"));
+      fireEvent.click(screen.getByRole("button", { name: "Envoyer ma preuve de paiement" }));
+      await waitFor(() => expect(refresh).toHaveBeenCalledOnce());
+      expect(fetchMock.mock.calls[0][1].body.get("proof").type).toBe(type);
+    },
+  );
   it("annonce une erreur renvoyée par le serveur et garde la sélection", async () => {
     fetchMock.mockResolvedValue({
       ok: false,

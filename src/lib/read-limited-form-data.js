@@ -25,8 +25,13 @@ export async function readLimitedFormData(request, maxBytes) {
       if (done) break;
       byteSize += value.byteLength;
       if (byteSize > maxBytes) {
-        await reader.cancel();
-        throw new AppError(413, "PROOF_TOO_LARGE", "errors.proofTooLarge");
+        const overflowError = new AppError(413, "PROOF_TOO_LARGE", "errors.proofTooLarge");
+        try {
+          await reader.cancel();
+        } catch (error) {
+          overflowError.cause = error;
+        }
+        throw overflowError;
       }
       chunks.push(value);
     }

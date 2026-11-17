@@ -13,6 +13,34 @@ const migrationEnvSchema = z.object({
   DIRECT_URL: z.url({ protocol: /^postgres(ql)?$/ }).optional(),
 });
 
+// Nom affiché à côté de l'adresse d'expédition quand EMAIL_FROM n'en donne pas.
+export const DEFAULT_SENDER_NAME = "Dîner de Noël";
+const SENDER_NAME_MAX_LENGTH = 64;
+// « Nom <adresse> ». Le nom n'a ni chevron, ni guillemet, ni retour à la ligne :
+// un retour à la ligne permettrait d'ajouter un en-tête au courriel.
+const NAMED_SENDER_PATTERN = /^([^<>"\r\n]+)<([^<>\s]+)>$/;
+
+/**
+ * Expéditeur des courriels : EMAIL_FROM vaut une adresse seule ou « Nom <adresse> ».
+ * Sans nom, le courriel s'affiche au nom du dîner.
+ */
+const senderSchema = z
+  .string()
+  .trim()
+  .transform((value) => {
+    const match = NAMED_SENDER_PATTERN.exec(value);
+    if (!match) {
+      return { name: DEFAULT_SENDER_NAME, address: value };
+    }
+    return { name: match[1].trim(), address: match[2] };
+  })
+  .pipe(
+    z.object({
+      name: z.string().min(1).max(SENDER_NAME_MAX_LENGTH),
+      address: z.email(),
+    }),
+  );
+
 const emailEnvSchema = z.object({
   SITE_URL: z.url({ protocol: /^https?$/ }).refine((value) => {
     if (!URL.canParse(value)) return false;
@@ -35,7 +63,7 @@ const emailEnvSchema = z.object({
   SMTP_PORT: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(1).max(65535)),
   SMTP_USER: z.string().trim().min(1),
   SMTP_PASSWORD: z.string().min(1),
-  EMAIL_FROM: z.email(),
+  EMAIL_FROM: senderSchema,
 });
 
 /** @typedef {z.infer<typeof emailEnvSchema>} EmailEnv */

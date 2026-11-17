@@ -45,7 +45,9 @@ export default function AgeSeatCounter({
             min={0}
             max={max}
             value={value}
-            onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, MAX_SEAT_COUNT_DIGITS))}
+            onChange={(event) =>
+              onChange(event.target.value.replace(/\D/g, "").slice(0, MAX_SEAT_COUNT_DIGITS))
+            }
             onBlur={() => onChange(String(count))}
             className={styles.seatsInput}
           />

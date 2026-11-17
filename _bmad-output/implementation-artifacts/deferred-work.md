@@ -14,3 +14,6 @@
 - source_spec: `spec-home-noel-de-grace.md`
   summary: Compléter les parcours E2E par une fermeture des réservations à la date limite dans les deux langues.
   evidence: Les composants couvrent l'état fermé, mais les parcours navigateur ne modifient pas encore bookingDeadline pour vérifier ensemble les deux appels à réserver. Lacune de couverture préexistante, sans défaut applicatif démontré.
+- source_spec: `story-deposer-la-preuve-de-paiement-plan.md`
+  summary: Vérifier le délai effectif de lecture des uploads suspendus sur le déploiement avant de choisir une échéance applicative (medium non vérifié).
+  evidence: La lecture multipart borne les octets mais pas sa durée ; la rétention indéfinie dépend du timeout du runtime hébergé, encore non établi. Les deux revues signalent le même scénario ; reproduire un flux suspendu sur un environnement contrôlé permettrait de le qualifier.

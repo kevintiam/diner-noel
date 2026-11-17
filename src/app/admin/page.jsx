@@ -11,6 +11,7 @@ import { summarizeReservations } from "@/components/admin/summarize-reservations
 import TodoCallout from "@/components/admin/TodoCallout";
 import { describeError, logger } from "@/lib/logger";
 import { requireOrganizer } from "@/server/auth/require-organizer";
+import { getAccountingSummary } from "@/server/services/accounting.service";
 import { getEventOverview } from "@/server/services/event.service";
 import { listReservationsForDashboard } from "@/server/services/organizer.service";
 import styles from "./admin-page.module.css";
@@ -66,9 +67,11 @@ async function readEventOverview(now, organizerId) {
 async function DashboardOverview() {
   const organizer = await requireOrganizer();
   const now = new Date();
-  const [reservations, event] = await Promise.all([
+  const [reservations, event, accounting] = await Promise.all([
     listReservationsForDashboard(),
     readEventOverview(now, organizer.id),
+    // Encaissé et en attente n'ont qu'une définition : celle du service des comptes (AD-6).
+    getAccountingSummary(),
   ]);
   const summary = summarizeReservations(reservations);
   return (
@@ -79,8 +82,8 @@ async function DashboardOverview() {
           <EventFillCard
             event={event}
             now={now}
-            collectedCents={summary.CONFIRMED.amountCents}
-            expectedCents={summary.TO_VERIFY.amountCents + summary.PENDING_PAYMENT.amountCents}
+            collectedCents={accounting.collectedCents}
+            expectedCents={accounting.pendingCents}
           />
         ) : null}
       </div>

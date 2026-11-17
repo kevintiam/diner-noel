@@ -22,4 +22,14 @@ describe("AdminTabs", () => {
     expect(isTabActive("/admin/reservations", "/admin")).toBe(false);
     expect(isTabActive("/admin/reservations-archive", "/admin/reservations")).toBe(false);
   });
+
+  it("propose l'onglet « Paramètres »", () => {
+    render(<AdminTabs />);
+
+    expect(screen.getByRole("link", { name: "Paramètres" })).toHaveAttribute(
+      "href",
+      "/admin/parametres",
+    );
+    expect(isTabActive("/admin/parametres", "/admin/parametres")).toBe(true);
+  });
 });

@@ -23,6 +23,7 @@ describe("états du lien personnel", () => {
       <ProofReceived reservation={reservation} lang="fr" dictionary={getDictionary("fr")} />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Preuve de paiement reçue");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveFocus();
     expect(screen.getByText(/Merci Marie/)).toBeVisible();
     expect(screen.getByText("NOEL-1234")).toBeVisible();
     expect(screen.getByText("2")).toBeVisible();
