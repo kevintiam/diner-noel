@@ -1,0 +1,122 @@
+/* Prix des places : prix normal, encart doré de la promo, puis calendrier des prix. */
+
+/* Champ en dollars : le symbole $ reste visible dans le champ. */
+.money {
+  position: relative;
+  display: block;
+  max-width: 14rem;
+}
+.money .moneyInput {
+  padding-right: 2.5rem;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.currency {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  color: var(--color-muted);
+  font-weight: 700;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.toggleLabel {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* La promo, en or : la même couleur que ce qui demande l'attention ailleurs. */
+.promotion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  /* Le fieldset s'élargit sinon à son contenu et peut déborder sur téléphone. */
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-s);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 45%, var(--color-border));
+  border-left: 4px solid var(--color-gold);
+  border-radius: var(--admin-radius-small);
+  background: color-mix(in srgb, var(--color-gold-light) 26%, var(--color-surface));
+}
+.promotion[hidden] {
+  display: none;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Calendrier des prix */
+.schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: var(--space-s);
+  border-top: 1px dashed var(--color-border);
+}
+.scheduleTitle {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.steps {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--admin-radius-small);
+  background: color-mix(in srgb, var(--color-sand) 40%, var(--color-surface));
+}
+.promotionStep {
+  border-color: var(--color-gold);
+  background: var(--color-gold-light);
+}
+.stepPeriod {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.promotionStep .stepPeriod {
+  color: var(--admin-gold-ink);
+}
+.stepPrice {
+  color: var(--color-fir);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.5rem;
+  font-variant-numeric: lining-nums;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.saving {
+  color: var(--admin-gold-ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.scheduleEmpty {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+/* Les trois périodes côte à côte dès que la carte le permet, même en demi-colonne. */
+@container settings-card (min-width: 24rem) {
+  .steps {
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  }
+  .promotion {
+    padding: var(--space-s) var(--space-m);
+  }
+}

@@ -1,9 +1,29 @@
-/* Écran Paramètres de l'événement (maquette 8) : trois cartes, puis les boutons. */
+/* Écran Paramètres de l'événement (maquette 8) : quatre cartes sur deux colonnes, puis la barre
+   d'enregistrement. Une seule colonne, moins large, sur téléphone et tablette. */
 .form {
   display: flex;
   flex-direction: column;
   gap: var(--space-m);
   max-width: 56rem;
+}
+.columns {
+  display: grid;
+  gap: var(--space-m);
+  align-items: start;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  min-width: 0;
+}
+@media (min-width: 64rem) {
+  .form {
+    max-width: none;
+  }
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .alert {
   padding: 0.875rem 1rem;
@@ -14,65 +34,25 @@
   font-size: var(--font-size-small);
   font-weight: 600;
 }
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  padding: var(--space-m);
-  border: 1px solid var(--color-border);
-  border-radius: var(--admin-radius);
-  background: var(--color-surface);
-  box-shadow: var(--admin-shadow);
+/* Le nombre de places tient en quelques chiffres. */
+.shortInput {
+  max-width: 10rem;
 }
-.cardTitle {
+
+/* Barre d'enregistrement collée au bas de l'écran : pas besoin de redescendre pour enregistrer. */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  font-size: 1.375rem;
-}
-.cardIcon {
-  flex-shrink: 0;
-  width: 1.375rem;
-  height: 1.375rem;
-  color: var(--admin-gold-ink);
-}
-/* Une colonne sur téléphone ; la grille de la maquette à partir de 48rem. */
-.threeColumns,
-.twoColumns,
-.venueColumns {
-  display: grid;
-  gap: var(--space-s);
-  align-items: start;
-}
-.checkboxField {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: 0.25rem 0.75rem;
-}
-.checkbox {
-  width: 1.375rem;
-  height: 1.375rem;
-  margin-top: 0.125rem;
-  accent-color: var(--color-fir);
-}
-.checkbox[aria-invalid="true"] {
-  outline: 2px solid var(--color-burgundy);
-  outline-offset: 2px;
-}
-.checkboxLabel {
-  font-size: var(--font-size-small);
-}
-.fieldError {
-  grid-column: 2;
-  color: var(--color-burgundy);
-  font-size: var(--font-size-small);
-  font-weight: 600;
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  margin: 0 calc(-1 * var(--space-xs));
+  padding: 0.75rem var(--space-xs);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-cream);
+  /* Ombre vers le haut : la barre se détache des cartes qui défilent dessous. */
+  box-shadow: 0 -10px 18px -14px rgb(22 35 28 / 0.35);
 }
 .submit,
 .reset {
@@ -81,17 +61,23 @@
   justify-content: center;
   gap: 0.5rem;
   min-height: var(--tap-target);
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 999px;
   font: inherit;
+  font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
 }
+/* Sur téléphone, les deux boutons tiennent sur une seule ligne. */
 .submit {
+  flex: 1;
+  min-width: 0;
   border: 1px solid var(--color-fir);
   background: var(--color-fir);
   color: var(--color-cream);
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 .submit:hover {
   background: var(--color-fir-dark);
@@ -109,17 +95,35 @@
   border-color: var(--color-fir);
 }
 .buttonIcon {
+  display: none;
+  flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
 }
+.actionsHint {
+  display: none;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+@media (min-width: 30rem) {
+  .buttonIcon {
+    display: block;
+  }
+}
 @media (min-width: 48rem) {
-  .threeColumns {
-    grid-template-columns: 1fr 0.75fr 1fr;
+  .actions {
+    gap: 0.75rem 1rem;
   }
-  .twoColumns {
-    grid-template-columns: 1fr 1fr;
+  .submit,
+  .reset {
+    padding: 0.75rem 1.5rem;
+    font-size: inherit;
   }
-  .venueColumns {
-    grid-template-columns: 2fr 3fr;
+  .submit {
+    flex: none;
+  }
+  .actionsHint {
+    display: block;
+    margin-left: auto;
   }
 }

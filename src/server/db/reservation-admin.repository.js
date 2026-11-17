@@ -117,3 +117,42 @@ export async function findReservationForDecisionEmail(transaction, reservationId
 export async function countActiveReservations() {
   return getPrisma().reservation.count({ where: { status: { not: "CANCELLED" } } });
 }
+
+/**
+ * Participant confirmé, tel que l'export CSV le lit.
+ * @typedef {object} ConfirmedParticipant
+ * @property {string} code
+ * @property {string} firstName
+ * @property {string} lastName
+ * @property {string} email
+ * @property {string} phone
+ * @property {number} seats
+ * @property {number} childSeats
+ * @property {"FR" | "EN"} language
+ * @property {number} amountCents
+ * @property {Date | null} confirmedAt
+ * @property {string | null} note
+ */
+
+/**
+ * Lit les réservations confirmées, au moment de la requête (architecture AD-15).
+ * @returns {Promise<ConfirmedParticipant[]>} Les participants confirmés, sans ordre garanti.
+ */
+export async function findConfirmedParticipants() {
+  return getPrisma().reservation.findMany({
+    where: { status: "CONFIRMED" },
+    select: {
+      code: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      seats: true,
+      childSeats: true,
+      language: true,
+      amountCents: true,
+      confirmedAt: true,
+      note: true,
+    },
+  });
+}

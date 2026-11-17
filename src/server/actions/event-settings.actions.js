@@ -17,8 +17,12 @@ const TEXT_FIELDS = /** @type {const} */ ([
   "venueAddress",
   "capacity",
   "unitPrice",
+  "promotionalUnitPrice",
+  "promotionStartDate",
+  "promotionEndDate",
   "interacEmail",
 ]);
+const CHECKED = "on";
 
 /** @typedef {import("../../validation/event-settings.schema.js").EventSettingsFormValues} EventSettingsFormValues */
 
@@ -28,17 +32,19 @@ const TEXT_FIELDS = /** @type {const} */ ([
  */
 
 /**
- * Lit les champs texte du formulaire.
+ * Lit les champs du formulaire. La case de la promo en fait partie : après un refus,
+ * le formulaire la réaffiche telle que l'organisateur l'avait laissée.
  * @param {FormData} formData
  * @returns {EventSettingsFormValues}
  */
 function readSettingsForm(formData) {
-  /** @type {Record<string, string>} */
+  /** @type {Record<string, string | boolean>} */
   const values = {};
   for (const name of TEXT_FIELDS) {
     const value = formData.get(name);
     values[name] = typeof value === "string" ? value : "";
   }
+  values.hasPromotion = formData.get("hasPromotion") === CHECKED;
   return /** @type {EventSettingsFormValues} */ (values);
 }
 
@@ -54,7 +60,7 @@ export async function updateEventSettingsAction(previousState, formData) {
   try {
     await updateEventSettings({
       ...values,
-      autoDepositConfirmed: formData.get("autoDepositConfirmed") === "on",
+      autoDepositConfirmed: formData.get("autoDepositConfirmed") === CHECKED,
     });
   } catch (error) {
     const { body } = handleApiError(error, {

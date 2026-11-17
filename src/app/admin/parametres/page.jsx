@@ -1,6 +1,6 @@
 // Écran Paramètres de l'événement (maquette 8). Le titre est fixe ; la lecture de la session
 // et de la base arrive sous <Suspense>, après requireOrganizer() (architecture AD-9, AD-15).
-import { CircleCheck, Info } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { Suspense } from "react";
 import EventSettingsForm from "@/components/admin/EventSettingsForm";
 import LoadingBlocks from "@/components/admin/LoadingBlocks";
@@ -24,15 +24,10 @@ export default function EventSettingsPage({ searchParams }) {
         <p className={styles.eyebrow}>Tableau de bord</p>
         <h1 className={styles.title}>Paramètres de l’événement</h1>
         <p className={styles.subtitle}>
-          Les organisateurs peuvent modifier ces informations. Elles s’affichent aussitôt sur le
+          Date, lieu, places, prix et paiement : ce que vous changez ici s’affiche aussitôt sur le
           site.
         </p>
       </header>
-      <p className={`${styles.notice} ${styles.formWidth}`}>
-        <Info aria-hidden="true" className={styles.noticeIcon} />
-        Les inscrits ne sont pas prévenus automatiquement d’un changement. Pour une nouvelle date ou
-        un nouveau lieu, prévenez-les vous-mêmes.
-      </p>
       <Suspense fallback={<LoadingBlocks label="Chargement des paramètres…" />}>
         <EventSettings searchParams={searchParams} />
       </Suspense>

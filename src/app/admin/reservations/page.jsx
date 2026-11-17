@@ -1,6 +1,6 @@
 // Liste complète des réservations, avec recherche et filtre par statut dans l'adresse.
 // requireOrganizer() passe avant toute lecture (architecture AD-9).
-import { SearchX } from "lucide-react";
+import { Download, SearchX } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { filterReservations } from "@/components/admin/filter-reservations";
@@ -14,6 +14,9 @@ import { listReservationsForDashboard } from "@/server/services/organizer.servic
 import { parseReservationListFilter } from "@/validation/reservation-filter.schema";
 import styles from "../admin-page.module.css";
 
+// Fichier téléchargé par le navigateur : un lien simple, pas une navigation de Next.
+const EXPORT_PATH = "/api/admin/exports/confirmed-participants";
+
 /** @typedef {{ searchParams: Promise<Record<string, string | string[] | undefined>> }} ListPageProps */
 
 /**
@@ -26,7 +29,21 @@ export default function ReservationListPage({ searchParams }) {
     <>
       <header className={styles.heading}>
         <p className={styles.eyebrow}>Tableau de bord</p>
-        <h1 className={styles.title}>Réservations</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>Réservations</h1>
+          {/* Sur téléphone, seul « CSV » s'affiche ; le nom complet est donné par aria-label. */}
+          <a
+            href={EXPORT_PATH}
+            download
+            aria-label="Exporter les confirmés (CSV)"
+            className={styles.downloadLink}
+            title="Pour l’accueil le soir du dîner, ou pour prévenir les inscrits d’un changement"
+          >
+            <Download aria-hidden="true" className={styles.linkIcon} />
+            <span className={styles.wideOnly}>Exporter les confirmés (CSV)</span>
+            <span className={styles.narrowOnly}>CSV</span>
+          </a>
+        </div>
         <p className={styles.subtitle}>
           Cherchez une personne ou un code, ou filtrez par statut. Les plus récentes d’abord.
         </p>

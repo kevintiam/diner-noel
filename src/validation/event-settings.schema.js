@@ -25,8 +25,20 @@ export const BOOKING_DEADLINE_LOCAL_TIME = "23:59";
  * @property {string} venueName
  * @property {string} venueAddress
  * @property {string} capacity Nombre de places.
- * @property {string} unitPrice Prix d'une place en dollars (« 35 » ou « 35,50 »).
+ * @property {string} unitPrice Prix normal d'une place, avant promo, en dollars (« 35 » ou « 35,50 »).
+ * @property {boolean} hasPromotion Un prix promo est proposé pendant une période.
+ * @property {string} promotionalUnitPrice Prix promo, après réduction, en dollars ("" sans promo).
+ * @property {string} promotionStartDate Premier jour de la promo, `AAAA-MM-JJ` ("" sans promo).
+ * @property {string} promotionEndDate Dernier jour inclus de la promo, `AAAA-MM-JJ` ("" sans promo).
  * @property {string} interacEmail
+ */
+
+/**
+ * Promotion validée : prix réduit et période, du premier au dernier jour inclus (heure d'Ottawa).
+ * @typedef {object} PromotionInput
+ * @property {number} unitPriceCents Prix promo en cents, toujours plus bas que le prix normal.
+ * @property {string} startDate Premier jour, `AAAA-MM-JJ`.
+ * @property {string} endDate Dernier jour inclus, `AAAA-MM-JJ`, jamais avant le premier.
  */
 
 /**
@@ -38,7 +50,8 @@ export const BOOKING_DEADLINE_LOCAL_TIME = "23:59";
  * @property {string} venueName
  * @property {string} venueAddress
  * @property {number} capacity
- * @property {number} unitPriceCents
+ * @property {number} unitPriceCents Prix normal, avant promo.
+ * @property {PromotionInput | null} promotion La promo, ou null s'il n'y en a pas.
  * @property {string} interacEmail En minuscules.
  * @property {boolean} autoDepositConfirmed L'organisateur confirme le dépôt automatique de l'adresse.
  */
@@ -66,6 +79,58 @@ function isCalendarDate(value) {
 function priceToCents(value) {
   const [, dollars, decimals = ""] = /** @type {RegExpExecArray} */ (PRICE_PATTERN.exec(value));
   return Number(dollars) * CENTS_PER_DOLLAR + Number(decimals.padEnd(2, "0"));
+}
+
+/**
+ * Lit un prix tapé dans le formulaire ; sert aussi au calendrier des prix affiché en direct.
+ * @param {string} value Le prix saisi (« 35 », « 35,50 »…).
+ * @returns {number | null} Le prix en cents, ou null s'il n'est pas valide.
+ */
+export function parsePriceInput(value) {
+  const text = value.trim();
+  return PRICE_PATTERN.test(text) ? priceToCents(text) : null;
+}
+
+/**
+ * Lit un champ facultatif en texte nettoyé ; toute autre valeur compte comme vide.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function readOptionalText(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/**
+ * Vérifie la promo quand elle est proposée : un prix plus bas que le prix normal, et une
+ * période dont le dernier jour ne précède pas le premier. Sans promo, ses champs sont ignorés.
+ * @param {{ hasPromotion: boolean, unitPrice: unknown, promotionalUnitPrice?: unknown, promotionStartDate?: unknown, promotionEndDate?: unknown }} values
+ * @param {import("zod").RefinementCtx} context
+ */
+function checkPromotion(values, context) {
+  if (!values.hasPromotion) {
+    return;
+  }
+  /** @param {string} field @param {string} messageKey */
+  const fail = (field, messageKey) =>
+    context.addIssue({ code: "custom", path: [field], message: messageKey });
+  const promotionPrice = parsePriceInput(readOptionalText(values.promotionalUnitPrice));
+  const normalPrice = parsePriceInput(readOptionalText(values.unitPrice));
+  if (promotionPrice === null) {
+    fail("promotionalUnitPrice", "validation.priceInvalid");
+  } else if (normalPrice !== null && promotionPrice >= normalPrice) {
+    fail("promotionalUnitPrice", "validation.promotionPriceNotLower");
+  }
+  const startDate = readOptionalText(values.promotionStartDate);
+  const endDate = readOptionalText(values.promotionEndDate);
+  if (!isCalendarDate(startDate)) {
+    fail("promotionStartDate", "validation.dateInvalid");
+  }
+  if (!isCalendarDate(endDate)) {
+    fail("promotionEndDate", "validation.dateInvalid");
+  } else if (isCalendarDate(startDate) && endDate < startDate) {
+    // Les dates `AAAA-MM-JJ` se comparent dans l'ordre alphabétique.
+    fail("promotionEndDate", "validation.promotionEndBeforeStart");
+  }
 }
 
 /**
@@ -125,11 +190,33 @@ const eventSettingsSchema = z
       .max(EMAIL_MAX_LENGTH, { error: "validation.emailInvalid" })
       .pipe(z.email({ error: "validation.emailInvalid" })),
     autoDepositConfirmed: z.boolean().default(false),
+    hasPromotion: z.boolean().default(false),
+    // Vérifiés par checkPromotion, seulement quand une promo est proposée.
+    promotionalUnitPrice: z.unknown().optional(),
+    promotionStartDate: z.unknown().optional(),
+    promotionEndDate: z.unknown().optional(),
   })
-  .transform(({ unitPrice, ...values }) => ({
-    ...values,
-    unitPriceCents: priceToCents(unitPrice),
-  }));
+  .superRefine(checkPromotion)
+  .transform(
+    ({
+      unitPrice,
+      hasPromotion,
+      promotionalUnitPrice,
+      promotionStartDate,
+      promotionEndDate,
+      ...values
+    }) => ({
+      ...values,
+      unitPriceCents: priceToCents(unitPrice),
+      promotion: hasPromotion
+        ? {
+            unitPriceCents: priceToCents(readOptionalText(promotionalUnitPrice)),
+            startDate: readOptionalText(promotionStartDate),
+            endDate: readOptionalText(promotionEndDate),
+          }
+        : null,
+    }),
+  );
 
 /**
  * Valide les paramètres envoyés par l'écran Paramètres.
