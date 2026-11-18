@@ -81,6 +81,10 @@ npm run build
 
 ## Avant de publier
 
+Après une génération du client Prisma (`prisma generate`, notamment après une installation), redémarrer le serveur local. Le client est partagé entre les pages et les API ; il ne doit pas être déconnecté automatiquement lorsqu’un autre module le charge.
+
+L’export CSV conserve son nom `participants-confirmes-AAAA-MM-JJ.csv`. Le navigateur ne force plus le téléchargement d’une réponse d’erreur sous un nom `.txt`. En cas de panne, revenir à la liste avec le bouton Précédent du navigateur, puis réessayer ; si la session a expiré, la page de connexion s’ouvre. Le test contrôle aussi le statut HTTP et les en-têtes, puis le nom du fichier et les accents.
+
 1. Vérifier la véritable valeur de `SITE_URL` et ajouter `RATE_LIMIT_SECRET` dans Netlify.
 2. Appliquer les migrations encore en attente sur l’environnement visé avant le déploiement (`npm run db:deploy` avec les bonnes variables privées). Ces améliorations n’ajoutent pas de migration ; les autres travaux locaux peuvent en nécessiter une, notamment `20261117230000_email_failures`.
 3. Vérifier que la fonction `technical-maintenance` est détectée lors du déploiement.
@@ -88,4 +92,4 @@ npm run build
 
 Cette modification ne déploie pas le site et ne change aucune donnée de production. La réception réelle des courriels et les réglages externes restent à valider sur l’environnement hébergé.
 
-Les contrôles locaux ont réussi : vérification des types, lint, tests unitaires et de base de données, ainsi que 56 parcours navigateur. La fonction de maintenance a aussi été empaquetée avec l’outil officiel Netlify et exécutée sur la base dédiée aux tests. La planification réelle et l’aperçu dans les applications de partage restent à constater après publication.
+Les contrôles locaux ont réussi : vérification des types, lint, tests unitaires et de base de données, ainsi que 59 parcours navigateur. La fonction de maintenance a aussi été empaquetée avec l’outil officiel Netlify et exécutée sur la base dédiée aux tests. La planification réelle et l’aperçu dans les applications de partage restent à constater après publication.

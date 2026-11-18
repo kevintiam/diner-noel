@@ -14,6 +14,7 @@ afterEach(async () => {
   sockets.clear();
   await clientModule?.disconnectPrisma();
   if (server) await new Promise((resolve) => server.close(resolve));
+  vi.restoreAllMocks();
   vi.unstubAllEnvs();
 });
 
@@ -58,6 +59,59 @@ describe("délais du client Prisma", () => {
 });
 
 describe("client gardé entre deux rechargements", () => {
+  it("termine une requête déjà en cours pendant le chargement d’une autre variante", async () => {
+    /** @type {() => void} */
+    let queryStarted = () => {};
+    /** @type {() => void} */
+    let sendReply = () => {};
+    /** @type {Promise<void>} */
+    const started = new Promise((resolve) => {
+      queryStarted = resolve;
+    });
+    server = createServer((socket) => {
+      sockets.add(socket);
+      let authenticated = false;
+      socket.on("data", (data) => {
+        if (!authenticated) {
+          authenticated = true;
+          socket.write(Buffer.from([82, 0, 0, 0, 8, 0, 0, 0, 0, 90, 0, 0, 0, 5, 73]));
+          return;
+        }
+        if (data[0] !== 81) return; // Message PostgreSQL Query.
+        sendReply = () =>
+          socket.write(
+            Buffer.from(
+              // Une colonne int4 « alive », une ligne 1, puis CommandComplete et ReadyForQuery.
+              "540000001e0001616c69766500000000000000000000170004ffffffff0000" +
+                "440000000b00010000000131" +
+                "430000000d53454c454354203100" +
+                "5a0000000549",
+              "hex",
+            ),
+          );
+        queryStarted();
+      });
+    });
+    server.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("Port local indisponible");
+    vi.stubEnv(
+      "DATABASE_URL",
+      `postgresql://fake:fake@127.0.0.1:${address.port}/fake?sslmode=disable`,
+    );
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+    const first = clientModule.getPrisma();
+    const result = first.$queryRaw`SELECT 1 AS alive`.then((rows) => rows);
+    await started;
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+    expect(clientModule.getPrisma() === first).toBe(true);
+    sendReply();
+    await expect(result).resolves.toEqual([{ alive: 1 }]);
+  }, 15_000);
+
   it("réutilise le même client tant que le client généré ne change pas", async () => {
     vi.resetModules();
     clientModule = await import("./prisma-client.js");
@@ -65,18 +119,22 @@ describe("client gardé entre deux rechargements", () => {
     expect(clientModule.getPrisma()).toBe(clientModule.getPrisma());
   });
 
-  it("remplace et ferme un client créé avant un nouveau `prisma generate`", async () => {
-    const staleClient = { $disconnect: vi.fn(async () => {}) };
-    /** @type {any} */ (globalThis).prismaClient = staleClient;
-    // Un client gardé par une version précédente du module ne porte pas la classe actuelle.
-    /** @type {any} */ (globalThis).prismaClientClass = class AncienClient {};
+  it("garde la connexion quand le même client généré est chargé par un autre module", async () => {
     vi.resetModules();
     clientModule = await import("./prisma-client.js");
+    const first = clientModule.getPrisma();
+    const disconnect = vi.spyOn(first, "$disconnect");
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+    expect(clientModule.getPrisma() === first).toBe(true);
+    expect(disconnect).not.toHaveBeenCalled();
+  });
 
-    const client = clientModule.getPrisma();
-
-    expect(client).not.toBe(staleClient);
-    expect(staleClient.$disconnect).toHaveBeenCalledOnce();
-    expect(clientModule.getPrisma()).toBe(client);
+  it("crée un nouveau client seulement après une fermeture explicite", async () => {
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+    const first = clientModule.getPrisma();
+    await clientModule.disconnectPrisma();
+    expect(clientModule.getPrisma() === first).toBe(false);
   });
 });
