@@ -48,8 +48,11 @@
   color: var(--color-muted);
 }
 
+/* Sur un téléphone, la valeur prend toute la ligne et « Copier » passe dessous :
+   l'adresse Interac, à recopier telle quelle, n'est plus coupée au milieu d'un mot. */
 .copyRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
@@ -57,10 +60,16 @@
   border-top: 1px solid var(--color-border);
 }
 
+.copyText {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+
+/* Coupure seulement si l'adresse ne tient pas sur la ligne, de préférence après le « @ ». */
 .value {
   font-size: var(--font-size-large);
   font-weight: 600;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .code {

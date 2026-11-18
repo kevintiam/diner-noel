@@ -9,10 +9,12 @@ const COPIED_FEEDBACK_MS = 2000;
 
 /**
  * Affiche un bouton qui copie une valeur dans le presse-papiers et confirme la copie.
- * @param {{ value: string, label: string, copiedLabel: string, describedBy?: string }} props
+ * `shape="pill"` l'arrondit comme les autres boutons du tableau de bord ; le site public
+ * garde la forme par défaut.
+ * @param {{ value: string, label: string, copiedLabel: string, describedBy?: string, shape?: "default" | "pill" }} props
  * @returns {React.ReactElement} Le bouton.
  */
-export default function CopyButton({ value, label, copiedLabel, describedBy }) {
+export default function CopyButton({ value, label, copiedLabel, describedBy, shape = "default" }) {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function CopyButton({ value, label, copiedLabel, describedBy }) {
   return (
     <button
       type="button"
-      className={styles.button}
+      className={shape === "pill" ? `${styles.button} ${styles.pill}` : styles.button}
       onClick={handleCopy}
       aria-describedby={describedBy}
     >

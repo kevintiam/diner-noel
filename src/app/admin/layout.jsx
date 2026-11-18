@@ -18,7 +18,7 @@ export const metadata = {
  */
 export default function AdminLayout({ children }) {
   return (
-    <html lang="fr" className={`${titleFont.variable} ${textFont.variable}`}>
+    <html lang="fr" className={`${titleFont.variable} ${textFont.variable} ${styles.root}`}>
       <body className={styles.body}>
         <AdminHeader />
         <main className={styles.main}>{children}</main>

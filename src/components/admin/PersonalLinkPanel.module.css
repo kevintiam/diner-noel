@@ -10,15 +10,18 @@
   align-items: center;
   gap: 0.75rem;
 }
-/* Un clic sélectionne toute l'adresse, pour la recopier si le presse-papiers est refusé. */
+/* Une seule ligne, coupée par « … » : l'adresse entière est en infobulle, et un clic la
+   sélectionne en entier, pour la recopier si le presse-papiers est refusé. */
 .url {
   flex: 1 1 16rem;
   min-width: 0;
   padding: 0.625rem 0.875rem;
+  overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--admin-radius-small);
   background: var(--color-cream);
   font-size: var(--font-size-small);
-  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   user-select: all;
 }

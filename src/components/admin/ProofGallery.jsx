@@ -18,11 +18,90 @@ import styles from "./ProofGallery.module.css";
  */
 
 /**
+ * Liste de vignettes : chacune ouvre sa capture en grand.
+ * @param {{ proofs: GalleryProof[], onOpen: (proof: GalleryProof) => void }} props
+ * @returns {React.ReactElement} La liste.
+ */
+function ProofThumbnails({ proofs, onOpen }) {
+  return (
+    <ul className={styles.proofs}>
+      {proofs.map((proof) => (
+        <li key={proof.id}>
+          <button
+            type="button"
+            className={styles.proofButton}
+            aria-haspopup="dialog"
+            onClick={() => onOpen(proof)}
+          >
+            <span className={styles.thumb}>
+              <Image
+                src={proof.src}
+                alt=""
+                fill
+                unoptimized
+                sizes="5rem"
+                className={styles.thumbImage}
+              />
+            </span>
+            <span className={styles.proofText}>
+              <span className={styles.proofName}>{proof.name}</span>
+              <span className={styles.proofMeta}>{proof.meta}</span>
+              <span className={styles.proofAction}>
+                <Expand aria-hidden="true" className={styles.actionIcon} />
+                Voir en grand
+              </span>
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Capture la plus récente, affichée assez grand pour lire le montant sans l'ouvrir.
+ * @param {{ proof: GalleryProof, onOpen: (proof: GalleryProof) => void }} props
+ * @returns {React.ReactElement} Le bouton qui montre la capture.
+ */
+function FeaturedProof({ proof, onOpen }) {
+  return (
+    <button
+      type="button"
+      className={styles.featuredButton}
+      aria-haspopup="dialog"
+      onClick={() => onOpen(proof)}
+    >
+      <span className={styles.featuredFrame}>
+        <Image
+          src={proof.src}
+          alt=""
+          fill
+          unoptimized
+          sizes="(min-width: 48rem) 50vw, 100vw"
+          className={styles.featuredImage}
+        />
+      </span>
+      <span className={styles.featuredText}>
+        <span className={styles.proofText}>
+          <span className={styles.proofName}>{proof.name}</span>
+          <span className={styles.proofMeta}>{proof.meta}</span>
+        </span>
+        <span className={styles.proofAction}>
+          <Expand aria-hidden="true" className={styles.actionIcon} />
+          Voir en grand
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/**
  * Affiche les captures en vignettes et la capture choisie en grand.
- * @param {{ proofs: GalleryProof[] }} props
+ * Avec `featured`, la plus récente est montrée en grand dans la fiche, les autres en vignettes.
+ * @param {{ proofs: GalleryProof[], featured?: boolean }} props
  * @returns {React.ReactElement} La galerie.
  */
-export default function ProofGallery({ proofs }) {
+export default function ProofGallery({ proofs, featured = false }) {
   /** @type {React.RefObject<HTMLDialogElement | null>} */
   const dialogRef = useRef(null);
   const [openProof, setOpenProof] = useState(/** @type {GalleryProof | null} */ (null));
@@ -47,39 +126,22 @@ export default function ProofGallery({ proofs }) {
     }
   }
 
+  const [latest, ...older] = proofs;
   return (
     <>
-      <ul className={styles.proofs}>
-        {proofs.map((proof) => (
-          <li key={proof.id}>
-            <button
-              type="button"
-              className={styles.proofButton}
-              aria-haspopup="dialog"
-              onClick={() => open(proof)}
-            >
-              <span className={styles.thumb}>
-                <Image
-                  src={proof.src}
-                  alt=""
-                  fill
-                  unoptimized
-                  sizes="5rem"
-                  className={styles.thumbImage}
-                />
-              </span>
-              <span className={styles.proofText}>
-                <span className={styles.proofName}>{proof.name}</span>
-                <span className={styles.proofMeta}>{proof.meta}</span>
-                <span className={styles.proofAction}>
-                  <Expand aria-hidden="true" className={styles.actionIcon} />
-                  Voir en grand
-                </span>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {featured && latest ? (
+        <div className={styles.featured}>
+          <FeaturedProof proof={latest} onOpen={open} />
+          {older.length > 0 ? (
+            <>
+              <p className={styles.olderTitle}>Captures précédentes</p>
+              <ProofThumbnails proofs={older} onOpen={open} />
+            </>
+          ) : null}
+        </div>
+      ) : (
+        <ProofThumbnails proofs={proofs} onOpen={open} />
+      )}
       {/* Fenêtre native : Échap la ferme et le focus revient sur la vignette. */}
       <dialog
         ref={dialogRef}

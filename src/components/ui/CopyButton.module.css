@@ -15,3 +15,9 @@
 .button:hover {
   background: var(--color-cream);
 }
+
+/* Forme du tableau de bord : arrondie comme ses autres boutons. */
+.pill {
+  padding: 0 1.25rem;
+  border-radius: 999px;
+}

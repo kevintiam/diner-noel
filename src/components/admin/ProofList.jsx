@@ -9,10 +9,11 @@ const BYTES_PER_KILOBYTE = 1024;
 const PROOF_IMAGE_PATH = "/api/admin/proofs";
 
 /**
- * @param {{ proofs: Array<{ id: string, byteSize: number, createdAt: Date }> }} props
+ * Avec `featured`, la capture la plus récente est montrée en grand (paiement à vérifier).
+ * @param {{ proofs: Array<{ id: string, byteSize: number, createdAt: Date }>, featured?: boolean }} props
  * @returns {React.ReactElement} La liste des captures reçues.
  */
-export default function ProofList({ proofs }) {
+export default function ProofList({ proofs, featured = false }) {
   return (
     <section aria-labelledby="proofs-title" className={styles.panel}>
       <h2 id="proofs-title" className={styles.panelTitle}>
@@ -29,6 +30,7 @@ export default function ProofList({ proofs }) {
       ) : (
         // Textes mis en forme ici, côté serveur : la galerie les affiche tels quels.
         <ProofGallery
+          featured={featured}
           proofs={proofs.map((proof, index) => ({
             id: proof.id,
             src: `${PROOF_IMAGE_PATH}/${encodeURIComponent(proof.id)}`,

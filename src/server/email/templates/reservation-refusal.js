@@ -3,7 +3,7 @@
 import { getDictionary } from "../../../i18n/get-dictionary.js";
 import { translate } from "../../../i18n/translate.js";
 import { formatEventYear, formatMoney } from "../../../lib/format.js";
-import { buildDecisionEmail, buildPersonalUrl, toEmailLang } from "./email-layout.js";
+import { buildParticipantEmail, buildPersonalUrl, toEmailLang } from "./email-layout.js";
 
 /** @typedef {import("../../../validation/reservation-decision.schema.js").ReservationForDecisionEmail} ReservationForDecisionEmail */
 /** @typedef {import("../../../validation/reservation-decision.schema.js").EventForEmail} EventForEmail */
@@ -21,7 +21,7 @@ export function buildReservationRefusal(reservation, reasonCode, event, siteUrl)
   const dictionary = getDictionary(lang);
   /** @param {string} key @param {Record<string, string | number>} [values] */
   const t = (key, values) => translate(dictionary, key, values);
-  return buildDecisionEmail({
+  return buildParticipantEmail({
     lang,
     to: reservation.email,
     subject: t("refusal.subject", { code: reservation.code }),

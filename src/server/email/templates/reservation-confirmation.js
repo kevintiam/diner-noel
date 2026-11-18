@@ -7,7 +7,7 @@ import {
   formatEventYear,
   formatMoney,
 } from "../../../lib/format.js";
-import { buildDecisionEmail, toEmailLang } from "./email-layout.js";
+import { buildParticipantEmail, toEmailLang } from "./email-layout.js";
 
 /** @typedef {import("../../../validation/reservation-decision.schema.js").ReservationForDecisionEmail} ReservationForDecisionEmail */
 /** @typedef {import("../../../validation/reservation-decision.schema.js").EventForEmail} EventForEmail */
@@ -31,7 +31,7 @@ export function buildReservationConfirmation(reservation, event) {
           children: reservation.childSeats,
         })
       : String(reservation.seats);
-  return buildDecisionEmail({
+  return buildParticipantEmail({
     lang,
     to: reservation.email,
     subject: t("confirmation.subject"),

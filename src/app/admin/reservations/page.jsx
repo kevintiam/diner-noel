@@ -28,13 +28,11 @@ export default function ReservationListPage({ searchParams }) {
   return (
     <>
       <header className={styles.heading}>
-        <p className={styles.eyebrow}>Tableau de bord</p>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>Réservations</h1>
           {/* Sur téléphone, seul « CSV » s'affiche ; le nom complet est donné par aria-label. */}
           <a
             href={EXPORT_PATH}
-            download
             aria-label="Exporter les confirmés (CSV)"
             className={styles.downloadLink}
             title="Pour l’accueil le soir du dîner, ou pour prévenir les inscrits d’un changement"

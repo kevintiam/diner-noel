@@ -36,7 +36,8 @@ export default function PersonalLinkPanel({ url }) {
             paiement est attendu. Donnez-le seulement à elle.
           </p>
           <div className={styles.linkRow}>
-            <p id={URL_ID} className={styles.url}>
+            {/* Une seule ligne, coupée par « … » : un clic sélectionne quand même toute l'adresse. */}
+            <p id={URL_ID} className={styles.url} title={url}>
               {url}
             </p>
             <CopyButton
@@ -44,6 +45,7 @@ export default function PersonalLinkPanel({ url }) {
               label="Copier le lien"
               copiedLabel="Lien copié"
               describedBy={URL_ID}
+              shape="pill"
             />
           </div>
         </>

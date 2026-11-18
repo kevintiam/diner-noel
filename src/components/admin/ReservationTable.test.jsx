@@ -63,21 +63,29 @@ describe("DashboardStats", () => {
     render(<DashboardStats reservations={RESERVATIONS} />);
 
     const cards = within(screen.getByRole("list", { name: "Résumé des réservations" }));
-    const toVerify = cards.getByText("À vérifier").closest("li");
-    if (!toVerify) throw new Error("Carte « À vérifier » introuvable");
-    expect(toVerify).toHaveTextContent("1 réservation");
-    expect(toVerify).toHaveTextContent("2 places");
-    const cancelled = cards.getByText("Annulées").closest("li");
+    // Libellés long et court sont tous deux dans le document : le CSS choisit selon l'écran.
+    const confirmedCard = cards.getAllByText("Confirmées")[0].closest("li");
+    if (!confirmedCard) throw new Error("Carte « Confirmées » introuvable");
+    expect(confirmedCard).toHaveTextContent("1 réservation");
+    expect(confirmedCard).toHaveTextContent("3 places");
+    const cancelled = cards.getAllByText("Annulées")[0].closest("li");
     expect(cancelled).toHaveTextContent("0 réservation");
     expect(cancelled).toHaveTextContent("0 place");
+  });
+
+  it("laisse « À vérifier » au bandeau « À faire », sans carte en double", () => {
+    render(<DashboardStats reservations={RESERVATIONS} />);
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+    expect(screen.queryByText("À vérifier")).not.toBeInTheDocument();
   });
 
   it("ouvre la liste filtrée sur le statut de chaque carte", () => {
     render(<DashboardStats reservations={RESERVATIONS} />);
 
-    expect(screen.getByRole("link", { name: /À vérifier/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /En attente/ })).toHaveAttribute(
       "href",
-      "/admin/reservations?status=TO_VERIFY",
+      "/admin/reservations?status=PENDING_PAYMENT",
     );
     expect(screen.getByRole("link", { name: /Confirmées/ })).toHaveAttribute(
       "href",

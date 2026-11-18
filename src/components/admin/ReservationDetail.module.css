@@ -122,18 +122,16 @@
 .historyItem:last-child {
   padding-bottom: 0;
 }
-/* Point coloré de la décision. */
+/* Point plein et petit, couleur de la décision : un repère de frise, pas un bouton radio. */
 .historyItem::before {
   content: "";
   position: absolute;
-  top: 0.375rem;
-  left: 0;
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 3px solid var(--color-surface);
+  top: 0.4rem;
+  left: 0.125rem;
+  width: 0.625rem;
+  height: 0.625rem;
   border-radius: 50%;
   background: var(--tone, var(--color-muted));
-  box-shadow: 0 0 0 1px var(--tone, var(--color-muted));
 }
 /* Trait qui relie les décisions entre elles. */
 .historyItem:not(:last-child)::after {

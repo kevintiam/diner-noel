@@ -125,12 +125,32 @@
   }
 }
 
-/* Pastilles de statut */
+/* Pastilles de statut. Sur téléphone, une seule ligne qui défile jusqu'aux bords de l'écran :
+   la pastille coupée à droite montre qu'il y en a d'autres. */
 .chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
+  margin: 0 calc(-1 * var(--page-gutter));
+  padding: 0.25rem var(--page-gutter);
+  overflow-x: auto;
   list-style: none;
+  scroll-padding-inline: var(--page-gutter);
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar {
+  display: none;
+}
+.chips > li {
+  flex-shrink: 0;
+}
+@media (min-width: 40rem) {
+  .chips {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow-x: visible;
+  }
 }
 .chip {
   display: inline-flex;

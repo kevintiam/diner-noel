@@ -28,7 +28,6 @@ export default function AdminDashboardPage() {
   return (
     <>
       <header className={styles.heading}>
-        <p className={styles.eyebrow}>Tableau de bord</p>
         <h1 className={styles.title}>Vue d’ensemble</h1>
         <p className={styles.subtitle}>
           Les paiements à vérifier, le remplissage du dîner et les dernières réservations.
