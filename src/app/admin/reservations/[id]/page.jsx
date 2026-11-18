@@ -75,6 +75,28 @@ async function ReservationDetail({ params }) {
   // Après requireOrganizer() : le lien donne accès à la réservation (AD-7).
   const personalLink = getPersonalLinkForOrganizer(reservation);
   const fullName = `${reservation.firstName} ${reservation.lastName}`;
+  const facts = (
+    <>
+      <ReservationFacts reservation={reservation} />
+      <PersonalLinkPanel url={personalLink} />
+    </>
+  );
+  const history = <DecisionHistory decisions={reservation.decisions} />;
+  // La clé remet le panneau à zéro après chaque décision : une ancienne erreur disparaît.
+  // Seules les valeurs utiles partent vers le navigateur.
+  const decision = (
+    <DecisionPanel
+      key={`${reservation.status}-${reservation.decisions.length}`}
+      reservation={{
+        id: reservation.id,
+        code: reservation.code,
+        status: reservation.status,
+        firstName: reservation.firstName,
+        lastName: reservation.lastName,
+        amountCents: reservation.amountCents,
+      }}
+    />
+  );
   return (
     <>
       <header className={styles.detailHero}>
@@ -91,34 +113,41 @@ async function ReservationDetail({ params }) {
         </div>
         {/* Copier le code aide à le retrouver dans le message des virements reçus. */}
         <div className={styles.detailActions}>
-          <CopyButton value={reservation.code} label="Copier le code" copiedLabel="Code copié" />
+          <CopyButton
+            value={reservation.code}
+            label="Copier le code"
+            copiedLabel="Code copié"
+            shape="pill"
+          />
         </div>
       </header>
       {/* Enregistré en base : l'alerte reste jusqu'à ce qu'un organisateur la traite (AD-10). */}
       <EmailFailureNotice reservationId={reservation.id} failures={reservation.emailFailures} />
-      <div className={styles.detailGrid}>
-        <div className={styles.column}>
-          <ReservationFacts reservation={reservation} />
-          <PersonalLinkPanel url={personalLink} />
-          <ProofList proofs={reservation.proofs} />
+      {reservation.status === "TO_VERIFY" ? (
+        // Une preuve attend : la capture et la décision passent avant le reste, côte à côte
+        // sur grand écran, l'une sous l'autre sur téléphone (dans l'ordre de lecture).
+        <div className={styles.detailRows}>
+          <div className={`${styles.detailGrid} ${styles.verifyRow}`}>
+            <ProofList proofs={reservation.proofs} featured />
+            {decision}
+          </div>
+          <div className={styles.detailGrid}>
+            <div className={styles.column}>{facts}</div>
+            <div className={styles.column}>{history}</div>
+          </div>
         </div>
-        <div className={styles.column}>
-          {/* La clé remet le panneau à zéro après chaque décision : une ancienne erreur disparaît.
-              Seules les valeurs utiles partent vers le navigateur. */}
-          <DecisionPanel
-            key={`${reservation.status}-${reservation.decisions.length}`}
-            reservation={{
-              id: reservation.id,
-              code: reservation.code,
-              status: reservation.status,
-              firstName: reservation.firstName,
-              lastName: reservation.lastName,
-              amountCents: reservation.amountCents,
-            }}
-          />
-          <DecisionHistory decisions={reservation.decisions} />
+      ) : (
+        <div className={styles.detailGrid}>
+          <div className={styles.column}>
+            {facts}
+            <ProofList proofs={reservation.proofs} />
+          </div>
+          <div className={styles.column}>
+            {decision}
+            {history}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

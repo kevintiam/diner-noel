@@ -140,6 +140,10 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
         >
           <Upload aria-hidden="true" size={28} />
           <label htmlFor="proof-file">{t("proof.choose")}</label>
+          {/* Repère visuel seulement : le champ invisible couvre toute la zone et reçoit le clic. */}
+          <span className={styles.browse} aria-hidden="true">
+            {t("proof.browse")}
+          </span>
           <input
             id="proof-file"
             name="proof"

@@ -1,18 +1,14 @@
-/* Deux colonnes sur téléphone : les quatre compteurs tiennent sur un seul écran. */
+/* Trois compteurs sur une seule ligne, même sur téléphone. */
 .stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
   list-style: none;
 }
 .item {
   display: flex;
 }
 /* Une couleur par statut, la même que celle des pastilles. */
-.toVerify {
-  --tone-background: var(--color-gold-light);
-  --tone-ink: var(--admin-gold-ink);
-}
 .pending {
   --tone-background: var(--color-sand);
   --tone-ink: var(--color-muted);
@@ -29,9 +25,9 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   min-width: 0;
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--admin-radius);
   background: var(--color-surface);
@@ -48,20 +44,15 @@
   box-shadow: var(--admin-shadow-hover);
   transform: translateY(-2px);
 }
-.urgent {
-  border-color: var(--color-gold);
-  box-shadow:
-    inset 0 4px 0 var(--color-gold),
-    var(--admin-shadow);
-}
 .header {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
+/* Sur téléphone, le libellé seul : l'icône prendrait la place du texte. */
 .iconCircle {
-  display: inline-flex;
+  display: none;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
@@ -77,14 +68,17 @@
 }
 .label {
   color: var(--tone-ink);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   line-height: 1.25;
+}
+.labelLong {
+  display: none;
 }
 .value {
   color: var(--color-fir);
   font-family: var(--font-title), Georgia, serif;
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-variant-numeric: lining-nums;
   font-weight: 600;
   line-height: 1.05;
@@ -94,23 +88,35 @@
   display: block;
   color: var(--color-ink);
   font-family: var(--font-text), system-ui, sans-serif;
-  font-size: 0.9375rem;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 .detail {
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 @media (min-width: 48rem) {
   .stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-s);
   }
   .card {
+    gap: 0.25rem;
     padding: 1.25rem 1.5rem;
+  }
+  .header {
+    margin-bottom: 0.5rem;
+  }
+  .iconCircle {
+    display: inline-flex;
   }
   .label {
     font-size: 0.9375rem;
+  }
+  .labelLong {
+    display: inline;
+  }
+  .labelShort {
+    display: none;
   }
   .value {
     font-size: 2.75rem;
@@ -118,5 +124,8 @@
   .unit {
     display: inline;
     font-size: 1rem;
+  }
+  .detail {
+    font-size: 0.875rem;
   }
 }

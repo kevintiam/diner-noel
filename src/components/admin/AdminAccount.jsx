@@ -16,9 +16,10 @@ export default async function AdminAccount() {
   if (!organizer) {
     return null;
   }
+  // Les initiales seules dans la barre : le nom complet reste en infobulle et pour les lecteurs d'écran.
   return (
     <>
-      <div className={styles.account}>
+      <div className={styles.account} title={`Connecté : ${organizer.name}`}>
         <InitialsAvatar name={organizer.name} tone="gold" />
         <span className={styles.accountText}>
           <span className={styles.accountLabel}>Connecté :</span>{" "}

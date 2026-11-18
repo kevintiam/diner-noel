@@ -49,3 +49,31 @@ describe("ProofList avec captures", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
+
+describe("ProofList quand un paiement attend sa vérification", () => {
+  it("montre la dernière capture en grand, et les précédentes en vignettes", () => {
+    render(<ProofList proofs={PROOFS} featured />);
+
+    const [latest, previous] = screen.getAllByRole("button", { name: /Voir en grand/ });
+    expect(latest).toHaveAccessibleName(/Capture 2.*reçue le 17 nov\. 2026/);
+    expect(latest.querySelector("img")).toHaveAttribute("src", "/api/admin/proofs/p2");
+    expect(screen.getByText("Captures précédentes")).toBeInTheDocument();
+    expect(previous).toHaveAccessibleName(/Capture 1/);
+    expect(previous.querySelector("img")).toHaveAttribute("src", "/api/admin/proofs/p1");
+  });
+
+  it("n'annonce aucune capture précédente quand il n'y en a qu'une", () => {
+    render(<ProofList proofs={PROOFS.slice(0, 1)} featured />);
+
+    expect(screen.getAllByRole("button", { name: /Voir en grand/ })).toHaveLength(1);
+    expect(screen.queryByText("Captures précédentes")).not.toBeInTheDocument();
+  });
+
+  it("ouvre aussi la capture mise en avant en grand", () => {
+    render(<ProofList proofs={PROOFS} featured />);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Voir en grand/ })[0]);
+
+    expect(within(screen.getByRole("dialog")).getByRole("heading")).toHaveTextContent(/Capture 2/);
+  });
+});

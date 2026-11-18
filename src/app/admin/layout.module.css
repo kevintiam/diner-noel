@@ -12,6 +12,21 @@
   flex-direction: column;
   background: var(--color-cream);
 }
+/* L'en-tête reste en haut de l'écran : un élément atteint par le défilement (focus, ancre)
+   s'arrête sous lui au lieu d'être caché. Valeurs selon la hauteur de la barre. */
+.root {
+  scroll-padding-top: 9.5rem;
+}
+@media (min-width: 48rem) {
+  .root {
+    scroll-padding-top: 10.5rem;
+  }
+}
+@media (min-width: 80rem) {
+  .root {
+    scroll-padding-top: 7.5rem;
+  }
+}
 .main {
   flex: 1;
   width: 100%;

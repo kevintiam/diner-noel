@@ -21,7 +21,6 @@ export default function EventSettingsPage({ searchParams }) {
   return (
     <>
       <header className={styles.heading}>
-        <p className={styles.eyebrow}>Tableau de bord</p>
         <h1 className={styles.title}>Paramètres de l’événement</h1>
         <p className={styles.subtitle}>
           Date, lieu, places, prix et paiement : ce que vous changez ici s’affiche aussitôt sur le

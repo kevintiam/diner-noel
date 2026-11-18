@@ -8,6 +8,26 @@ import styles from "./PaymentInstructions.module.css";
 
 /** @typedef {import("@/validation/reservation.schema").ReservationForPayment} ReservationForPayment */
 
+/**
+ * Affiche une adresse courriel qui, faute de place, se coupe juste après le « @ »
+ * plutôt qu'au milieu d'un mot.
+ * @param {{ email: string }} props
+ * @returns {React.ReactElement} L'adresse, avec un point de coupure permis.
+ */
+function BreakableEmail({ email }) {
+  const atIndex = email.lastIndexOf("@");
+  if (atIndex < 0) {
+    return <>{email}</>;
+  }
+  return (
+    <>
+      {email.slice(0, atIndex + 1)}
+      <wbr />
+      {email.slice(atIndex + 1)}
+    </>
+  );
+}
+
 const PAYMENT_STEP_KEYS = [
   "payment.stepOne",
   "payment.stepTwo",
@@ -48,10 +68,10 @@ export default function PaymentInstructions({ reservation, lang, dictionary }) {
         </p>
 
         <div className={styles.copyRow}>
-          <div>
+          <div className={styles.copyText}>
             <p className={styles.label}>{getText("payment.sendTo")}</p>
             <p id="interac-email" className={styles.value}>
-              {reservation.interacEmail}
+              <BreakableEmail email={reservation.interacEmail} />
             </p>
           </div>
           <CopyButton
@@ -63,7 +83,7 @@ export default function PaymentInstructions({ reservation, lang, dictionary }) {
         </div>
 
         <div className={styles.copyRow}>
-          <div>
+          <div className={styles.copyText}>
             <p className={styles.label}>{getText("payment.messageLabel")}</p>
             <p id="reservation-code" className={styles.code}>
               {reservation.code}

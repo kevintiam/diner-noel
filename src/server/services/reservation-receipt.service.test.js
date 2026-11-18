@@ -1,10 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getEvent } from "../db/event.repository.js";
 import { sendEmail } from "../email/send-email.js";
 import { recordEmailFailure } from "./email-failure.service.js";
 import { sendReservationReceipt } from "./reservation-receipt.service.js";
 
 vi.mock("../email/send-email.js", () => ({ sendEmail: vi.fn() }));
+vi.mock("../db/event.repository.js", () => ({ getEvent: vi.fn() }));
 vi.mock("./email-failure.service.js", () => ({ recordEmailFailure: vi.fn() }));
+
+const EVENT = {
+  id: "event-fake",
+  startsAt: new Date("2026-12-19T23:00:00.000Z"),
+  venueName: "Salle fictive",
+  venueAddress: "1 rue Exemple, Ottawa",
+};
 /** @type {import("../../validation/reservation.schema.js").ReservationForReceipt} */
 const RESERVATION = {
   id: "internal-fake",
@@ -32,6 +41,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   for (const [key, value] of Object.entries(CONFIGURATION)) vi.stubEnv(key, value);
   vi.mocked(sendEmail).mockResolvedValue(undefined);
+  vi.mocked(getEvent).mockResolvedValue(/** @type {never} */ (EVENT));
 });
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -73,6 +83,19 @@ describe("sendReservationReceipt", () => {
     });
     expect(log).toHaveBeenCalledOnce();
     // L'échec est aussi gardé en base, pour que les organisateurs le voient.
+    expect(recordEmailFailure).toHaveBeenCalledExactlyOnceWith({
+      reservationId: "internal-fake",
+      kind: "RECEIPT",
+    });
+  });
+
+  it("garde l'échec sans tenter SMTP quand l'événement manque", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(getEvent).mockResolvedValue(null);
+
+    await expect(sendReservationReceipt(RESERVATION)).resolves.toBeUndefined();
+
+    expect(sendEmail).not.toHaveBeenCalled();
     expect(recordEmailFailure).toHaveBeenCalledExactlyOnceWith({
       reservationId: "internal-fake",
       kind: "RECEIPT",

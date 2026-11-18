@@ -1,5 +1,6 @@
-// Mise en page commune des courriels de décision (maquette 9) : bandeau vert, récapitulatif,
-// lien éventuel et signature. Chaque valeur est échappée ; le texte brut reprend le même contenu.
+// Mise en page commune des courriels au participant (maquette 9) : accusé de réception,
+// confirmation et avis de refus. Bandeau vert, récapitulatif, lien éventuel et signature.
+// Chaque valeur est échappée ; le texte brut reprend le même contenu.
 import { getDictionary } from "../../../i18n/get-dictionary.js";
 import { translate } from "../../../i18n/translate.js";
 
@@ -28,8 +29,8 @@ const SANS = "Arial, Helvetica, sans-serif";
  */
 
 /**
- * Contenu d'un courriel de décision, déjà traduit.
- * @typedef {object} DecisionEmailContent
+ * Contenu d'un courriel au participant, déjà traduit.
+ * @typedef {object} ParticipantEmailContent
  * @property {"fr" | "en"} lang
  * @property {string} to
  * @property {string} subject
@@ -94,7 +95,7 @@ function paragraph(text) {
 }
 
 /**
- * @param {DecisionEmailContent} content
+ * @param {ParticipantEmailContent} content
  * @param {string} subtitle
  * @param {string} signature
  * @param {string} footer
@@ -130,11 +131,11 @@ function renderHtml(content, subtitle, signature, footer) {
 }
 
 /**
- * Assemble un courriel de décision : objet, texte brut et HTML dans la langue du participant.
- * @param {DecisionEmailContent} content Le contenu traduit.
+ * Assemble un courriel au participant : objet, texte brut et HTML dans sa langue.
+ * @param {ParticipantEmailContent} content Le contenu traduit.
  * @returns {import("../../../validation/email.schema.js").EmailMessage} Le message prêt à envoyer.
  */
-export function buildDecisionEmail(content) {
+export function buildParticipantEmail(content) {
   const dictionary = getDictionary(content.lang);
   const subtitle = translate(dictionary, "emailCommon.eventName", { year: content.eventYear });
   const signature = translate(dictionary, "emailCommon.signature");

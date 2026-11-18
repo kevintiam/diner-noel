@@ -13,7 +13,10 @@
   margin-block: var(--space-m);
 }
 
+/* Toute la zone est cliquable : le champ de fichier la couvre, invisible. Le bouton natif
+   du navigateur (texte non traduit, allure brute) ne s'affiche donc plus. */
 .dropZone {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
@@ -23,6 +26,21 @@
   border-radius: var(--radius);
   background: var(--color-fir-light);
   text-align: center;
+  transition: background 0.15s ease;
+}
+
+.dropZone:hover {
+  background: color-mix(in srgb, var(--color-fir-light) 60%, var(--color-surface));
+}
+
+/* Repère net au clavier, sur toute la zone. */
+.dropZone:has(input:focus-visible) {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.dropZone:has(input:disabled) {
+  opacity: 0.7;
 }
 
 .dropZone label {
@@ -30,8 +48,32 @@
 }
 
 .dropZone input {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 25rem;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropZone input:disabled {
+  cursor: not-allowed;
+}
+
+.browse {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-m);
+  border: 1px solid var(--color-fir);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-fir);
+  font-weight: 600;
+}
+
+.dropZone:hover .browse {
+  background: var(--color-cream);
 }
 
 .filename {
@@ -51,12 +93,14 @@
   flex-shrink: 0;
 }
 
+/* `font: inherit` : sans lui, un bouton prend la petite police par défaut du navigateur. */
 .submit,
 .later {
   padding: var(--space-s) var(--space-m);
-  min-height: 44px;
+  min-height: var(--tap-target);
   border-radius: var(--radius);
   border: 1px solid var(--color-fir);
+  font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
