@@ -4,6 +4,7 @@
  * @returns {"jpeg" | "png" | "webp" | null} Le format reconnu.
  */
 export function detectImageType(bytes) {
+  /** @param {number[]} signature @param {number} [offset] */
   const matches = (signature, offset = 0) =>
     signature.every((byte, index) => bytes[offset + index] === byte);
   if (matches([0xff, 0xd8, 0xff])) return "jpeg";

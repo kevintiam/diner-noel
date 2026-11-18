@@ -26,6 +26,13 @@ export const REFUSAL_REASON_LABELS = {
 /** @type {Record<string, string>} */
 export const LANGUAGE_LABELS = { FR: "Français", EN: "Anglais" };
 
+/** Courriels au participant dont l'échec est signalé (architecture AD-10). @type {Record<string, string>} */
+export const EMAIL_KIND_LABELS = {
+  RECEIPT: "Accusé de réception",
+  CONFIRMATION: "Confirmation du paiement",
+  REFUSAL: "Avis de refus",
+};
+
 /**
  * Renvoie le libellé d'un code, ou le code lui-même s'il est inconnu.
  * @param {Record<string, string>} labels La table de libellés.

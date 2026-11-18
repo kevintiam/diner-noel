@@ -1,0 +1,74 @@
+/* Alerte de la fiche : bordeaux, la couleur des refus, pour ce qui demande d'agir. */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: var(--space-m);
+  padding: 1rem;
+  border-left: 3px solid var(--color-burgundy);
+  border-radius: var(--admin-radius-small);
+  background: var(--admin-burgundy-light);
+  color: var(--color-ink);
+}
+.icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  color: var(--color-burgundy);
+}
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.title {
+  color: var(--color-burgundy);
+  font-family: var(--font-text), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: var(--font-size-small);
+  font-variant-numeric: lining-nums;
+  font-weight: 600;
+}
+.text {
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: var(--tap-target);
+  padding: 0 1.25rem;
+  border: 1px solid var(--color-burgundy);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-burgundy);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.button:hover {
+  background: color-mix(in srgb, var(--color-burgundy) 6%, var(--color-surface));
+}
+.buttonIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+@media (min-width: 40rem) {
+  .button {
+    width: auto;
+  }
+}

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getEmailEnv, parseEmailEnv, parseEnv } from "./env.js";
+import { getEmailEnv, getSiteUrl, parseEmailEnv, parseEnv } from "./env.js";
 
 const CONFIGURATION = {
   SITE_URL: "https://diner.example.test",
@@ -91,5 +91,42 @@ describe("configuration courriel", () => {
     expect(getEmailEnv().SMTP_PORT).toBe(587);
     vi.stubEnv("SMTP_PASSWORD", "");
     expect(() => getEmailEnv()).toThrow("SMTP_PASSWORD");
+  });
+});
+
+describe("adresse publique du site", () => {
+  const MESSAGE = "Variable SITE_URL manquante ou invalide";
+
+  it("renvoie l'origine valide sans exiger les variables SMTP", () => {
+    expect(getSiteUrl({ SITE_URL: "https://diner.example.test/" })).toBe(
+      "https://diner.example.test/",
+    );
+    expect(getSiteUrl({ SITE_URL: "http://localhost:3100" })).toBe("http://localhost:3100");
+  });
+
+  it.each([undefined, "", null, 42])("refuse SITE_URL absente ou vide (%s)", (value) => {
+    expect(() => getSiteUrl({ SITE_URL: value })).toThrow(MESSAGE);
+  });
+
+  it.each([
+    "http://externe.example.test",
+    "javascript:secret-fictif",
+    "https://user:secret-fictif@example.test",
+    "https://example.test/chemin",
+    "https://example.test/?token=secret-fictif",
+    "https://example.test/#secret-fictif",
+  ])("refuse l'adresse invalide %s sans divulguer sa valeur", (value) => {
+    const attempt = () => getSiteUrl({ SITE_URL: value });
+    expect(attempt).toThrow(MESSAGE);
+    expect(attempt).not.toThrow(value);
+    expect(attempt).not.toThrow("secret-fictif");
+  });
+
+  it("lit SITE_URL dans l'environnement par défaut", () => {
+    vi.stubEnv("SITE_URL", "https://diner.example.test");
+    vi.stubEnv("SMTP_HOST", "");
+    expect(getSiteUrl()).toBe("https://diner.example.test");
+    vi.stubEnv("SITE_URL", "");
+    expect(() => getSiteUrl()).toThrow(MESSAGE);
   });
 });

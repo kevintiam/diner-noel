@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import sharp from "sharp";
 import { AppError } from "@/server/errors/app-error";
 vi.mock("@/server/services/proof.service", () => ({ submitProof: vi.fn() }));
@@ -9,10 +9,13 @@ vi.mock("@/server/services/rate-limit.service", () => ({
 import { submitProof } from "@/server/services/proof.service";
 import { buildRateLimitKey, checkRateLimit } from "@/server/services/rate-limit.service";
 import { MAX_PROOF_BYTES } from "@/validation/proof.schema";
+import { MULTIPART_TIMEOUT_MS } from "@/config/upload-limits";
+import { getDictionary } from "@/i18n/get-dictionary";
 import { POST } from "./route.js";
 
 const TOKEN = "A".repeat(43);
 const context = (token = TOKEN) => ({ params: Promise.resolve({ token }) });
+afterEach(() => vi.useRealTimers());
 
 function request({ proof = new File(["image"], "capture.png"), lang = "fr", confirm = "on" } = {}) {
   const body = new FormData();
@@ -33,6 +36,32 @@ beforeEach(() => {
 });
 
 describe("POST preuve", () => {
+  it.each(["fr", "en"])("répond 408 en %s à un multipart suspendu sans dépôt", async (lang) => {
+    vi.useFakeTimers();
+    const cancel = vi.fn();
+    const init = {
+      method: "POST",
+      body: new ReadableStream({ cancel }),
+      duplex: "half",
+      headers: { "accept-language": lang, "content-type": "multipart/form-data; boundary=test" },
+    };
+    const result = POST(new Request("https://example.test", init), context());
+    await vi.advanceTimersByTimeAsync(MULTIPART_TIMEOUT_MS);
+    const response = await result;
+    expect(response.status).toBe(408);
+    expect((await response.json()).error).toMatchObject({
+      code: "UPLOAD_TIMEOUT",
+      message: getDictionary(lang).errors.uploadTimeout,
+    });
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(submitProof).not.toHaveBeenCalled();
+  });
+  it("privilégie la langue du formulaire après lecture du corps", async () => {
+    const incoming = request({ proof: null, confirm: null, lang: "fr" });
+    incoming.headers.set("accept-language", "en");
+    const response = await POST(incoming, context());
+    expect((await response.json()).error.message).toBe(getDictionary("fr").errors.validation);
+  });
   it("répond 201 avec le seul statut et limite les envois par empreinte", async () => {
     const image = await sharp({ create: { width: 5, height: 5, channels: 3, background: "red" } })
       .png()

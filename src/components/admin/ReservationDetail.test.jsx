@@ -77,12 +77,11 @@ describe("DecisionPanel", () => {
     expect(screen.getByRole("button", { name: "Annuler la réservation" })).toBeInTheDocument();
   });
 
-  it("ne propose plus que l'annulation une fois le paiement confirmé", () => {
+  it("ne propose plus aucune action, ni l'annulation, une fois le paiement confirmé", () => {
     render(<DecisionPanel reservation={{ ...RESERVATION, status: "CONFIRMED" }} />);
 
-    expect(screen.queryByRole("button", { name: "Confirmer le paiement" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Refuser le paiement" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Annuler la réservation" })).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByText(/la réservation est définitive/)).toBeInTheDocument();
   });
 
   it("ne propose aucune action sur une réservation annulée", () => {

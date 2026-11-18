@@ -16,5 +16,5 @@ export async function resetTestDatabase() {
     );
   }
   await getPrisma()
-    .$executeRaw`TRUNCATE TABLE "ReservationDecision", "Proof", "Session", "Reservation", "Organizer", "Event", "RateLimit" CASCADE`;
+    .$executeRaw`TRUNCATE TABLE "EmailFailure", "ReservationDecision", "Proof", "Session", "Reservation", "Organizer", "Event", "RateLimit" CASCADE`;
 }

@@ -4,6 +4,8 @@ Site bilingue (français et anglais) qui permet de réserver sa place au dîner 
 de payer par virement Interac et de déposer la preuve du virement. Quatre organisateurs vérifient
 chaque paiement depuis un tableau de bord.
 
+Guide simple des dernières améliorations : [partages, protection des IP, nettoyage, uploads et vérifications](MODIFICATIONS-TECHNIQUES.md).
+
 - Besoin : `docs/projet-brief.md` (hors du dépôt)
 - Règles de code : `AGENTS.md`
 - Architecture : `_bmad-output/initiative-reservation-diner-noel/architecture-reservation-diner-noel/`
@@ -21,7 +23,7 @@ et `test`.
 1. `npm install` : installe les dépendances et génère le client Prisma dans `src/generated/`.
 2. Copier `.env.example` en `.env` (branche `dev`) et en `.env.test` (branche `test`, avec
    `DATABASE_IS_TEST="true"`).
-3. `npm run db:deploy` puis `npm run db:seed` : crée les tables et l'événement de départ (`dev`).
+3. `npm run security:setup` : prépare la clé HMAC privée dans `.env`, puis `npm run db:deploy` et `npm run db:seed` créent les tables et l'événement de départ (`dev`).
 4. `npm run db:test:deploy` : crée les tables sur la base de test.
 5. `npm run dev`, puis ouvrir http://localhost:3000.
 
@@ -35,6 +37,8 @@ proviennent exclusivement de ce fichier : les connexions PostgreSQL héritées d
 | `npm run dev`                     | Serveur de développement                                                            |
 | `npm run build` / `npm run start` | Construction et démarrage de production                                             |
 | `npm run lint`                    | ESLint (dont 300 lignes au maximum par fichier)                                     |
+| `npm run typecheck`               | Vérifie les types du code applicatif, scripts et configuration                     |
+| `npm run security:setup`          | Prépare la clé HMAC privée locale sans l'afficher                                   |
 | `npm run format`                  | Prettier                                                                            |
 | `npm test`                        | Vitest : tests unitaires, composants et base de test                                |
 | `npm run test:e2e`                | Playwright sur la base de test (`npx playwright install chromium` la première fois) |
@@ -52,7 +56,8 @@ proviennent exclusivement de ce fichier : les connexions PostgreSQL héritées d
 | `DATABASE_URL_UNPOOLED` | Connexion directe à Neon, utilisée par les migrations                                                           |
 | `DIRECT_URL`            | Autre nom accepté pour la connexion directe si `DATABASE_URL_UNPOOLED` est absente                              |
 | `DATABASE_IS_TEST`      | `"true"` seulement dans `.env.test` : autorise les tests à vider la base                                        |
-| `SITE_URL`              | Origine HTTPS publique utilisée pour les liens personnels ; HTTP autorisé sur localhost                         |
+| `RATE_LIMIT_SECRET`     | Clé privée HMAC (32 caractères minimum), préparée localement par `npm run security:setup` ; à configurer aussi dans Netlify |
+| `SITE_URL`              | Origine HTTPS publique des liens et aperçus de partage, requise au build et à l'exécution ; HTTP autorisé sur localhost |
 | `SMTP_HOST`             | Nom du serveur SMTP dédié                                                                                       |
 | `SMTP_PORT`             | Port SMTP : 465 pour TLS immédiat, 587 pour STARTTLS obligatoire                                                |
 | `SMTP_USER`             | Identifiant SMTP privé                                                                                          |
@@ -85,9 +90,12 @@ Les effectifs, le tarif, le montant et l'adresse Interac viennent de l'instantan
 Une inscription gratuite reçoit directement sa confirmation, sans demande de virement ni de preuve.
 Le lien personnel est construit depuis `SITE_URL`, jamais depuis les en-têtes de la requête.
 
-La configuration du courriel est vérifiée à sa première utilisation, indépendamment du build et
-de la connexion à la base. Une panne ou une configuration absente conserve la réservation et sa
+Les variables SMTP sont vérifiées à la première utilisation du courriel, indépendamment du build et
+de la connexion à la base. `SITE_URL` est aussi nécessaire au build pour les aperçus de partage.
+Une panne ou une configuration SMTP absente conserve la réservation et sa
 redirection ; le journal `reservation_receipt_failed` contient seulement l'identifiant interne.
+L'échec est aussi enregistré en base (table `EmailFailure`) et signalé aux organisateurs, voir
+« Courriels non envoyés » ci-dessous.
 L'envoi attend au maximum dix secondes, sans file ni nouvelle tentative automatique. Les tests
 neutralisent toutes les variables SMTP héritées, locales ou présentes dans `.env.test`.
 
@@ -108,32 +116,47 @@ avec un motif. Les règles suivent l'architecture (AD-4, AD-5) :
 - **Refuser** : la réservation revient « En attente de paiement » sans libérer ses places. Le
   participant reçoit l'avis de refus avec le motif, le montant attendu et son lien personnel pour
   envoyer une nouvelle preuve.
-- **Annuler** : les places sont libérées et aucun courriel ne part.
+- **Annuler** : possible seulement avant la confirmation (« En attente de paiement » ou « À
+  vérifier ») ; les places sont libérées et aucun courriel ne part. Une réservation confirmée est
+  définitive : le bouton n'apparaît plus et le serveur refuse l'annulation.
 - Si deux organisateurs décident en même temps, une seule décision est appliquée ; l'autre voit
   « Cette réservation a changé entre-temps ».
 
 Chaque courriel part dans la langue de la réservation, après l'enregistrement de la décision.
-Si l'envoi échoue, la décision reste valide, la fiche affiche « le courriel n'a pas pu être
-envoyé » et le journal `reservation_confirmation_failed` ou `reservation_refusal_failed` contient
-seulement l'identifiant interne.
+Si l'envoi échoue, la décision reste valide et le journal `reservation_confirmation_failed` ou
+`reservation_refusal_failed` contient seulement l'identifiant interne.
+
+### Courriels non envoyés
+
+Un accusé, une confirmation ou un avis de refus qui n'a pas pu partir est enregistré dans la table
+`EmailFailure` (AD-10). Tant qu'aucun organisateur ne l'a traité :
+
+- la vue d'ensemble affiche le bandeau « N courriels non envoyés », avec un lien vers chaque fiche ;
+- la fiche affiche « Un courriel n'a pas pu partir », avec le type de courriel et sa date.
+
+Après avoir prévenu la personne, l'organisateur clique sur **J'ai prévenu la personne** : l'alerte
+disparaît, et la ligne garde qui l'a traitée et quand. Le site ne renvoie pas le courriel tout seul.
 
 ## Paramètres de l'événement et état des comptes
 
 L'onglet « Paramètres » (`/admin/parametres`) modifie la date et l'heure d'accueil, la date
-limite, le lieu, le nombre de places, le prix d'une place de 15 ans et plus et le courriel Interac.
+limite, le lieu, le nombre de places, le prix normal d'une place de 15 ans et plus, le prix promo
+et sa période, et le courriel Interac.
 Les heures sont celles d'Ottawa ; les réservations ferment à 23 h 59 le jour de la date limite.
 Un seul service applique les règles (AD-14), sous le verrou de l'événement :
 
 - la date limite tombe avant le jour du dîner ;
 - le nombre de places ne descend jamais sous les places déjà prises ;
 - une nouvelle adresse Interac exige de confirmer que son dépôt automatique est activé ;
+- le prix promo reste plus bas que le prix normal, et son dernier jour ne précède pas le premier ;
 - les réservations déjà faites gardent leur prix et leur adresse Interac.
 
-Le tarif promotionnel ne se modifie pas depuis cet écran. Les inscrits ne sont pas prévenus d'un
-changement.
+La promo est facultative : la case « Proposer un prix promo pendant une période » affiche son prix
+et ses dates, du premier au dernier jour inclus, heure d'Ottawa. Sans elle, le prix normal
+s'applique toujours. Les inscrits ne sont pas prévenus d'un changement.
 
-Sur la vue d'ensemble, « Encaissé » additionne les réservations confirmées, y compris celles
-annulées après leur confirmation, et « À recevoir » celles en attente de paiement ou à vérifier.
+Sur la vue d'ensemble, « Encaissé » additionne les réservations confirmées (une confirmation est
+définitive), et « À recevoir » celles en attente de paiement ou à vérifier.
 Ces deux sommes n'existent que dans `accounting.service.js` (AD-6).
 
 ## Export des participants confirmés

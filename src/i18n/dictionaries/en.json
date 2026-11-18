@@ -214,6 +214,8 @@
     "invalidCredentials": "Invalid email or password.",
     "reservationNotFound": "This booking could not be found.",
     "proofTooLarge": "The screenshot exceeds 4 MB. Choose a smaller file.",
+    "uploadTimeout": "The upload took too long. Check your reservation status before trying again.",
+    "uploadUncertain": "The server is not responding. Reload this page to check your reservation status before sending the proof again.",
     "proofInvalidType": "Choose a valid JPG, PNG or WEBP image.",
     "reservationStatusChanged": "This booking changed in the meantime. Reload the page to see its current status.",
     "unauthenticated": "Sign in to access this resource.",

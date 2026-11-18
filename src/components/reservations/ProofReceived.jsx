@@ -11,10 +11,11 @@ import styles from "./ReservationStatusNotice.module.css";
  * @returns {React.ReactElement} La preuve reçue.
  */
 export default function ProofReceived({ reservation, lang, dictionary }) {
-  const titleRef = useRef(null);
+  const titleRef = useRef(/** @type {HTMLHeadingElement | null} */ (null));
   useEffect(() => {
     titleRef.current?.focus();
   }, []);
+  /** @param {string} key @param {Record<string, string | number>} [values] */
   const t = (key, values) => translate(dictionary, key, values);
   return (
     <section className={styles.page}>

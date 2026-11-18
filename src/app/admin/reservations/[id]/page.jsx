@@ -1,34 +1,34 @@
 // Fiche d'une réservation. requireOrganizer() passe avant la lecture de l'adresse et de la base
 // (architecture AD-9) ; tout ce qui lit la requête est sous <Suspense> (AD-15).
-import { ArrowLeft, MailExclamationPoint } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import DecisionHistory from "@/components/admin/DecisionHistory";
 import DecisionPanel from "@/components/admin/DecisionPanel";
+import EmailFailureNotice from "@/components/admin/EmailFailureNotice";
 import InitialsAvatar from "@/components/admin/InitialsAvatar";
 import LoadingBlocks from "@/components/admin/LoadingBlocks";
+import PersonalLinkPanel from "@/components/admin/PersonalLinkPanel";
 import ProofList from "@/components/admin/ProofList";
 import ReservationFacts from "@/components/admin/ReservationFacts";
 import StatusBadge from "@/components/admin/StatusBadge";
 import CopyButton from "@/components/ui/CopyButton";
-import { EMAIL_NOTICE_FAILED, EMAIL_NOTICE_PARAM } from "@/lib/admin-notices";
 import { formatShortDateTime } from "@/lib/format";
 import { requireOrganizer } from "@/server/auth/require-organizer";
 import { AppError } from "@/server/errors/app-error";
 import { getReservationDetail } from "@/server/services/organizer.service";
+import { getPersonalLinkForOrganizer } from "@/server/services/personal-link.service";
 import styles from "../../admin-page.module.css";
 
 const NOT_FOUND_STATUS = 404;
 
-/** @typedef {Promise<Record<string, string | string[] | undefined>>} SearchParams */
-
 /**
  * Affiche la fiche d'une réservation.
- * @param {{ params: Promise<{ id: string }>, searchParams: SearchParams }} props
+ * @param {{ params: Promise<{ id: string }> }} props
  * @returns {React.ReactElement} La fiche.
  */
-export default function ReservationDetailPage({ params, searchParams }) {
+export default function ReservationDetailPage({ params }) {
   return (
     <>
       <p className={styles.backLink}>
@@ -42,7 +42,7 @@ export default function ReservationDetailPage({ params, searchParams }) {
           <LoadingBlocks label="Chargement de la réservation…" blocks={["row", "tall", "tall"]} />
         }
       >
-        <ReservationDetail params={params} searchParams={searchParams} />
+        <ReservationDetail params={params} />
       </Suspense>
     </>
   );
@@ -65,14 +65,15 @@ async function readReservation(id) {
 
 /**
  * Vérifie l'organisateur, puis lit et présente la réservation.
- * @param {{ params: Promise<{ id: string }>, searchParams: SearchParams }} props
+ * @param {{ params: Promise<{ id: string }> }} props
  * @returns {Promise<React.ReactElement>}
  */
-async function ReservationDetail({ params, searchParams }) {
+async function ReservationDetail({ params }) {
   await requireOrganizer();
   const { id } = await params;
   const reservation = await readReservation(id);
-  const hasEmailFailed = (await searchParams)[EMAIL_NOTICE_PARAM] === EMAIL_NOTICE_FAILED;
+  // Après requireOrganizer() : le lien donne accès à la réservation (AD-7).
+  const personalLink = getPersonalLinkForOrganizer(reservation);
   const fullName = `${reservation.firstName} ${reservation.lastName}`;
   return (
     <>
@@ -93,16 +94,12 @@ async function ReservationDetail({ params, searchParams }) {
           <CopyButton value={reservation.code} label="Copier le code" copiedLabel="Code copié" />
         </div>
       </header>
-      {hasEmailFailed ? (
-        <p role="status" className={styles.notice}>
-          <MailExclamationPoint aria-hidden="true" className={styles.noticeIcon} />
-          La décision est enregistrée, mais le courriel n’a pas pu être envoyé. Prévenez la personne
-          directement.
-        </p>
-      ) : null}
+      {/* Enregistré en base : l'alerte reste jusqu'à ce qu'un organisateur la traite (AD-10). */}
+      <EmailFailureNotice reservationId={reservation.id} failures={reservation.emailFailures} />
       <div className={styles.detailGrid}>
         <div className={styles.column}>
           <ReservationFacts reservation={reservation} />
+          <PersonalLinkPanel url={personalLink} />
           <ProofList proofs={reservation.proofs} />
         </div>
         <div className={styles.column}>

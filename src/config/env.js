@@ -41,20 +41,26 @@ const senderSchema = z
     }),
   );
 
+/**
+ * Origine publique du site, base des liens personnels (AD-7) : HTTPS, ou HTTP en local
+ * seulement, sans identifiants, chemin, paramètres ni ancre.
+ */
+const siteUrlSchema = z.url({ protocol: /^https?$/ }).refine((value) => {
+  if (!URL.canParse(value)) return false;
+  const url = new URL(value);
+  const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  return (
+    (url.protocol === "https:" || isLocal) &&
+    !url.username &&
+    !url.password &&
+    !url.search &&
+    !url.hash &&
+    url.pathname === "/"
+  );
+});
+
 const emailEnvSchema = z.object({
-  SITE_URL: z.url({ protocol: /^https?$/ }).refine((value) => {
-    if (!URL.canParse(value)) return false;
-    const url = new URL(value);
-    const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-    return (
-      (url.protocol === "https:" || isLocal) &&
-      !url.username &&
-      !url.password &&
-      !url.search &&
-      !url.hash &&
-      url.pathname === "/"
-    );
-  }),
+  SITE_URL: siteUrlSchema,
   SMTP_HOST: z
     .string()
     .trim()
@@ -122,6 +128,33 @@ export function parseEmailEnv(source) {
  */
 export function getEmailEnv() {
   return parseEmailEnv(process.env);
+}
+
+/**
+ * Lit l'origine publique du site seule, sans exiger le SMTP : la fiche admin montre
+ * le lien personnel même quand le courriel n'est pas configuré.
+ * @param {Record<string, unknown>} [source] Les variables à lire.
+ * @returns {string} L'origine validée.
+ * @throws {Error} Si SITE_URL manque ou est invalide, sans en exposer la valeur.
+ */
+export function getSiteUrl(source = process.env) {
+  const result = siteUrlSchema.safeParse(source.SITE_URL);
+  if (!result.success) {
+    throw new Error("Variable SITE_URL manquante ou invalide");
+  }
+  return result.data;
+}
+
+/**
+ * Valide le secret privé uniquement lorsqu'une empreinte IP est nécessaire.
+ * @param {Record<string, unknown>} [source] Les variables à lire.
+ * @returns {string} Le secret HMAC (au moins 32 caractères).
+ * @throws {Error} Si le secret manque ou est invalide, sans divulguer sa valeur.
+ */
+export function getRateLimitSecret(source = process.env) {
+  const result = z.string().trim().min(32).safeParse(source.RATE_LIMIT_SECRET);
+  if (!result.success) throw new Error("Variable RATE_LIMIT_SECRET manquante ou invalide");
+  return result.data;
 }
 
 /**

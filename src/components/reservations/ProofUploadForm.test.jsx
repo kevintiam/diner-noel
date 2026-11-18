@@ -1,6 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { PROOF_REQUEST_TIMEOUT_MS } from "@/config/upload-limits";
 import ProofUploadForm from "./ProofUploadForm";
 
 const refresh = vi.fn();
@@ -20,9 +21,57 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.stubGlobal("fetch", fetchMock);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 describe("ProofUploadForm", () => {
+  it.each(["fr", "en"])("débloque un envoi suspendu en %s et garde la capture", async (lang) => {
+    vi.useFakeTimers();
+    fetchMock.mockImplementation(() => new Promise(() => {}));
+    const dictionary = getDictionary(lang);
+    show(lang);
+    fireEvent.change(screen.getByLabelText(dictionary.proof.choose), {
+      target: { files: [new File(["image"], "capture.png", { type: "image/png" })] },
+    });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: dictionary.proof.submit }));
+    expect(screen.getByRole("button", { name: dictionary.proof.submitting })).toBeDisabled();
+    const signal = fetchMock.mock.calls[0][1].signal;
+    expect(fetchMock.mock.calls[0][1].headers).toEqual({ "accept-language": lang });
+    await act(() => vi.advanceTimersByTimeAsync(PROOF_REQUEST_TIMEOUT_MS));
+    expect(signal.aborted).toBe(true);
+    expect(screen.getByRole("alert")).toHaveTextContent(dictionary.errors.uploadUncertain);
+    expect(screen.getByRole("button", { name: dictionary.proof.submit })).toBeEnabled();
+    expect(screen.getByRole("checkbox")).toBeChecked();
+    expect(screen.getByText(/capture.png/)).toBeVisible();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+  it("borne aussi l’attente du corps JSON de la réponse", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue({ ok: true, json: () => new Promise(() => {}) });
+    show();
+    choose();
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma preuve de paiement" }));
+    await act(() => vi.advanceTimersByTimeAsync(PROOF_REQUEST_TIMEOUT_MS));
+    expect(screen.getByRole("alert")).toHaveTextContent(getDictionary("fr").errors.uploadUncertain);
+    expect(screen.getByRole("button", { name: "Envoyer ma preuve de paiement" })).toBeEnabled();
+  });
+  it("invite à vérifier le statut après une coupure réseau", async () => {
+    fetchMock.mockRejectedValue(new TypeError("connexion interrompue"));
+    show();
+    choose();
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma preuve de paiement" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        getDictionary("fr").errors.uploadUncertain,
+      ),
+    );
+    expect(screen.getByText(/capture.png/)).toBeVisible();
+  });
   it("affiche le nom et le poids après un dépôt de fichier", () => {
     show();
     fireEvent.drop(screen.getByLabelText("Choisir une capture ou la déposer ici").parentElement, {

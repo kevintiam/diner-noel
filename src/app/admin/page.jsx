@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import DashboardStats from "@/components/admin/DashboardStats";
+import EmailFailureCallout from "@/components/admin/EmailFailureCallout";
 import EventFillCard from "@/components/admin/EventFillCard";
 import LoadingBlocks from "@/components/admin/LoadingBlocks";
 import ReservationTable from "@/components/admin/ReservationTable";
@@ -12,6 +13,7 @@ import TodoCallout from "@/components/admin/TodoCallout";
 import { describeError, logger } from "@/lib/logger";
 import { requireOrganizer } from "@/server/auth/require-organizer";
 import { getAccountingSummary } from "@/server/services/accounting.service";
+import { listOpenEmailFailures } from "@/server/services/email-failure.service";
 import { getEventOverview } from "@/server/services/event.service";
 import { listReservationsForDashboard } from "@/server/services/organizer.service";
 import styles from "./admin-page.module.css";
@@ -67,16 +69,19 @@ async function readEventOverview(now, organizerId) {
 async function DashboardOverview() {
   const organizer = await requireOrganizer();
   const now = new Date();
-  const [reservations, event, accounting] = await Promise.all([
+  const [reservations, event, accounting, emailFailures] = await Promise.all([
     listReservationsForDashboard(),
     readEventOverview(now, organizer.id),
     // Encaissé et en attente n'ont qu'une définition : celle du service des comptes (AD-6).
     getAccountingSummary(),
+    listOpenEmailFailures(),
   ]);
   const summary = summarizeReservations(reservations);
   return (
     <div className={styles.stack}>
       <div className={styles.highlights}>
+        {/* Un participant sans courriel passe avant le reste : il faut le prévenir (AD-10). */}
+        <EmailFailureCallout failures={emailFailures} />
         <TodoCallout toVerifyCount={summary.TO_VERIFY.count} />
         {event ? (
           <EventFillCard

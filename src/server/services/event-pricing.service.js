@@ -11,6 +11,7 @@ export function getEffectiveUnitPrice(pricing, now) {
   const values = eventPricingSchema.parse(pricing);
   pricingInstantSchema.parse(now);
   if (
+    values.promotionalUnitPriceCents != null &&
     values.promotionStartsAt &&
     values.promotionEndsAt &&
     now >= values.promotionStartsAt &&

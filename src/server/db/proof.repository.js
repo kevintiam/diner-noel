@@ -8,7 +8,10 @@ import { getPrisma } from "./prisma-client.js";
  * @returns {Promise<void>} L'insertion terminée.
  */
 export async function insertProof(tx, image) {
-  await tx.proof.create({ data: image, select: { id: true } });
+  await tx.proof.create({
+    data: { ...image, data: new Uint8Array(image.data) },
+    select: { id: true },
+  });
 }
 
 /**

@@ -1,12 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Upload } from "lucide-react";
+import { PROOF_REQUEST_TIMEOUT_MS } from "@/config/upload-limits";
 import { translate } from "@/i18n/translate";
 import { formatFileSize } from "@/lib/format";
 import { ACCEPTED_PROOF_TYPES, MAX_PROOF_BYTES } from "@/validation/proof.schema";
 import styles from "./ProofUploadForm.module.css";
+
+// Le formulaire devient interactif une fois ses gestionnaires React disponibles.
+const subscribe = () => () => {};
+const clientReady = () => true;
+const serverReady = () => false;
 
 /**
  * Dépose une capture privée et conserve les erreurs accessibles à côté des champs.
@@ -14,17 +20,20 @@ import styles from "./ProofUploadForm.module.css";
  * @returns {React.ReactElement} Le formulaire de dépôt.
  */
 export default function ProofUploadForm({ token, lang, dictionary }) {
+  const ready = useSyncExternalStore(subscribe, clientReady, serverReady);
   const router = useRouter();
-  const inputRef = useRef(null);
-  const alertRef = useRef(null);
-  const [file, setFile] = useState(null);
+  const inputRef = useRef(/** @type {HTMLInputElement | null} */ (null));
+  const alertRef = useRef(/** @type {HTMLParagraphElement | null} */ (null));
+  const [file, setFile] = useState(/** @type {File | null} */ (null));
   const [confirmed, setConfirmed] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState(/** @type {Record<string, string>} */ ({}));
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
   const [later, setLater] = useState(false);
+  /** @param {string} key */
   const t = (key) => translate(dictionary, key);
 
+  /** @param {File | undefined} selected */
   function chooseFile(selected) {
     setFile(selected ?? null);
     setMessage("");
@@ -32,6 +41,7 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
     setErrors(error ? { proof: error } : {});
   }
 
+  /** @param {File | null} selected */
   function fileError(selected) {
     if (!selected || selected.size === 0) return t("proof.fileRequired");
     if (selected.size > MAX_PROOF_BYTES) return t("errors.proofTooLarge");
@@ -45,15 +55,17 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
     return "";
   }
 
+  /** @param {React.SubmitEvent<HTMLFormElement>} event */
   async function submit(event) {
     event.preventDefault();
     if (pending) return;
+    /** @type {Record<string, string>} */
     const nextErrors = {};
     const invalidFile = fileError(file);
     if (invalidFile) nextErrors.proof = invalidFile;
     if (!confirmed) nextErrors.confirmTransfer = t("proof.confirmRequired");
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) {
+    if (Object.keys(nextErrors).length || !file) {
       setMessage(t("errors.validation"));
       requestAnimationFrame(() => alertRef.current?.focus());
       return;
@@ -64,14 +76,34 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
     body.set("proof", file);
     body.set("confirmTransfer", "on");
     body.set("lang", lang);
+    const controller = new AbortController();
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    let timer;
+    /** @type {Promise<never>} */
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new Error("UPLOAD_TIMEOUT"));
+      }, PROOF_REQUEST_TIMEOUT_MS);
+    });
     try {
-      const response = await fetch(`/api/reservations/${token}/proofs`, { method: "POST", body });
-      const result = await response.json();
+      const { response, result } = await Promise.race([
+        fetch(`/api/reservations/${token}/proofs`, {
+          method: "POST",
+          body,
+          signal: controller.signal,
+          headers: { "accept-language": lang },
+        }).then(async (response) => ({ response, result: await response.json() })),
+        deadline,
+      ]);
       if (!response.ok) {
         setMessage(result.error?.message ?? t("errors.internal"));
         setErrors(
           Object.fromEntries(
-            (result.error?.details ?? []).map((detail) => [detail.field, detail.message]),
+            (result.error?.details ?? []).map(
+              /** @param {{field: string, message: string}} detail */
+              (detail) => [detail.field, detail.message],
+            ),
           ),
         );
         requestAnimationFrame(() => alertRef.current?.focus());
@@ -80,9 +112,10 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
       }
       router.refresh();
     } catch {
-      setMessage(t("errors.internal"));
+      setMessage(t("errors.uploadUncertain"));
       requestAnimationFrame(() => alertRef.current?.focus());
     } finally {
+      clearTimeout(timer);
       setPending(false);
     }
   }
@@ -113,7 +146,7 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
             type="file"
             ref={inputRef}
             accept={ACCEPTED_PROOF_TYPES.join(",")}
-            disabled={pending}
+            disabled={!ready || pending}
             aria-describedby={`proof-help${file ? " proof-selection" : ""}${errors.proof ? " proof-error" : ""}`}
             aria-invalid={Boolean(errors.proof)}
             onChange={(event) => chooseFile(event.target.files?.[0])}
@@ -135,7 +168,7 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
             name="confirmTransfer"
             type="checkbox"
             checked={confirmed}
-            disabled={pending}
+            disabled={!ready || pending}
             onChange={(event) => setConfirmed(event.target.checked)}
             aria-invalid={Boolean(errors.confirmTransfer)}
             aria-describedby={errors.confirmTransfer ? "confirm-error" : undefined}
@@ -147,13 +180,13 @@ export default function ProofUploadForm({ token, lang, dictionary }) {
             {errors.confirmTransfer}
           </p>
         )}
-        <button type="submit" className={styles.submit} disabled={pending}>
+        <button type="submit" className={styles.submit} disabled={!ready || pending}>
           {t(pending ? "proof.submitting" : "proof.submit")}
         </button>
         <button
           type="button"
           className={styles.later}
-          disabled={pending}
+          disabled={!ready || pending}
           onClick={() => setLater(true)}
         >
           {t("proof.later")}

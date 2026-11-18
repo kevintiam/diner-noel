@@ -100,8 +100,8 @@ export function findReservationStatusByToken(tx, token) {
  * Applique une transition conditionnelle, sans décision sur le statut ailleurs.
  * @param {import("./transaction.js").TransactionClient} tx La transaction.
  * @param {string} id La réservation.
- * @param {string} from L'état attendu.
- * @param {string} to Le nouvel état.
+ * @param {import('./reservation-admin.repository.js').ReservationStatusCode} from L'état attendu.
+ * @param {import('./reservation-admin.repository.js').ReservationStatusCode} to Le nouvel état.
  * @returns {Promise<number>} Le nombre de lignes modifiées.
  */
 export async function updateReservationStatus(tx, id, from, to) {

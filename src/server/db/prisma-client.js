@@ -5,20 +5,38 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { getEnv } from "../../config/env.js";
 import { PrismaClient } from "../../generated/prisma/client.ts";
+import { describeError, logger } from "../../lib/logger.js";
 
-/** @type {{ prismaClient?: PrismaClient }} */
+/** @type {{ prismaClient?: PrismaClient, prismaClientClass?: typeof PrismaClient }} */
 const globalStore = /** @type {any} */ (globalThis);
 
 const CONNECTION_TIMEOUT_MS = 5_000;
 const QUERY_TIMEOUT_MS = 8_000;
 
 /**
+ * Ferme un client écarté, sans attendre : sa panne éventuelle ne concerne plus personne.
+ * @param {PrismaClient} client L'ancien client.
+ * @returns {void}
+ */
+function closeStaleClient(client) {
+  client.$disconnect().catch((error) => {
+    logger.warn("prisma_stale_client_disconnect_failed", describeError(error));
+  });
+}
+
+/**
  * Renvoie le client Prisma, créé une seule fois par processus
  * (globalThis évite d'en recréer un à chaque rechargement en développement).
+ * Après `prisma generate`, le rechargement fournit une nouvelle classe PrismaClient :
+ * l'ancien client, qui ignore les nouveaux modèles et champs, est alors remplacé.
  * @returns {PrismaClient} Le client.
  * @throws {Error} Si DATABASE_URL manque ou est invalide.
  */
 export function getPrisma() {
+  if (globalStore.prismaClient && globalStore.prismaClientClass !== PrismaClient) {
+    closeStaleClient(globalStore.prismaClient);
+    globalStore.prismaClient = undefined;
+  }
   if (!globalStore.prismaClient) {
     const adapter = new PrismaPg({
       connectionString: getEnv().DATABASE_URL,
@@ -27,6 +45,7 @@ export function getPrisma() {
       statement_timeout: QUERY_TIMEOUT_MS,
     });
     globalStore.prismaClient = new PrismaClient({ adapter });
+    globalStore.prismaClientClass = PrismaClient;
   }
   return globalStore.prismaClient;
 }

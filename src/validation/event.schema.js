@@ -19,7 +19,9 @@ export const eventPricingSchema = z
     ];
     if (values.every((value) => value === null || value === undefined)) return;
     if (
-      values.some((value) => value === null || value === undefined) ||
+      pricing.promotionalUnitPriceCents == null ||
+      pricing.promotionStartsAt == null ||
+      pricing.promotionEndsAt == null ||
       pricing.promotionStartsAt >= pricing.promotionEndsAt
     ) {
       context.addIssue({ code: "custom", message: "Calendrier promotionnel invalide." });

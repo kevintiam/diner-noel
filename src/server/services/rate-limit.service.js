@@ -1,8 +1,6 @@
-// Limite des envois en masse (architecture AD-11). La clé contient l'empreinte
-// SHA-256 de l'adresse IP, pas l'adresse elle-même. C'est une pseudonymisation,
-// pas une anonymisation : sans secret, une adresse IPv4 se retrouve en essayant
-// toutes les possibilités. Une empreinte à clé secrète (HMAC) est notée dans le travail reporté.
-import { createHash } from "node:crypto";
+// Limite des envois en masse (AD-11) : empreinte IP HMAC, secret privé obligatoire.
+import { createHmac } from "node:crypto";
+import { getRateLimitSecret } from "../../config/env.js";
 import { incrementRateLimit } from "../db/rate-limit.repository.js";
 import { AppError } from "../errors/app-error.js";
 
@@ -22,7 +20,7 @@ export const LOGIN_RATE_LIMIT = { limit: 5, windowSeconds: 15 * 60 };
  * @returns {string} La clé (ex. `reserve:3fa9…`).
  */
 export function buildRateLimitKey(action, clientIp) {
-  const hash = createHash("sha256");
+  const hash = createHmac("sha256", getRateLimitSecret());
   hash.update(clientIp);
   return `${action}:${hash.digest("base64url")}`;
 }

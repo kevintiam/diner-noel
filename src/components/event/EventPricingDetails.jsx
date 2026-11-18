@@ -7,27 +7,26 @@ import { formatMoney, formatEventDateTime } from "@/lib/format";
  * @returns {React.ReactElement} Les informations tarifaires par âge.
  */
 export default function EventPricingDetails({ overview, lang, dictionary, isCompact = false }) {
+  /** @param {number} price */
   const formatPrice = (price) => formatMoney(price, lang, { omitZeroCents: true });
-  const hasPromotion =
-    overview.promotionStartsAt &&
-    overview.promotionEndsAt &&
-    overview.promotionalUnitPriceCents !== null;
-  const promotionDetails = hasPromotion ? (
-    <>
-      <p>
-        {translate(dictionary, "pricing.promotion", {
-          price: formatPrice(overview.promotionalUnitPriceCents),
-          start: formatEventDateTime(overview.promotionStartsAt, lang),
-          end: formatEventDateTime(overview.promotionEndsAt, lang),
-        })}
-      </p>
-      <p>
-        {translate(dictionary, "pricing.regular", {
-          price: formatPrice(overview.normalUnitPriceCents),
-        })}
-      </p>
-    </>
-  ) : null;
+  const { promotionStartsAt, promotionEndsAt, promotionalUnitPriceCents } = overview;
+  const promotionDetails =
+    promotionStartsAt && promotionEndsAt && promotionalUnitPriceCents !== null ? (
+      <>
+        <p>
+          {translate(dictionary, "pricing.promotion", {
+            price: formatPrice(promotionalUnitPriceCents),
+            start: formatEventDateTime(promotionStartsAt, lang),
+            end: formatEventDateTime(promotionEndsAt, lang),
+          })}
+        </p>
+        <p>
+          {translate(dictionary, "pricing.regular", {
+            price: formatPrice(overview.normalUnitPriceCents),
+          })}
+        </p>
+      </>
+    ) : null;
   return (
     <div>
       <p>

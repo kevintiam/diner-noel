@@ -19,13 +19,33 @@ Dans **Réservations** :
 
 ## Décider d’un paiement
 
-Sur une réservation **À vérifier**, comparez le montant, le nom de l’expéditeur et le code avec le virement reçu dans le compte bancaire.
+Dans **Preuves de paiement**, chaque capture reçue apparaît en vignette, la plus récente en premier. Cliquez sur **Voir en grand** pour l’afficher ; **Ouvrir dans un nouvel onglet pour zoomer** l’agrandit davantage. Après un refus, l’ancienne capture reste visible et la nouvelle s’ajoute à la liste.
+
+Sur une réservation **À vérifier**, comparez le montant, le nom de l’expéditeur et le code avec le virement reçu dans le compte bancaire. La capture aide à retrouver le virement, mais ne le prouve pas : confirmez seulement après avoir vu le virement dans le compte.
 
 - Si le virement correspond, cliquez sur **Confirmer le paiement**. Un courriel de confirmation est envoyé.
 - Si le paiement ne correspond pas, choisissez un **Motif du refus**, puis cliquez sur **Refuser le paiement**. La personne conserve ses places et peut envoyer une nouvelle preuve.
 - Les réservations en attente restent actives jusqu’à une décision manuelle. L’annulation libère les places. Utilisez-la seulement si la réservation doit être annulée.
+- Une réservation confirmée est définitive : le bouton **Annuler la réservation** n’apparaît plus. Vérifiez donc bien le virement avant de confirmer.
 
-**Limite actuelle :** la fiche indique qu’une preuve a été reçue, sa date et sa taille, mais n’affiche pas la capture. Vérifiez le virement dans le compte bancaire avant toute décision. Ne confirmez pas un paiement sur la seule base de la présence d’une preuve.
+## Courriels non envoyés
+
+Si un courriel ne part pas (accusé de réception, confirmation ou avis de refus), la **Vue d’ensemble** affiche un bandeau bordeaux « courriel non envoyé » avec un lien vers chaque réservation concernée. La fiche de la réservation l’indique aussi, avec la date.
+
+1. Prévenez la personne vous-même, par courriel ou par téléphone.
+2. Cliquez sur **J’ai prévenu la personne**. L’alerte disparaît pour tous les organisateurs.
+
+## Donner son lien personnel à une personne
+
+Chaque réservation a un lien personnel. Il ouvre la page où la personne retrouve son montant, les instructions de paiement et l’état de sa réservation, et où elle dépose sa preuve tant que le paiement est attendu.
+
+Si une personne a perdu ce lien, ou si son courriel n’est pas parti :
+
+1. Ouvrez sa fiche depuis **Réservations**.
+2. Dans le panneau **Lien personnel**, cliquez sur **Copier le lien**. Si la copie ne fonctionne pas, cliquez sur l’adresse affichée pour la sélectionner, puis copiez-la.
+3. Envoyez-le-lui par courriel ou par SMS. Le lien est déjà dans sa langue.
+
+Ce lien donne accès à la réservation : transmettez-le seulement à la personne concernée. Si le panneau affiche « Lien indisponible », l’adresse du site n’est pas configurée sur le serveur ; prévenez la personne qui s’occupe du site.
 
 ## Modifier l’événement
 

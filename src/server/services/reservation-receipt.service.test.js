@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { sendEmail } from "../email/send-email.js";
+import { recordEmailFailure } from "./email-failure.service.js";
 import { sendReservationReceipt } from "./reservation-receipt.service.js";
 
 vi.mock("../email/send-email.js", () => ({ sendEmail: vi.fn() }));
+vi.mock("./email-failure.service.js", () => ({ recordEmailFailure: vi.fn() }));
 /** @type {import("../../validation/reservation.schema.js").ReservationForReceipt} */
 const RESERVATION = {
   id: "internal-fake",
@@ -46,6 +48,7 @@ describe("sendReservationReceipt", () => {
         text: expect.stringContaining(`/en/r/${RESERVATION.token}`),
       }),
     );
+    expect(recordEmailFailure).not.toHaveBeenCalled();
   });
 
   it("confirme une inscription gratuite sans instructions de paiement", async () => {
@@ -69,6 +72,11 @@ describe("sendReservationReceipt", () => {
       time: expect.any(String),
     });
     expect(log).toHaveBeenCalledOnce();
+    // L'échec est aussi gardé en base, pour que les organisateurs le voient.
+    expect(recordEmailFailure).toHaveBeenCalledExactlyOnceWith({
+      reservationId: "internal-fake",
+      kind: "RECEIPT",
+    });
   });
 
   it("absorbe la configuration absente sans tenter SMTP", async () => {
@@ -77,5 +85,6 @@ describe("sendReservationReceipt", () => {
     await expect(sendReservationReceipt(RESERVATION)).resolves.toBeUndefined();
     expect(sendEmail).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledOnce();
+    expect(recordEmailFailure).toHaveBeenCalledOnce();
   });
 });

@@ -30,7 +30,8 @@ export async function findDashboardReservations() {
 }
 
 /**
- * Lit la fiche d'une réservation, ses captures (sans leurs octets) et ses décisions.
+ * Lit la fiche d'une réservation, ses captures (sans leurs octets), ses décisions
+ * et les courriels non envoyés que personne n'a encore traités (AD-10).
  * @param {string} reservationId
  */
 export async function findReservationDetail(reservationId) {
@@ -40,6 +41,11 @@ export async function findReservationDetail(reservationId) {
       proofs: {
         orderBy: { createdAt: "desc" },
         select: { id: true, mimeType: true, byteSize: true, createdAt: true },
+      },
+      emailFailures: {
+        where: { resolvedAt: null },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, kind: true, createdAt: true },
       },
       decisions: {
         orderBy: { createdAt: "desc" },

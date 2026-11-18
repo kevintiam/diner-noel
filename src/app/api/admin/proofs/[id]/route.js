@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     await requireOrganizerForApi();
     const { id } = await params;
     const image = await getProofImage(id);
-    return new Response(image.data, {
+    return new Response(new Uint8Array(image.data), {
       headers: {
         ...PRIVATE_HEADERS,
         "Content-Type": image.mimeType,
