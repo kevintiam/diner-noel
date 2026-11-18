@@ -56,3 +56,27 @@ describe("délais du client Prisma", () => {
     20_000,
   );
 });
+
+describe("client gardé entre deux rechargements", () => {
+  it("réutilise le même client tant que le client généré ne change pas", async () => {
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+
+    expect(clientModule.getPrisma()).toBe(clientModule.getPrisma());
+  });
+
+  it("remplace et ferme un client créé avant un nouveau `prisma generate`", async () => {
+    const staleClient = { $disconnect: vi.fn(async () => {}) };
+    /** @type {any} */ (globalThis).prismaClient = staleClient;
+    // Un client gardé par une version précédente du module ne porte pas la classe actuelle.
+    /** @type {any} */ (globalThis).prismaClientClass = class AncienClient {};
+    vi.resetModules();
+    clientModule = await import("./prisma-client.js");
+
+    const client = clientModule.getPrisma();
+
+    expect(client).not.toBe(staleClient);
+    expect(staleClient.$disconnect).toHaveBeenCalledOnce();
+    expect(clientModule.getPrisma()).toBe(client);
+  });
+});

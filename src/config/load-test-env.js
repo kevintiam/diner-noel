@@ -16,6 +16,8 @@ export function loadTestEnv(path, environment = process.env) {
   // Neutraliser aussi les valeurs présentes dans .env.test : aucun test n'envoie de vrai courriel.
   for (const key of EMAIL_ENV_KEYS) environment[key] = "";
   environment.SITE_URL = "http://localhost:3100";
+  // Toujours fictif, même si le processus hérite d'un secret réel.
+  environment.RATE_LIMIT_SECRET = "secret-fictif-test-isole-uniquement-2026";
   // Une chaîne vide empêche Next de compléter avec le fichier .env de développement.
   for (const key of TEST_ENV_KEYS) environment[key] = "";
   for (const key of Object.keys(environment)) {

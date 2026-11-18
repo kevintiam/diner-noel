@@ -29,6 +29,7 @@ vi.mock("../services/organizer.service.js", () => ({
   logoutOrganizer: vi.fn(),
 }));
 vi.mock("../services/reservation-decision.service.js", () => ({ decideReservation: vi.fn() }));
+vi.mock("../services/email-failure.service.js", () => ({ resolveEmailFailures: vi.fn() }));
 
 const { redirect } = await import("next/navigation");
 const { clearSessionCookie, writeSessionCookie } = await import("../auth/session-cookie.js");
@@ -36,8 +37,13 @@ const { requireOrganizer } = await import("../auth/require-organizer.js");
 const { checkRateLimit } = await import("../services/rate-limit.service.js");
 const { loginOrganizer, logoutOrganizer } = await import("../services/organizer.service.js");
 const { decideReservation } = await import("../services/reservation-decision.service.js");
-const { loginOrganizerAction, logoutOrganizerAction, updateReservationStatusAction } =
-  await import("./organizer.actions.js");
+const { resolveEmailFailures } = await import("../services/email-failure.service.js");
+const {
+  loginOrganizerAction,
+  logoutOrganizerAction,
+  resolveEmailFailuresAction,
+  updateReservationStatusAction,
+} = await import("./organizer.actions.js");
 
 const EXPIRES_AT = new Date("2026-11-23T15:00:00.000Z");
 
@@ -174,7 +180,7 @@ describe("updateReservationStatusAction", () => {
     expect(redirect).toHaveBeenCalledWith("/admin/reservations/res_1");
   });
 
-  it("transmet le motif d'un refus et signale un courriel qui n'est pas parti", async () => {
+  it("transmet le motif d'un refus et revient à la fiche, même sans courriel parti", async () => {
     vi.mocked(requireOrganizer).mockResolvedValue(ORGANIZER);
     vi.mocked(decideReservation).mockResolvedValue({
       id: "res_1",
@@ -195,7 +201,8 @@ describe("updateReservationStatusAction", () => {
     expect(vi.mocked(decideReservation).mock.calls[0][0]).toMatchObject({
       reasonCode: "INCOMPLETE_AMOUNT",
     });
-    expect(redirect).toHaveBeenCalledWith("/admin/reservations/res_1?courriel=non-envoye");
+    // L'échec est enregistré en base par le service : l'adresse ne le transporte plus.
+    expect(redirect).toHaveBeenCalledWith("/admin/reservations/res_1");
   });
 
   it("renvoie l'erreur traduite quand la réservation a changé entre-temps", async () => {
@@ -217,5 +224,56 @@ describe("updateReservationStatusAction", () => {
       },
     });
     expect(redirect).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveEmailFailuresAction", () => {
+  const ORGANIZER = { id: "org_1", email: "orga@example.test", name: "Orga" };
+
+  it("refuse d'agir sans organisateur connecté", async () => {
+    vi.mocked(requireOrganizer).mockRejectedValue(NEXT_REDIRECT);
+
+    await expect(
+      resolveEmailFailuresAction(buildFormData({ reservationId: "res_1" })),
+    ).rejects.toBe(NEXT_REDIRECT);
+    expect(resolveEmailFailures).not.toHaveBeenCalled();
+  });
+
+  it("note l'organisateur qui a prévenu la personne, puis recharge la fiche", async () => {
+    vi.mocked(requireOrganizer).mockResolvedValue(ORGANIZER);
+    vi.mocked(resolveEmailFailures).mockResolvedValue({ reservationId: "res_1", resolvedCount: 1 });
+
+    await expect(
+      resolveEmailFailuresAction(buildFormData({ reservationId: "res_1" })),
+    ).rejects.toBe(NEXT_REDIRECT);
+    expect(resolveEmailFailures).toHaveBeenCalledWith(
+      { reservationId: "res_1" },
+      { organizerId: "org_1", now: expect.any(Date) },
+    );
+    expect(redirect).toHaveBeenCalledWith("/admin/reservations/res_1");
+  });
+
+  it("ramène à la liste quand l'identifiant est invalide", async () => {
+    vi.mocked(requireOrganizer).mockResolvedValue(ORGANIZER);
+    vi.mocked(resolveEmailFailures).mockRejectedValue(
+      new AppError(400, "VALIDATION_ERROR", "errors.validation"),
+    );
+
+    await expect(resolveEmailFailuresAction(new FormData())).rejects.toBe(NEXT_REDIRECT);
+    expect(redirect).toHaveBeenCalledWith("/admin/reservations");
+  });
+
+  it("laisse remonter une panne imprévue au lieu de faire croire au succès", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const failure = new Error("base indisponible");
+    vi.mocked(requireOrganizer).mockResolvedValue(ORGANIZER);
+    vi.mocked(resolveEmailFailures).mockRejectedValue(failure);
+
+    await expect(
+      resolveEmailFailuresAction(buildFormData({ reservationId: "res_1" })),
+    ).rejects.toBe(failure);
+    expect(redirect).not.toHaveBeenCalled();
+    expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({ message: "unexpected_error" });
+    log.mockRestore();
   });
 });

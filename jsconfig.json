@@ -7,11 +7,21 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "checkJs": true,
+    "strict": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "exclude": ["node_modules", ".next", "src/generated"]
+  "include": [
+    "src/**/*",
+    "e2e/**/*",
+    "scripts/**/*",
+    "prisma/**/*.js",
+    "netlify/**/*",
+    "*.js",
+    "*.mjs"
+  ],
+  "exclude": ["node_modules", ".next", "src/generated", "verifier-bmad.mjs"]
 }

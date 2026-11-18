@@ -92,7 +92,9 @@ flowchart TD
   | `PENDING_PAYMENT` | `TO_VERIFY` | Le participant dépose une capture | — |
   | `TO_VERIFY` | `CONFIRMED` | Un organisateur confirme [ASSUMPTION : jamais sans capture] | `CONFIRM` |
   | `TO_VERIFY` | `PENDING_PAYMENT` | Un organisateur refuse, avec un code de motif | `REFUSE` + `reasonCode` |
-  | `PENDING_PAYMENT`, `TO_VERIFY`, `CONFIRMED` | `CANCELLED` | Un organisateur annule | `CANCEL` |
+  | `PENDING_PAYMENT`, `TO_VERIFY` | `CANCELLED` | Un organisateur annule | `CANCEL` |
+
+  `CONFIRMED` est un état final, comme `CANCELLED` : à la demande du propriétaire (17 novembre 2026), une réservation confirmée ne peut plus être annulée.
 
   Une place est comptée si et seulement si `status !== CANCELLED`. Le total des places prises n'est calculé que par `sumTakenSeats()` (`src/server/db/reservation.repository.js`). Cette même fonction sert à la transaction verrouillée (AD-5) et à l'affichage des places restantes. Chaque décision écrit une ligne `ReservationDecision` (type, organisateur, date, motif) dans la même transaction que le changement de statut. Les codes de motif sont `NO_TRANSFER`, `INCOMPLETE_AMOUNT` et `UNREADABLE_PROOF` (liste à confirmer, brief §15.3).
 
@@ -157,6 +159,7 @@ flowchart TD
   - **Modèles.** Chaque courriel est construit par une fonction de `src/server/email/templates/` qui renvoie `{ subject, text, html }` à partir des données et du dictionnaire.
   - **Moment.** Le service envoie le courriel **après** le commit.
   - **Échec.** Un échec est journalisé avec l'identifiant de la réservation, sans nom ni courriel. L'action déjà faite reste valide.
+  - **Suivi des échecs.** Depuis le 17 novembre 2026, chaque échec est aussi enregistré dans la table `EmailFailure` (réservation, type `RECEIPT`, `CONFIRMATION` ou `REFUSAL`, date) par `src/server/services/email-failure.service.js`. Cette écriture ne lance jamais d'erreur. La vue d'ensemble et la fiche signalent l'échec à chaque visite, jusqu'à ce qu'un organisateur clique sur « J'ai prévenu la personne ». La ligne n'est jamais supprimée : `resolvedAt` et `resolvedById` notent qui l'a traitée, et quand. L'ancien avis passé par un paramètre d'adresse (`?courriel=non-envoye`) est retiré.
   - **Tests.** Les tests simulent `sendEmail`.
 
 ### AD-11 — Limite de requêtes

@@ -37,6 +37,13 @@ enum Language {
   EN
 }
 
+// Courriels envoyés au participant (AD-10) dont l'échec doit rester visible.
+enum EmailKind {
+  RECEIPT
+  CONFIRMATION
+  REFUSAL
+}
+
 // L'unique événement (AD-14). Les heures sont en UTC (AD-12), l'argent en cents (AD-6).
 model Event {
   id              String    @id @default(cuid())
@@ -77,6 +84,7 @@ model Reservation {
   updatedAt      DateTime              @updatedAt
   proofs         Proof[]
   decisions      ReservationDecision[]
+  emailFailures  EmailFailure[]
 
   @@index([status])
 }
@@ -116,6 +124,23 @@ model Organizer {
   createdAt    DateTime              @default(now())
   sessions     Session[]
   decisions    ReservationDecision[]
+  resolvedEmailFailures EmailFailure[]
+}
+
+// Courriel au participant qui n'a pas pu partir (AD-10). Il reste signalé aux organisateurs
+// jusqu'à ce que l'un d'eux indique avoir prévenu la personne ; la ligne n'est jamais supprimée.
+model EmailFailure {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  kind          EmailKind
+  createdAt     DateTime    @default(now())
+  resolvedAt    DateTime?
+  resolvedById  String?
+  resolvedBy    Organizer?  @relation(fields: [resolvedById], references: [id])
+
+  @@index([reservationId])
+  @@index([resolvedAt])
 }
 
 // Seul le hachage SHA-256 du jeton de session est stocké (AD-9).

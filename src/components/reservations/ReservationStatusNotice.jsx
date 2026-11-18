@@ -8,6 +8,7 @@ import styles from "./ReservationStatusNotice.module.css";
  * @returns {React.ReactElement} L'état de la réservation.
  */
 export default function ReservationStatusNotice({ reservation, lang, dictionary }) {
+  /** @param {string} key */
   const t = (key) => translate(dictionary, key);
   const cancelled = reservation.status === "CANCELLED";
   return (

@@ -190,23 +190,43 @@ test.describe("tableau de bord des organisateurs", () => {
     await logIn(page, ACCOUNT.password);
     await expect(page).toHaveURL(DASHBOARD_URL);
 
-    // Le SMTP est neutralisé dans les tests : la décision reste, la fiche signale le courriel.
+    // Le SMTP est neutralisé dans les tests : la décision reste, et l'échec du courriel est
+    // enregistré en base, donc encore signalé après un rechargement (AD-10).
+    const failureNotice = page.getByRole("region", { name: "Un courriel n’a pas pu partir" });
     await page.goto(`/admin/reservations/${toConfirm.id}`);
     await page.getByRole("button", { name: "Confirmer le paiement" }).click();
-    await expect(page).toHaveURL(/courriel=non-envoye/);
-    await expect(page.getByText(/le courriel n’a pas pu être envoyé/)).toBeVisible();
+    await expect(failureNotice).toContainText("Confirmation du paiement");
     await expect(page.getByText("Paiement confirmé")).toBeVisible();
     await expect(page.getByRole("button", { name: "Confirmer le paiement" })).toHaveCount(0);
+    await page.reload();
+    await expect(failureNotice).toBeVisible();
 
     await page.goto(`/admin/reservations/${toRefuse.id}`);
     await page.getByLabel("Motif du refus").selectOption("INCOMPLETE_AMOUNT");
     await page.getByRole("button", { name: "Refuser le paiement" }).click();
-    await expect(page).toHaveURL(/courriel=non-envoye/);
+    await expect(failureNotice).toContainText("Avis de refus");
     await expect(page.getByText(/Montant incomplet/)).toBeVisible();
     await expect(page.getByText(/rien à confirmer pour l’instant/)).toBeVisible();
 
     const refused = await getPrisma().reservation.findUniqueOrThrow({ where: { id: toRefuse.id } });
     expect(refused.status).toBe("PENDING_PAYMENT");
+
+    // La vue d'ensemble liste les personnes à prévenir, jusqu'à ce qu'un organisateur le note.
+    const callout = page.getByRole("region", { name: /courriels? non envoyés?/ });
+    await page.goto("/admin");
+    await expect(callout.getByRole("link", { name: /NOEL-7002/ })).toBeVisible();
+    await callout.getByRole("link", { name: /NOEL-7001/ }).click();
+    await page.getByRole("button", { name: "J’ai prévenu la personne" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "NOEL-7001" })).toBeVisible();
+    await expect(failureNotice).toHaveCount(0);
+
+    await page.goto("/admin");
+    await expect(callout.getByRole("link", { name: /NOEL-7002/ })).toBeVisible();
+    await expect(callout.getByRole("link", { name: /NOEL-7001/ })).toHaveCount(0);
+    const handled = await getPrisma().emailFailure.findFirstOrThrow({
+      where: { reservationId: toConfirm.id },
+    });
+    expect(handled.resolvedAt).not.toBeNull();
   });
 
   test("présente la page de connexion", async ({ page }, testInfo) => {

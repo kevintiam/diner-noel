@@ -13,9 +13,15 @@ describe("transitionReservationStatus", () => {
     expect(RESERVATION_TRANSITIONS).toEqual({
       PENDING_PAYMENT: ["TO_VERIFY", "CANCELLED"],
       TO_VERIFY: ["CONFIRMED", "PENDING_PAYMENT", "CANCELLED"],
-      CONFIRMED: ["CANCELLED"],
+      CONFIRMED: [],
       CANCELLED: [],
     });
+  });
+  it("refuse d'annuler une réservation confirmée sans écrire", async () => {
+    await expect(
+      transitionReservationStatus({}, { reservationId: "id", from: "CONFIRMED", to: "CANCELLED" }),
+    ).rejects.toMatchObject({ statusCode: 409, code: "RESERVATION_STATUS_CHANGED" });
+    expect(updateReservationStatus).not.toHaveBeenCalled();
   });
   it.each(
     Object.entries(RESERVATION_TRANSITIONS).flatMap(([from, values]) =>

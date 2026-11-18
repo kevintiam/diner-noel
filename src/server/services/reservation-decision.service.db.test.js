@@ -117,21 +117,17 @@ describe("decideReservation sur la base", () => {
     expect(message.text).toContain(`https://diner.example.test/en/r/${reservation.token}`);
   });
 
-  it("annule une réservation confirmée sans courriel et garde sa date de confirmation", async () => {
-    const reservation = await createReservation("CONFIRMED", { confirmedAt: NOW });
+  it("annule une réservation à vérifier sans courriel et libère ses places", async () => {
+    const reservation = await createReservation("TO_VERIFY");
 
     const result = await decideReservation(
       { reservationId: reservation.id, decision: "cancel", reasonCode: "NO_TRANSFER" },
-      { organizerId, now: new Date("2026-11-21T15:00:00.000Z") },
+      { organizerId, now: NOW },
     );
 
     expect(result).toEqual({ id: reservation.id, status: "CANCELLED", emailSent: null });
     expect(sendEmail).not.toHaveBeenCalled();
     expect(await sumTakenSeats()).toBe(0);
-    const stored = await getPrisma().reservation.findUniqueOrThrow({
-      where: { id: reservation.id },
-    });
-    expect(stored.confirmedAt).toEqual(NOW);
     expect(await readDecisions(reservation.id)).toEqual([
       expect.objectContaining({ type: "CANCEL", reasonCode: null }),
     ]);
@@ -142,6 +138,7 @@ describe("decideReservation sur la base", () => {
     ["confirm", "CANCELLED"],
     ["refuse", "CONFIRMED"],
     ["refuse", "PENDING_PAYMENT"],
+    ["cancel", "CONFIRMED"],
     ["cancel", "CANCELLED"],
   ])("refuse « %s » depuis %s avec une 409, sans rien écrire", async (decision, status) => {
     const reservation = await createReservation(
@@ -200,6 +197,14 @@ describe("decideReservation sur la base", () => {
       reservationId: reservation.id,
       time: expect.any(String),
     });
+    // L'échec est gardé en base : la fiche le signale tant qu'il n'est pas traité.
+    expect(await getPrisma().emailFailure.findMany()).toEqual([
+      expect.objectContaining({
+        reservationId: reservation.id,
+        kind: "CONFIRMATION",
+        resolvedAt: null,
+      }),
+    ]);
   });
 
   it("répond 404 pour une réservation inconnue et 400 pour un refus sans motif", async () => {

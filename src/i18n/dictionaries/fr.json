@@ -214,6 +214,8 @@
     "invalidCredentials": "Courriel ou mot de passe invalide.",
     "reservationNotFound": "Cette réservation est introuvable.",
     "proofTooLarge": "La capture dépasse 4 Mo. Choisissez un fichier plus petit.",
+    "uploadTimeout": "L’envoi a pris trop de temps. Vérifiez le statut de votre réservation avant de réessayer.",
+    "uploadUncertain": "Le serveur ne répond pas. Vérifiez le statut de votre réservation en rechargeant cette page avant de renvoyer la preuve.",
     "proofInvalidType": "Choisissez une image JPG, PNG ou WEBP valide.",
     "reservationStatusChanged": "Cette réservation a changé entre-temps. Rechargez la fiche pour voir son statut actuel.",
     "unauthenticated": "Connectez-vous pour accéder à cette ressource.",

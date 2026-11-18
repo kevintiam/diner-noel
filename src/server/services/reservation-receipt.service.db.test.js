@@ -65,6 +65,7 @@ describe("accusé après commit", () => {
     expect(sendEmail).toHaveBeenCalledOnce();
     expect(hasSent).toBe(true);
     expect(log).not.toHaveBeenCalled();
+    expect(await getPrisma().emailFailure.count()).toBe(0);
   });
 
   it("conserve places, montant et retour public quand SMTP refuse", async () => {
@@ -86,6 +87,10 @@ describe("accusé après commit", () => {
       message: "reservation_receipt_failed",
       reservationId: stored.id,
     });
+    // L'échec reste visible des organisateurs jusqu'à ce que l'un d'eux le traite.
+    expect(await getPrisma().emailFailure.findMany()).toEqual([
+      expect.objectContaining({ reservationId: stored.id, kind: "RECEIPT", resolvedAt: null }),
+    ]);
   });
 
   it("confirme la gratuité directement et envoie une confirmation sans paiement", async () => {

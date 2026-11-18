@@ -1,5 +1,6 @@
 // Layout racine du site public : une version par langue (architecture AD-3).
 import { notFound } from "next/navigation";
+import { getSiteUrl } from "@/config/env";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteHeader from "@/components/layout/SiteHeader";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -25,9 +26,21 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   const dictionary = getDictionary(lang);
+  const title = translate(dictionary, "meta.title");
+  const description = translate(dictionary, "meta.description");
+  const origin = getSiteUrl();
   return {
-    title: translate(dictionary, "meta.title"),
-    description: translate(dictionary, "meta.description"),
+    metadataBase: new URL(origin),
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: new URL(`/${lang}`, origin).href,
+      locale: lang === "en" ? "en_CA" : "fr_CA",
+      images: [{ url: new URL("/images/christmas-banquet.jpg", origin).href, alt: title }],
+    },
   };
 }
 

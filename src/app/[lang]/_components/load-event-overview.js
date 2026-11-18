@@ -11,7 +11,7 @@ import { getEventOverview } from "@/server/services/event.service";
  * @returns {Promise<import("@/validation/event.schema").EventOverview & { observedAt: number }>} L'aperçu et l'instant de sa lecture.
  * @throws {Error} `EVENT_OVERVIEW_FAILED`, générique, si la base est inaccessible ou l'événement absent.
  */
-export const loadEventOverview = cache(async (route) => {
+export const loadEventOverview = cache(async (/** @type {string} */ route) => {
   try {
     // Les disponibilités et le premier compte à rebours partagent le même instant.
     const now = new Date();

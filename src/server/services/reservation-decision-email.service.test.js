@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getEvent } from "../db/event.repository.js";
 import { sendEmail } from "../email/send-email.js";
+import { recordEmailFailure } from "./email-failure.service.js";
 import {
   sendReservationConfirmation,
   sendReservationRefusal,
@@ -8,6 +9,7 @@ import {
 
 vi.mock("../email/send-email.js", () => ({ sendEmail: vi.fn() }));
 vi.mock("../db/event.repository.js", () => ({ getEvent: vi.fn() }));
+vi.mock("./email-failure.service.js", () => ({ recordEmailFailure: vi.fn() }));
 
 /** @type {import("../../validation/reservation-decision.schema.js").ReservationForDecisionEmail} */
 const RESERVATION = {
@@ -57,22 +59,30 @@ describe("courriels de décision", () => {
     expect(confirmation.subject).toBe("Your seat at the Christmas Dinner is confirmed");
     expect(refusal.subject).toBe("Your proof of payment was not accepted — NOEL-1234");
     expect(refusal.text).toContain(`https://diner.example.test/en/r/${RESERVATION.token}`);
+    expect(recordEmailFailure).not.toHaveBeenCalled();
   });
 
   it.each([
-    ["confirmation", () => sendReservationConfirmation(RESERVATION)],
-    ["refus", () => sendReservationRefusal(RESERVATION, "NO_TRANSFER")],
-  ])("absorbe une panne SMTP de %s et ne journalise que l'identifiant", async (_, send) => {
-    const log = vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.mocked(sendEmail).mockRejectedValue(new Error(`secret-fictif ${RESERVATION.email}`));
+    ["confirmation", "CONFIRMATION", () => sendReservationConfirmation(RESERVATION)],
+    ["refus", "REFUSAL", () => sendReservationRefusal(RESERVATION, "NO_TRANSFER")],
+  ])(
+    "absorbe une panne SMTP de %s, ne journalise que l'identifiant et garde l'échec",
+    async (_, kind, send) => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.mocked(sendEmail).mockRejectedValue(new Error(`secret-fictif ${RESERVATION.email}`));
 
-    await expect(send()).resolves.toBe(false);
+      await expect(send()).resolves.toBe(false);
 
-    const recorded = JSON.parse(log.mock.calls[0][0]);
-    expect(Object.keys(recorded).sort()).toEqual(["level", "message", "reservationId", "time"]);
-    expect(recorded.reservationId).toBe("internal-fake");
-    expect(log.mock.calls[0][0]).not.toMatch(/secret-fictif|fictif@example/);
-  });
+      const recorded = JSON.parse(log.mock.calls[0][0]);
+      expect(Object.keys(recorded).sort()).toEqual(["level", "message", "reservationId", "time"]);
+      expect(recorded.reservationId).toBe("internal-fake");
+      expect(log.mock.calls[0][0]).not.toMatch(/secret-fictif|fictif@example/);
+      expect(recordEmailFailure).toHaveBeenCalledExactlyOnceWith({
+        reservationId: "internal-fake",
+        kind,
+      });
+    },
+  );
 
   it("n'essaie pas SMTP quand la configuration manque", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});

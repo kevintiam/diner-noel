@@ -18,7 +18,8 @@ const ERROR_CONTEXT = { route: "/api/reservations/[token]/proofs", method: "POST
  * @returns {Promise<NextResponse>} L'enveloppe traduite, sans capture ni coordonnées.
  */
 export async function POST(request, { params }) {
-  let lang = "fr";
+  // La langue doit être disponible avant la lecture, même si le flux ne se termine pas.
+  let lang = request.headers.get("accept-language")?.startsWith("en") ? "en" : "fr";
   try {
     await checkRateLimit({
       key: buildRateLimitKey("proof", getClientIp(request.headers)),
@@ -27,7 +28,7 @@ export async function POST(request, { params }) {
       now: new Date(),
     });
     const formData = await readLimitedFormData(request, MAX_MULTIPART_BYTES);
-    if (formData.get("lang") === "en") lang = "en";
+    lang = formData.get("lang") === "en" ? "en" : "fr";
     const { token } = await params;
     if (!isValidPersonalToken(token)) {
       throw new AppError(404, "RESERVATION_NOT_FOUND", "errors.reservationNotFound");

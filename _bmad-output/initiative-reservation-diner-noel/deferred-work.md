@@ -1,5 +1,6 @@
 - source_plan: `_bmad-output/initiative-reservation-diner-noel/tickets/epic-reserve-and-pay/tickets/story-reserver-des-places-sans-en-vendre-trop-plan.md`
   summary: Remplacer l'empreinte SHA-256 de l'adresse IP de la limite de requêtes par une empreinte à clé secrète (HMAC), et vider régulièrement les lignes `RateLimit` échues.
+  resolution: Implémenté dans spec-partages-maintenance-et-verification.md : HMAC avec clé privée, purge quotidienne native Netlify des compteurs anciens et sessions expirées ; configuration de la clé hébergée et première exécution publiées à vérifier après déploiement.
   evidence: Relecture de la story 1.2. Une empreinte SHA-256 sans secret d'une adresse IPv4 se retrouve en essayant les quelque 4 milliards d'adresses, c'est donc une pseudonymisation et non une anonymisation. Les lignes `RateLimit` restent en base indéfiniment. Corriger demande une nouvelle variable secrète (`.env` et Netlify, à demander à l'utilisateur) et une tâche de nettoyage, à prévoir séparément : la tâche horaire de clôture a été retirée du périmètre le 16 novembre 2026.
 - source_plan: none
   summary: Ajouter sur la fiche admin un bouton « Renvoyer l'accusé de réception » qui renvoie le même accusé, dans la langue de la réservation.

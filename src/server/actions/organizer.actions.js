@@ -1,10 +1,10 @@
 "use server";
 
-// Server Actions du tableau de bord : connexion, déconnexion et décision sur une réservation.
-// Chaque action vérifie elle-même ses droits (architecture AD-9) ; le tableau de bord est en français (AD-3).
+// Server Actions du tableau de bord : connexion, déconnexion, décision sur une réservation
+// et suivi des courriels non envoyés. Chaque action vérifie elle-même ses droits
+// (architecture AD-9) ; le tableau de bord est en français (AD-3).
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { EMAIL_NOTICE_FAILED, EMAIL_NOTICE_PARAM } from "../../lib/admin-notices.js";
 import { getClientIp } from "../../lib/client-ip.js";
 import { LOGIN_PATH, requireOrganizer } from "../auth/require-organizer.js";
 import {
@@ -13,6 +13,7 @@ import {
   writeSessionCookie,
 } from "../auth/session-cookie.js";
 import { handleApiError } from "../errors/handle-api-error.js";
+import { resolveEmailFailures } from "../services/email-failure.service.js";
 import { loginOrganizer, logoutOrganizer } from "../services/organizer.service.js";
 import {
   buildRateLimitKey,
@@ -23,7 +24,18 @@ import { decideReservation } from "../services/reservation-decision.service.js";
 
 const ADMIN_LANG = "fr";
 const DASHBOARD_PATH = "/admin";
+const RESERVATIONS_PATH = "/admin/reservations";
 const RESERVATION_ROUTE = "/admin/reservations/[id]";
+const VALIDATION_ERROR_STATUS = 400;
+
+/**
+ * Adresse de la fiche d'une réservation.
+ * @param {string} reservationId
+ * @returns {string}
+ */
+function reservationPath(reservationId) {
+  return `${RESERVATIONS_PATH}/${encodeURIComponent(reservationId)}`;
+}
 
 /**
  * État renvoyé au formulaire de connexion en cas d'échec. Le mot de passe n'y figure jamais.
@@ -88,7 +100,8 @@ export async function logoutOrganizerAction() {
 
 /**
  * Applique la décision d'un organisateur (confirmer, refuser, annuler), puis revient à la fiche.
- * Quand le courriel au participant n'a pas pu partir, l'adresse de retour le signale.
+ * Un courriel qui n'a pas pu partir est enregistré en base : la fiche le signale tant
+ * qu'un organisateur n'a pas indiqué avoir prévenu la personne.
  * @param {DecisionActionState | null} previousState L'état précédent (inutilisé).
  * @param {FormData} formData La réservation, la décision et, pour un refus, le motif.
  * @returns {Promise<DecisionActionState>} L'erreur à afficher ; en cas de succès, redirige.
@@ -113,7 +126,34 @@ export async function updateReservationStatusAction(previousState, formData) {
     });
     return body;
   }
-  const notice = result.emailSent === false ? `?${EMAIL_NOTICE_PARAM}=${EMAIL_NOTICE_FAILED}` : "";
   // En dehors du try : redirect() lance une exception que Next doit recevoir.
-  redirect(`/admin/reservations/${encodeURIComponent(result.id)}${notice}`);
+  redirect(reservationPath(result.id));
+}
+
+/**
+ * Note qu'un organisateur a prévenu la personne d'un courriel non envoyé, puis recharge la fiche.
+ * Un identifiant invalide ne désigne aucune fiche : retour à la liste des réservations.
+ * Toute autre panne est journalisée puis remonte à Next, plutôt que de faire croire au succès.
+ * @param {FormData} formData La réservation concernée.
+ * @returns {Promise<never>} Redirige, ou lance l'erreur imprévue.
+ */
+export async function resolveEmailFailuresAction(formData) {
+  const organizer = await requireOrganizer();
+  let reservationId;
+  try {
+    ({ reservationId } = await resolveEmailFailures(
+      { reservationId: readText(formData, "reservationId") },
+      { organizerId: organizer.id, now: new Date() },
+    ));
+  } catch (error) {
+    const { status } = handleApiError(error, {
+      lang: ADMIN_LANG,
+      context: { route: RESERVATION_ROUTE, method: "POST", organizerId: organizer.id },
+    });
+    if (status !== VALIDATION_ERROR_STATUS) {
+      throw error;
+    }
+  }
+  // En dehors du try : redirect() lance une exception que Next doit recevoir.
+  redirect(reservationId ? reservationPath(reservationId) : RESERVATIONS_PATH);
 }

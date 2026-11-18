@@ -11,6 +11,10 @@ import { REFUSAL_REASON_LABELS } from "./reservation-labels";
 import panelStyles from "./ReservationDetail.module.css";
 import styles from "./DecisionPanel.module.css";
 
+// Statuts depuis lesquels un organisateur peut annuler (AD-4) : une réservation confirmée
+// est définitive, son bouton « Annuler » disparaît.
+const CANCELLABLE_STATUSES = new Set(["PENDING_PAYMENT", "TO_VERIFY"]);
+
 /**
  * Valeurs de la réservation dont le panneau a besoin.
  * @typedef {object} DecisionReservation
@@ -178,25 +182,27 @@ export default function DecisionPanel({ reservation }) {
       {reservation.status === "CONFIRMED" ? (
         <p className={`${styles.state} ${styles.stateConfirmed}`}>
           <CircleCheckBig aria-hidden="true" className={styles.stateIcon} />
-          Le paiement est confirmé.
+          Le paiement est confirmé : la réservation est définitive.
         </p>
       ) : null}
-      <form action={formAction} className={styles.cancelForm}>
-        <input type="hidden" name="reservationId" value={reservation.id} />
-        <p className={styles.cancelHelp}>
-          L’annulation libère les places de cette réservation. Aucun courriel n’est envoyé.
-        </p>
-        <button
-          type="submit"
-          name="decision"
-          value="cancel"
-          disabled={isPending}
-          className={`${styles.button} ${styles.cancelButton}`}
-        >
-          <X aria-hidden="true" className={styles.buttonIcon} />
-          Annuler la réservation
-        </button>
-      </form>
+      {CANCELLABLE_STATUSES.has(reservation.status) ? (
+        <form action={formAction} className={styles.cancelForm}>
+          <input type="hidden" name="reservationId" value={reservation.id} />
+          <p className={styles.cancelHelp}>
+            L’annulation libère les places de cette réservation. Aucun courriel n’est envoyé.
+          </p>
+          <button
+            type="submit"
+            name="decision"
+            value="cancel"
+            disabled={isPending}
+            className={`${styles.button} ${styles.cancelButton}`}
+          >
+            <X aria-hidden="true" className={styles.buttonIcon} />
+            Annuler la réservation
+          </button>
+        </form>
+      ) : null}
     </section>
   );
 }
